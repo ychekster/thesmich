@@ -109,6 +109,63 @@
   .screen.intro { justify-content: flex-start; padding-bottom: 0; }
   .intro .inner { margin: 0 auto; }
   .hero-block { min-height: calc(100vh - 190px); display: flex; flex-direction: column; justify-content: center; }
+  .h-pick, .h-card, .h-ticker { display: none; }
+
+  /* ===== A: вместо кнопки — сразу первый вопрос ===== */
+  [data-h="a"] .row-cta { display: none; }
+  [data-h="a"] .h-pick { display: block; margin-top: 52px; animation: fade-up .9s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--total, 28) * 32ms + 600ms); }
+  .h-q { font-size: 15px; font-weight: 600; color: var(--grey); }
+  .h-opts { display: flex; justify-content: center; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+  .h-opts button {
+    height: 60px; padding: 0 30px; border-radius: 30px; cursor: pointer;
+    font-size: 18px; font-weight: 600; color: var(--text);
+    border: 1px solid #3a3a3c; transition: background .25s, border-color .25s, color .25s, transform .25s var(--ease);
+  }
+  .h-opts button:hover { background: var(--text); border-color: var(--text); color: #000; transform: translateY(-2px); }
+
+  /* ===== B: две колонки — текст слева, превью анкеты справа ===== */
+  [data-h="b"] .hero-block { display: grid; grid-template-columns: 1.15fr .85fr; gap: 72px; align-items: center; text-align: left; }
+  [data-h="b"] .lead { margin-left: 0; }
+  [data-h="b"] .row-cta { justify-content: flex-start; }
+  [data-h="b"] h1 { font-size: clamp(46px, 4.5vw, 86px); }
+  [data-h="b"] .h-card {
+    display: block; padding: 36px 36px 20px; border-radius: 32px;
+    background: #0e0e0f; border: 1px solid var(--line);
+    animation: fade-up .9s cubic-bezier(.2, .8, .2, 1) both; animation-delay: .7s;
+  }
+  .h-card-t { font-size: 30px; font-weight: 700; letter-spacing: -.035em; line-height: 1.1; margin-top: 10px; }
+  .h-card-l { margin-top: 24px; }
+  .h-card-l button {
+    display: flex; align-items: center; gap: 16px; width: 100%; padding: 18px 0; cursor: pointer; text-align: left;
+    border-top: 1px solid var(--line); font-size: 19px; font-weight: 600; letter-spacing: -.02em;
+    transition: padding .35s var(--ease), color .25s;
+  }
+  .h-card-l button:hover { padding-left: 8px; color: var(--accent); }
+  .h-card-l .d { font-size: 14px; font-weight: 500; }
+
+  /* ===== C: бегущая строка внизу первого экрана ===== */
+  [data-h="c"] .hero-block { justify-content: flex-start; }
+  [data-h="c"] .h-text { margin: auto 0; padding-top: 40px; }
+  [data-h="c"] .h-ticker {
+    display: block; overflow: hidden; margin: 0 calc(-1 * var(--x)); padding: 28px 0 8px;
+    mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  }
+  .h-ticker div { display: flex; width: max-content; animation: ticker 45s linear infinite; }
+  .h-ticker span { font-size: clamp(26px, 2.6vw, 40px); font-weight: 700; letter-spacing: -.035em; color: #3a3a3c; white-space: nowrap; }
+  .h-ticker i { font-style: normal; font-size: clamp(26px, 2.6vw, 40px); color: var(--accent); margin: 0 28px; }
+  @keyframes ticker { to { transform: translate3d(-50%, 0, 0); } }
+
+  /* временный переключатель вариантов */
+  .vswitch {
+    position: fixed; z-index: 30; left: 50%; bottom: 20px; transform: translateX(-50%);
+    display: flex; gap: 4px; padding: 5px; border-radius: 22px;
+    background: rgba(40,40,42,.85); border: 1px solid rgba(255,255,255,.1);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); font-size: 13px;
+  }
+  .vswitch span { padding: 7px 10px 7px 12px; color: var(--grey); }
+  .vswitch button { padding: 7px 14px; border-radius: 16px; cursor: pointer; color: var(--text); }
+  .vswitch button.on { background: var(--text); color: #000; }
 
   .faq { padding: 100px 0 40px; }
 
@@ -143,31 +200,47 @@
   .f-bottom a { color: var(--grey); text-decoration: none; transition: color .2s; }
   .f-bottom a:hover { color: var(--text); }
   .faq h2 { margin: 0 auto; text-align: center; max-width: none; }
-  .qa-list { max-width: 760px; margin: 44px auto 0; text-align: left; }
-  .qa + .qa { border-top: 1px solid var(--line); }
-  .qa-q {
-    display: flex; align-items: center; justify-content: space-between; gap: 24px;
-    width: 100%; padding: 20px 0; cursor: pointer; text-align: left;
-    font-size: 19px; font-weight: 600; letter-spacing: -.02em; line-height: 1.3;
+  .faq-hint { text-align: center; font-size: 17px; color: var(--grey); margin-top: 14px; }
+
+  /* ---------- частые вопросы: 4 карты, переворачиваются по клику ----------
+     .fc — раздача (вылет при прокрутке), .fc-tilt — наклон за курсором,
+     .fc-in — переворот, .fc-face — лицевая и обратная стороны */
+  .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 56px; perspective: 1600px; }
+  .fc {
+    opacity: 0; transform: translate3d(0, 140px, 0) rotate(var(--r, 0deg));
+    transition: opacity .6s ease, transform 1s cubic-bezier(.2, .9, .25, 1.05);
+    transition-delay: calc(var(--n) * 110ms);
   }
-  .qa-q:focus-visible { outline: none; color: var(--accent); }
-  .qa-q i {
-    flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
-    background: rgba(255,255,255,.08); color: var(--text);
-    transition: transform .5s var(--ease), background .25s;
+  .cards.dealt .fc { opacity: 1; transform: none; }
+  .fc-tilt { transform-style: preserve-3d; transition: transform .25s ease-out; }
+  .fc-in {
+    position: relative; aspect-ratio: 5 / 7; cursor: pointer;
+    transform-style: preserve-3d; transition: transform .9s cubic-bezier(.3, 1.35, .45, 1);
   }
-  .qa-q:hover i { background: rgba(255,255,255,.16); }
-  .qa-q i svg { width: 16px; height: 16px; }
-  .qa.open .qa-q i { transform: rotate(180deg); background: var(--text); color: #000; }
-  /* плавное раскрытие: строка сетки растёт от 0fr до 1fr */
-  .qa-a { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .5s var(--ease); }
-  .qa-a > div { overflow: hidden; }
-  .qa-a p {
-    padding: 0 54px 22px 0; font-size: 16px; line-height: 1.55; color: var(--grey); max-width: 46em;
-    opacity: 0; transform: translate3d(0, -6px, 0); transition: opacity .3s, transform .4s var(--ease);
+  .fc.flip .fc-in { transform: rotateY(180deg); }
+  .fc-face {
+    position: absolute; inset: 0; border-radius: 26px; overflow: hidden;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    display: flex; flex-direction: column; padding: 26px;
   }
-  .qa.open .qa-a { grid-template-rows: 1fr; }
-  .qa.open .qa-a p { opacity: 1; transform: none; transition-delay: .08s; }
+  .fc-front { background: #0f0f10; border: 1px solid #2a2a2c; transition: border-color .3s, background .3s; }
+  .fc:hover .fc-front { border-color: #48484a; background: #131315; }
+  .fc-back { background: #f5f5f7; color: #1d1d1f; transform: rotateY(180deg); }
+  /* уголки как у игральной карты */
+  .fc-corner { display: flex; flex-direction: column; align-items: center; width: 34px; line-height: 1; font-weight: 700; }
+  .fc-corner b { font-size: 22px; letter-spacing: -.03em; }
+  .fc-corner i { font-style: normal; font-size: 22px; margin-top: 4px; }
+  .fc-corner.br { position: absolute; right: 26px; bottom: 26px; transform: rotate(180deg); }
+  .red i, .red b { color: #ff453a; }
+  .fc-back.red i, .fc-back.red b { color: #e0302a; }
+  .fc-pip { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 220px; line-height: 1; color: rgba(255,255,255,.035); pointer-events: none; }
+  .fc-q { margin: auto 0; padding: 0 6px; font-size: 25px; font-weight: 700; letter-spacing: -.03em; line-height: 1.15; text-align: center; text-wrap: balance; position: relative; }
+  .fc-tap { position: absolute; left: 70px; right: 70px; bottom: 34px; text-align: center; font-size: 13px; color: var(--grey); transition: color .3s; }
+  .fc:hover .fc-tap { color: var(--text); }
+  .fc-l { font-size: 13px; font-weight: 600; color: #86868b; margin-top: 22px; }
+  .fc-q2 { font-size: 19px; font-weight: 700; letter-spacing: -.02em; line-height: 1.2; margin-top: 6px; }
+  .fc-a { font-size: 15px; line-height: 1.5; color: #424245; margin-top: 12px; }
+  .fc-in:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; border-radius: 26px; }
 
   /* появление при загрузке: буквы вылетают снизу из размытия по очереди,
      остальное проявляется следом. Анимируется внутренний span, чтобы не мешать
@@ -295,11 +368,13 @@
     .kbd { display: none; }
     .opt { padding: 16px 0; }
     .faq { padding-top: 72px; }
+    [data-h="b"] .hero-block { grid-template-columns: 1fr; gap: 40px; }
+    .h-opts button { width: 100%; }
     .footer { margin-top: 96px; }
     .f-grid { grid-template-columns: 1fr 1fr; gap: 36px 24px; }
     .f-about { grid-column: 1 / -1; }
-    .qa-q { padding: 18px 0; font-size: 17px; }
-    .qa-a p { padding-right: 0; font-size: 15px; }
+    .cards { grid-template-columns: 1fr; gap: 16px; }
+    .fc-in { aspect-ratio: auto; min-height: 380px; }
   }
   @media (prefers-reduced-motion: reduce) { * { transition-duration: .01s !important; transition-delay: 0s !important; } }
 </style>
@@ -327,6 +402,7 @@
 
 <main id="stage"></main>
 <div class="progress"><i id="bar"></i></div>
+<div class="vswitch" id="vswitch"><span>Главная:</span><button data-h="">Сейчас</button><button data-h="a">A</button><button data-h="b">B</button><button data-h="c">C</button></div>
 
 <script>
 /* endpoint — куда отправлять заявку (POST JSON). Пусто — только console.log */
@@ -380,6 +456,7 @@ function add(cls, html) {
 
 add("intro", `
  <div class="hero-block">
+  <div class="h-text">
   <p class="eyebrow">Каталоги и интернет-магазины под ключ</p>
   <h1 id="hero" aria-label="Сайт, который работает на вас"></h1>
   <p class="lead">Проектируем, делаем и наполняем сайт, а потом <b>приводим на него покупателей</b>. Ответьте на ${Q.length} вопросов — пришлём расчёт стоимости и сроков.</p>
@@ -387,33 +464,112 @@ add("intro", `
     <button class="btn" data-next type="button">Рассчитать проект</button>
     <span class="meta">Около 2 минут</span>
   </div>
+  <!-- вариант A: первый вопрос анкеты прямо на главной -->
+  <div class="h-pick">
+    <p class="h-q">С чего начнём?</p>
+    <div class="h-opts">
+      <button type="button" data-pick="0">Сайт-каталог</button>
+      <button type="button" data-pick="1">Интернет-магазин</button>
+      <button type="button" data-pick="2">Пока не знаю</button>
+    </div>
+  </div>
+  </div>
+  <!-- вариант B: справа превью анкеты, в него можно сразу нажать -->
+  <div class="h-card">
+    <p class="num">01 / ${Q.length}</p>
+    <p class="h-card-t">Какой сайт вам нужен?</p>
+    <div class="h-card-l">
+      <button type="button" data-pick="0"><span class="k">01</span><span class="t">Сайт-каталог</span><span class="d">Витрина и заявки</span></button>
+      <button type="button" data-pick="1"><span class="k">02</span><span class="t">Интернет-магазин</span><span class="d">Корзина, оплата</span></button>
+      <button type="button" data-pick="2"><span class="k">03</span><span class="t">Пока не знаю</span><span class="d">Поможем выбрать</span></button>
+    </div>
+  </div>
+  <!-- вариант C: бегущая строка с услугами и каналами -->
+  <div class="h-ticker" aria-hidden="true"><div><span>Сайты-каталоги</span><i>•</i><span>Интернет-магазины</span><i>•</i><span>SEO</span><i>•</i><span>Google Ads</span><i>•</i><span>Яндекс Директ</span><i>•</i><span>Instagram</span><i>•</i><span>TikTok</span><i>•</i><span>Kaspi.kz</span><i>•</i><span>2ГИС</span><i>•</i><span>Интеграция с 1С</span><i>•</i><span>Редизайн</span><i>•</i><span>Сайты-каталоги</span><i>•</i><span>Интернет-магазины</span><i>•</i><span>SEO</span><i>•</i><span>Google Ads</span><i>•</i><span>Яндекс Директ</span><i>•</i><span>Instagram</span><i>•</i><span>TikTok</span><i>•</i><span>Kaspi.kz</span><i>•</i><span>2ГИС</span><i>•</i><span>Интеграция с 1С</span><i>•</i><span>Редизайн</span><i>•</i></div></div>
  </div>
   <section class="faq">
     <h2 class="wave" data-io aria-label="Частые вопросы">Частые вопросы</h2>
-    <div class="qa-list">
-      <div class="qa">
-        <button class="qa-q" type="button" aria-expanded="false"><span>Сколько стоит сайт?</span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></i></button>
-        <div class="qa-a"><div><p>Зависит от типа и объёма: каталог на несколько десятков товаров стоит меньше, чем магазин с онлайн-оплатой и обменом с 1С. Точную сумму назовём после анкеты — это около двух минут.</p></div></div>
+    <p class="faq-hint">Выберите карту — на обороте ответ.</p>
+    <div class="cards" id="cards">
+      <div class="fc" style="--n:0;--r:-6deg">
+        <div class="fc-tilt">
+          <div class="fc-in" role="button" tabindex="0" aria-pressed="false" aria-label="Можно заказать только продвижение?">
+            <div class="fc-face fc-front">
+              <span class="fc-corner"><b>A</b><i>♠</i></span>
+              <span class="fc-pip">♠</span>
+              <p class="fc-q">Можно заказать только продвижение?</p>
+              <span class="fc-tap">Перевернуть ↻</span>
+              <span class="fc-corner br"><b>A</b><i>♠</i></span>
+            </div>
+            <div class="fc-face fc-back">
+              <span class="fc-corner"><b>A</b><i>♠</i></span>
+              <p class="fc-l">Ответ</p>
+              <p class="fc-q2">Можно заказать только продвижение?</p>
+              <p class="fc-a">Да. Начинаем с аудита: смотрим сайт, аналитику и текущую рекламу, затем настраиваем каналы. Если что-то на сайте мешает продажам — подскажем, что поправить.</p>
+              <span class="fc-corner br"><b>A</b><i>♠</i></span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="qa">
-        <button class="qa-q" type="button" aria-expanded="false"><span>Сколько времени занимает разработка?</span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></i></button>
-        <div class="qa-a"><div><p>Зависит от объёма каталога и функций. Сроки называем вместе с расчётом и фиксируем в договоре.</p></div></div>
+      <div class="fc" style="--n:1;--r:-2deg">
+        <div class="fc-tilt">
+          <div class="fc-in" role="button" tabindex="0" aria-pressed="false" aria-label="Как вы продвигаете сайт?">
+            <div class="fc-face fc-front">
+              <span class="fc-corner red"><b>K</b><i>♥</i></span>
+              <span class="fc-pip">♥</span>
+              <p class="fc-q">Как вы продвигаете сайт?</p>
+              <span class="fc-tap">Перевернуть ↻</span>
+              <span class="fc-corner br red"><b>K</b><i>♥</i></span>
+            </div>
+            <div class="fc-face fc-back red">
+              <span class="fc-corner red"><b>K</b><i>♥</i></span>
+              <p class="fc-l">Ответ</p>
+              <p class="fc-q2">Как вы продвигаете сайт?</p>
+              <p class="fc-a">Подбираем каналы под нишу и бюджет: SEO в Google и Яндексе, Google Ads и Яндекс Директ, таргет в Instagram и TikTok, блогеры и Telegram-каналы, 2ГИС, Kaspi.kz. Каждый месяц — отчёт по заявкам.</p>
+              <span class="fc-corner br red"><b>K</b><i>♥</i></span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="qa">
-        <button class="qa-q" type="button" aria-expanded="false"><span>Что нужно от меня?</span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></i></button>
-        <div class="qa-a"><div><p>Ответить на вопросы анкеты и прислать то, что уже есть: фото, прайс, логотип. Тексты, фотосъёмку и загрузку товаров можем взять на себя.</p></div></div>
+      <div class="fc" style="--n:2;--r:2deg">
+        <div class="fc-tilt">
+          <div class="fc-in" role="button" tabindex="0" aria-pressed="false" aria-label="Сколько стоит сайт?">
+            <div class="fc-face fc-front">
+              <span class="fc-corner"><b>Q</b><i>♣</i></span>
+              <span class="fc-pip">♣</span>
+              <p class="fc-q">Сколько стоит сайт?</p>
+              <span class="fc-tap">Перевернуть ↻</span>
+              <span class="fc-corner br"><b>Q</b><i>♣</i></span>
+            </div>
+            <div class="fc-face fc-back">
+              <span class="fc-corner"><b>Q</b><i>♣</i></span>
+              <p class="fc-l">Ответ</p>
+              <p class="fc-q2">Сколько стоит сайт?</p>
+              <p class="fc-a">Зависит от типа и объёма: каталог на несколько десятков товаров стоит меньше, чем магазин с оплатой и обменом с 1С. Точную сумму назовём после анкеты — это около двух минут.</p>
+              <span class="fc-corner br"><b>Q</b><i>♣</i></span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="qa">
-        <button class="qa-q" type="button" aria-expanded="false"><span>Как вы продвигаете сайт?</span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></i></button>
-        <div class="qa-a"><div><p>Подбираем каналы под нишу и бюджет: SEO в Google и Яндексе, контекстная реклама в Google Ads и Яндекс Директе, таргет в Instagram и TikTok, закуп рекламы у блогеров и в Telegram-каналах, 2ГИС и Google Карты, маркетплейсы Kaspi.kz и Wildberries. Каждый месяц показываем, откуда пришли заявки и сколько они стоили.</p></div></div>
-      </div>
-      <div class="qa">
-        <button class="qa-q" type="button" aria-expanded="false"><span>Можно заказать только продвижение для моего сайта?</span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></i></button>
-        <div class="qa-a"><div><p>Да. Начинаем с аудита: смотрим сайт, аналитику и текущую рекламу, затем настраиваем каналы продвижения. Если что-то на сайте мешает продажам, подскажем, что поправить.</p></div></div>
-      </div>
-      <div class="qa">
-        <button class="qa-q" type="button" aria-expanded="false"><span>Смогу сам редактировать сайт?</span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></i></button>
-        <div class="qa-a"><div><p>Да. Товары, цены, баннеры и тексты меняются в удобной панели управления, без программиста.</p></div></div>
+      <div class="fc" style="--n:3;--r:6deg">
+        <div class="fc-tilt">
+          <div class="fc-in" role="button" tabindex="0" aria-pressed="false" aria-label="Что нужно от меня?">
+            <div class="fc-face fc-front">
+              <span class="fc-corner red"><b>J</b><i>♦</i></span>
+              <span class="fc-pip">♦</span>
+              <p class="fc-q">Что нужно от меня?</p>
+              <span class="fc-tap">Перевернуть ↻</span>
+              <span class="fc-corner br red"><b>J</b><i>♦</i></span>
+            </div>
+            <div class="fc-face fc-back red">
+              <span class="fc-corner red"><b>J</b><i>♦</i></span>
+              <p class="fc-l">Ответ</p>
+              <p class="fc-q2">Что нужно от меня?</p>
+              <p class="fc-a">Ответить на вопросы анкеты и прислать то, что уже есть: фото, прайс, логотип. Тексты, фотосъёмку и загрузку товаров можем взять на себя.</p>
+              <span class="fc-corner br red"><b>J</b><i>♦</i></span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -628,6 +784,24 @@ document.addEventListener("keydown", e => {
 
 show(0);
 
+/* первый вопрос с главной: выбираем вариант и сразу переходим ко второму вопросу */
+document.querySelectorAll("[data-pick]").forEach(b => b.onclick = () => {
+  show(1);
+  setTimeout(() => screens[1].querySelectorAll(".opt")[+b.dataset.pick].click(), 350);
+});
+
+/* временно: переключатель вариантов главной (?h=a|b|c) */
+(function variants() {
+  const set = v => {
+    if (v) document.documentElement.dataset.h = v; else delete document.documentElement.dataset.h;
+    document.querySelectorAll("#vswitch button").forEach(b => b.classList.toggle("on", b.dataset.h === v));
+    history.replaceState(null, "", v ? "?h=" + v : location.pathname);
+    setTimeout(() => dispatchEvent(new Event("resize")), 60); /* пересчитать буквы заголовка */
+  };
+  document.querySelectorAll("#vswitch button").forEach(b => b.onclick = () => set(b.dataset.h));
+  set(new URLSearchParams(location.search).get("h") || "");
+})();
+
 /* шапка становится матовой, когда главную пролистали */
 (function headerGlass() {
   const top = document.querySelector(".top"), intro = screens[0];
@@ -647,12 +821,31 @@ document.querySelectorAll("[data-go]").forEach(b => b.onclick = () => {
 
 /* частые вопросы: открыт только один */
 (function faq() {
-  const items = [...document.querySelectorAll(".qa")];
-  items.forEach(it => it.querySelector(".qa-q").onclick = () => {
-    const open = !it.classList.contains("open");
-    items.forEach(x => { x.classList.remove("open"); x.querySelector(".qa-q").setAttribute("aria-expanded", "false"); });
-    if (open) { it.classList.add("open"); it.querySelector(".qa-q").setAttribute("aria-expanded", "true"); }
+  const cards = [...document.querySelectorAll(".fc")];
+  const flip = fc => {
+    const on = !fc.classList.contains("flip");
+    cards.forEach(c => { c.classList.remove("flip"); c.querySelector(".fc-in").setAttribute("aria-pressed", "false"); });
+    if (on) { fc.classList.add("flip"); fc.querySelector(".fc-in").setAttribute("aria-pressed", "true"); }
+  };
+  cards.forEach(fc => {
+    const inner = fc.querySelector(".fc-in"), tilt = fc.querySelector(".fc-tilt");
+    inner.onclick = () => flip(fc);
+    inner.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); flip(fc); } };
+    /* наклон карты за курсором */
+    if (matchMedia("(hover: hover) and (pointer: fine)").matches) {
+      fc.addEventListener("mousemove", e => {
+        const r = fc.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+        tilt.style.transform = `rotateX(${(-y * 12).toFixed(2)}deg) rotateY(${(x * 14).toFixed(2)}deg) translateZ(0)`;
+      });
+      fc.addEventListener("mouseleave", () => { tilt.style.transform = ""; });
+    }
   });
+  /* карты «раздаются», когда до них долистали */
+  const deal = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add("dealt"); deal.unobserve(e.target); }
+  }), { threshold: 0.25 });
+  deal.observe(document.getElementById("cards"));
   /* заголовок «Частые вопросы» собирается из букв, когда до него долистали */
   const io = new IntersectionObserver(es => es.forEach(e => {
     if (e.isIntersecting) { e.target.classList.add("play"); io.unobserve(e.target); }
