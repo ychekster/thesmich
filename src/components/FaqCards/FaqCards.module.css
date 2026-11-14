@@ -112,9 +112,30 @@
 /* размер WebGL-слота (GlCards) = размер карты, как был у .flip */
 .slot { aspect-ratio: 5 / 7; }
 
+/*
+ * Телефон: карты те же 5:7 и листаются пальцем по горизонтали, как скриншоты
+ * в App Store. Первая прижата к левому полю (справа выглядывает следующая),
+ * средние встают по центру (видны края соседей), последняя — к правому полю.
+ * Вертикальные поля ленты = поля WebGL-холста (PHONE_LOOK в FaqCards.tsx):
+ * холст целиком внутри ленты, тень и раздача снизу не обрезаются.
+ */
 @media (max-width: 760px) {
-  .faq { padding-top: 72px; }
-  .slot { aspect-ratio: auto; height: 380px; }
-  .cards { grid-template-columns: 1fr; gap: 16px; }
-  .flip { aspect-ratio: auto; min-height: 380px; }
+  .faq { padding: 72px 0 0; }
+  .rail {
+    margin: 0 calc(-1 * var(--x));
+    padding: 40px 0 150px;
+    overflow-x: auto; overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--x);
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+  .rail::-webkit-scrollbar { display: none; }
+  .cards {
+    display: flex; gap: 12px; width: max-content;
+    margin-top: 0; padding: 0 var(--x);
+  }
+  .cards > div { flex: none; width: min(76vw, 320px); scroll-snap-align: center; scroll-snap-stop: always; }
+  .cards > div:first-of-type { scroll-snap-align: start; }
+  .cards > div:last-of-type { scroll-snap-align: end; }
 }
