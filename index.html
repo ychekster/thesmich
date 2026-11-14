@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Vitrina</title>
+<title>The Smich</title>
 <meta name="description" content="Делаем сайты-каталоги и интернет-магазины под ключ и приводим на них клиентов.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -130,10 +130,10 @@
   /* огромный логотип внизу — буквы тоже расталкиваются курсором */
   .f-mark {
     margin-top: 96px; text-align: center; line-height: .78;
-    font-size: clamp(96px, 19vw, 360px); font-weight: 700; letter-spacing: -.065em;
+    font-size: clamp(56px, 13.5vw, 260px); font-weight: 700; letter-spacing: -.065em; white-space: nowrap;
     color: #1d1d1f;
   }
-  .f-mark .ch:last-child { color: var(--accent); }
+  .f-mark .w:last-child .ch:last-child { color: var(--accent); }
 
   .f-bottom {
     display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px;
@@ -307,7 +307,7 @@
 <body>
 
 <header class="top">
-  <div class="logo">Vitrina<span>.</span></div>
+  <div class="logo">The Smich<span>.</span></div>
   <div class="nav">
     <button class="backlink hide" id="back" type="button">‹ Назад</button>
     <span class="counter hide" id="counter"></span>
@@ -422,7 +422,7 @@ add("intro", `
   <footer class="footer" id="contacts">
     <div class="f-grid">
       <div class="f-about">
-        <div class="logo">Vitrina<span>.</span></div>
+        <div class="logo">The Smich<span>.</span></div>
         <p>Делаем сайты-каталоги и интернет-магазины под ключ и приводим на них покупателей.</p>
       </div>
       <nav class="f-col" aria-label="Услуги">
@@ -447,10 +447,10 @@ add("intro", `
       </div>
     </div>
 
-    <p class="f-mark wave" data-io aria-label="Vitrina">Vitrina.</p>
+    <p class="f-mark wave" data-io aria-label="The Smich">The Smich.</p>
 
     <div class="f-bottom">
-      <span>© ${new Date().getFullYear()} Vitrina</span>
+      <span>© ${new Date().getFullYear()} The Smich</span>
       <a href="#privacy">Политика конфиденциальности</a>
     </div>
   </footer>`
