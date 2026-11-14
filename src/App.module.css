@@ -1,0 +1,3 @@
+/* полоса прогресса анкеты внизу экрана */
+.progress { position: fixed; z-index: 5; left: 0; right: 0; bottom: 0; height: 2px; background: var(--line); }
+.progress i { display: block; height: 100%; width: 0; background: var(--text); transition: width .7s var(--ease); }
