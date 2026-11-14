@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vitrina</title>
+<meta name="description" content="Делаем сайты-каталоги и интернет-магазины под ключ и приводим на них клиентов.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --bg: #000;
+    --text: #f5f5f7;
+    --grey: #86868b;
+    --dim: #424245;
+    --line: #2a2a2c;
+    --accent: #2997ff;
+    --font: Inter, -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
+    --ease: cubic-bezier(.32, .72, 0, 1);
+    --x: max(24px, 11vw);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg); color: var(--text); font-family: var(--font);
+    font-feature-settings: "cv11", "ss01"; letter-spacing: -.015em;
+    -webkit-font-smoothing: antialiased; overflow: hidden;
+  }
+  button, input, textarea { font: inherit; color: inherit; background: none; border: 0; letter-spacing: inherit; }
+
+  /* верх */
+  .top {
+    position: fixed; z-index: 5; left: 0; right: 0; top: 0; height: 72px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 var(--x);
+  }
+  .logo { font-size: 20px; font-weight: 600; letter-spacing: -.03em; }
+  .logo span { color: var(--accent); }
+  .nav { display: flex; align-items: center; gap: 28px; font-size: 14px; color: var(--grey); font-variant-numeric: tabular-nums; }
+  .backlink { cursor: pointer; color: var(--grey); font-size: 14px; transition: color .2s, opacity .3s; }
+  .backlink:hover { color: var(--text); }
+  .hide { opacity: 0; pointer-events: none; }
+  .counter { transition: opacity .3s; }
+
+  /* прогресс */
+  .progress { position: fixed; z-index: 5; left: 0; right: 0; bottom: 0; height: 2px; background: var(--line); }
+  .progress i { display: block; height: 100%; width: 0; background: var(--text); transition: width .7s var(--ease); }
+
+  /* экраны */
+  .screen {
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 110px var(--x) 80px;
+    overflow-y: auto; scrollbar-width: none;
+    opacity: 0; visibility: hidden;
+    transform: translate3d(0, 48px, 0);
+    transition: opacity .55s var(--ease), transform .8s var(--ease), visibility 0s .8s;
+  }
+  .screen::-webkit-scrollbar { display: none; }
+  .screen.active { opacity: 1; visibility: visible; transform: none; transition: opacity .55s var(--ease) .08s, transform .8s var(--ease) .08s, visibility 0s; }
+  .screen.past { transform: translate3d(0, -48px, 0); }
+  .inner { width: 100%; max-width: 1080px; margin: auto 0; }
+
+  /* интро */
+  .eyebrow { font-size: 21px; font-weight: 600; color: var(--grey); }
+  h1 {
+    font-size: clamp(56px, 8.4vw, 136px); line-height: .98; font-weight: 700; letter-spacing: -.055em;
+    margin-top: 18px; user-select: none;
+  }
+  h1 .line { display: block; }
+  h1 .l0 { color: #f5f5f7; }
+  h1 .l1 { color: #aeaeb2; }
+  h1 .w { display: inline-block; white-space: nowrap; }
+  h1 .ch { display: inline-block; will-change: transform; }
+
+  /* главная по центру */
+  .intro .inner { margin: auto; text-align: center; max-width: 1280px; }
+  .intro .lead { margin-left: auto; margin-right: auto; }
+  .intro .row-cta { justify-content: center; }
+  .lead { font-size: clamp(20px, 1.7vw, 26px); line-height: 1.38; color: var(--grey); margin-top: 32px; max-width: 30em; font-weight: 500; }
+  .lead b { color: var(--text); font-weight: 600; }
+  .row-cta { display: flex; align-items: center; gap: 24px; margin-top: 48px; flex-wrap: wrap; }
+
+  .btn {
+    height: 56px; padding: 0 32px; border-radius: 28px; cursor: pointer;
+    background: var(--text); color: #000; font-size: 17px; font-weight: 600;
+    transition: transform .2s var(--ease), opacity .2s;
+  }
+  .btn:hover { transform: scale(1.03); }
+  .btn:active { transform: scale(.97); }
+  .btn:disabled { opacity: .2; cursor: default; transform: none; }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .meta { font-size: 15px; color: var(--grey); }
+  .link { cursor: pointer; color: var(--grey); font-size: 17px; transition: color .2s; }
+  .link:hover { color: var(--text); }
+
+  /* вопрос */
+  .num { font-size: 15px; font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; }
+  h2 { font-size: clamp(40px, 5vw, 76px); line-height: 1.02; font-weight: 700; letter-spacing: -.045em; margin-top: 14px; max-width: 15em; text-wrap: balance; }
+  .hint { font-size: 19px; color: var(--grey); margin-top: 16px; }
+
+  .list { margin-top: 48px; border-top: 1px solid var(--line); }
+  .list.cols { display: grid; grid-template-columns: 1fr 1fr; column-gap: 48px; border-top: 0; }
+  .list.cols .opt:nth-child(-n+2) { border-top: 1px solid var(--line); }
+  .opt {
+    position: relative; display: flex; align-items: center; gap: 22px;
+    width: 100%; padding: 20px 0; text-align: left; cursor: pointer;
+    border-bottom: 1px solid var(--line);
+    font-size: clamp(22px, 1.9vw, 28px); font-weight: 600; letter-spacing: -.025em; line-height: 1.2;
+    color: var(--text);
+    transition: color .25s, padding .35s var(--ease);
+  }
+  .k { flex: none; width: 24px; font-size: 14px; font-weight: 500; color: var(--dim); font-variant-numeric: tabular-nums; transition: color .25s; }
+  .t { flex: 1; min-width: 0; }
+  .d { font-size: 16px; font-weight: 500; letter-spacing: -.01em; color: var(--grey); text-align: right; }
+  .mark {
+    flex: none; width: 26px; height: 26px; border-radius: 50%;
+    border: 1.5px solid var(--dim); display: grid; place-items: center;
+    transition: background .25s, border-color .25s, transform .3s var(--ease);
+  }
+  .mark svg { width: 13px; height: 13px; opacity: 0; transition: opacity .2s; }
+  .list:hover .opt:not(:hover):not(.sel) { color: var(--grey); }
+  .opt:hover { padding-left: 8px; }
+  .opt:hover .k { color: var(--text); }
+  .opt.sel { color: var(--accent); }
+  .opt.sel .k { color: var(--accent); }
+  .opt.sel .mark { background: var(--accent); border-color: var(--accent); transform: scale(1.08); }
+  .opt.sel .mark svg { opacity: 1; }
+  .opt:focus-visible { outline: none; color: var(--accent); }
+
+  /* «Свой вариант» превращается в поле ввода */
+  .own-input {
+    display: none; flex: 1; min-width: 0; outline: none;
+    font-size: inherit; font-weight: inherit; letter-spacing: inherit; color: var(--text);
+  }
+  .own-input::placeholder { color: var(--dim); }
+  .opt.own.sel .t { display: none; }
+  .opt.own.sel .own-input { display: block; }
+  .opt.own.sel { padding-left: 0; }
+
+  /* в вопросах с одним ответом кнопка нужна только для своего варианта */
+  .actions.auto .btn { display: none; }
+  .actions.auto.show .btn { display: inline-block; }
+
+  .field {
+    display: block; width: 100%; margin-top: 48px;
+    font-size: clamp(28px, 3vw, 44px); font-weight: 600; letter-spacing: -.035em;
+    padding: 10px 0 18px; border-bottom: 2px solid var(--line); outline: none; resize: none;
+    transition: border-color .3s;
+  }
+  .field::placeholder { color: var(--dim); }
+  .field:focus { border-color: var(--text); }
+  textarea.field { font-size: clamp(22px, 2vw, 28px); line-height: 1.35; min-height: 160px; letter-spacing: -.02em; }
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 0 48px; margin-top: 24px; }
+  .fields .field { margin-top: 24px; font-size: clamp(24px, 2.2vw, 32px); }
+  .fields .field.wide { grid-column: 1 / -1; }
+
+  .actions { display: flex; align-items: center; gap: 24px; margin-top: 48px; }
+  .kbd { font-size: 14px; color: var(--grey); }
+  .kbd b { color: var(--text); font-weight: 600; }
+
+  /* финал */
+  .done .ok {
+    width: 88px; height: 88px; border-radius: 50%; background: var(--accent);
+    display: grid; place-items: center; margin-bottom: 36px;
+    transform: scale(.5); opacity: 0; transition: transform .7s var(--ease) .3s, opacity .5s var(--ease) .3s;
+  }
+  .done .ok svg { width: 40px; height: 40px; }
+  .screen.active .ok { transform: none; opacity: 1; }
+
+  @media (max-width: 760px) {
+    :root { --x: 22px; }
+    .list.cols { grid-template-columns: 1fr; }
+    .list.cols .opt:nth-child(2) { border-top: 0; }
+    .fields { grid-template-columns: 1fr; }
+    .d { display: none; }
+    .kbd { display: none; }
+    .opt { padding: 16px 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition-duration: .01s !important; transition-delay: 0s !important; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="logo">Vitrina<span>.</span></div>
+  <div class="nav">
+    <button class="backlink hide" id="back" type="button">‹ Назад</button>
+    <span class="counter hide" id="counter"></span>
+  </div>
+</header>
+
+<main id="stage"></main>
+<div class="progress"><i id="bar"></i></div>
+
+<script>
+/* endpoint — куда отправлять заявку (POST JSON). Пусто — только console.log */
+const CONFIG = { endpoint: "" };
+
+/* own: true — «Свой вариант»: при выборе строка превращается в поле ввода */
+const OWN = { v: "Свой вариант", own: true };
+const Q = [
+  { id: "type", type: "single", title: "Какой сайт вам нужен?", options: [
+      { v: "Сайт-каталог", d: "Витрина и заявки" },
+      { v: "Интернет-магазин", d: "Корзина, оплата, доставка" },
+      { v: "Пока не знаю", d: "Поможем выбрать" }, OWN ] },
+  { id: "niche", type: "single", cols: true, title: "Чем занимается ваш бизнес?", options: [
+      { v: "Одежда и обувь" }, { v: "Мебель и интерьер" }, { v: "Электроника" },
+      { v: "Красота и здоровье" }, { v: "Стройка и ремонт" }, OWN ] },
+  { id: "items", type: "single", cols: true, title: "Сколько товаров в каталоге?", options: [
+      { v: "До 50" }, { v: "50–500" }, { v: "500–5 000" }, { v: "Больше 5 000" }, { v: "Пока не знаю" }, OWN ] },
+  { id: "content", type: "multi", cols: true, title: "Что из наполнения уже готово?", hint: "Отметьте всё, что есть.", options: [
+      { v: "Фото товаров" }, { v: "Описания" }, { v: "Прайс или выгрузка" },
+      { v: "Логотип и стиль" }, { v: "Пока ничего", only: true }, OWN ] },
+  { id: "features", type: "multi", cols: true, title: "Что должно работать на сайте?", hint: "Выберите всё, что важно.", options: [
+      { v: "Онлайн-оплата" }, { v: "Расчёт доставки" }, { v: "Фильтры и поиск" },
+      { v: "1С / МойСклад" }, { v: "Личный кабинет" }, OWN ] },
+  { id: "promo", type: "multi", title: "Откуда придут клиенты?", hint: "Продвижение тоже делаем мы.", options: [
+      { v: "SEO", d: "Яндекс и Google" }, { v: "Контекстная реклама", d: "Яндекс Директ" },
+      { v: "Таргет", d: "VK, Telegram Ads" }, { v: "Маркетплейсы", d: "Ozon, Wildberries" },
+      { v: "Нужен совет", d: "Подберём каналы", only: true }, OWN ] },
+  { id: "budget", type: "single", cols: true, title: "Бюджет на сайт", hint: "Без продвижения — его считаем отдельно.", options: [
+      { v: "До 100 тыс. ₽" }, { v: "100–250 тыс. ₽" }, { v: "250–500 тыс. ₽" }, { v: "От 500 тыс. ₽" }, { v: "Пока не знаю" }, OWN ] },
+  { id: "contact", type: "contact", title: "Куда прислать расчёт?", hint: "Ответим в течение рабочего дня." }
+];
+
+const stage = document.getElementById("stage");
+const bar = document.getElementById("bar");
+const counter = document.getElementById("counter");
+const backBtn = document.getElementById("back");
+const answers = {};
+const screens = [];
+let cur = 0;
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const MARK = `<span class="mark"><svg viewBox="0 0 14 14" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.3l2.6 2.6L11 4.5"/></svg></span>`;
+
+function add(cls, html) {
+  const el = document.createElement("section");
+  el.className = "screen " + cls;
+  el.innerHTML = `<div class="inner">${html}</div>`;
+  stage.appendChild(el);
+  screens.push(el);
+  return el;
+}
+
+add("intro", `
+  <p class="eyebrow">Каталоги и интернет-магазины под ключ</p>
+  <h1 id="hero" aria-label="Сайт, который работает на вас"></h1>
+  <p class="lead">Проектируем, делаем и наполняем сайт, а потом <b>приводим на него покупателей</b>. Ответьте на ${Q.length} вопросов — пришлём расчёт стоимости и сроков.</p>
+  <div class="row-cta">
+    <button class="btn" data-next type="button">Рассчитать проект</button>
+    <span class="meta">Около 2 минут</span>
+  </div>`
+).querySelector("[data-next]").onclick = next;
+
+Q.forEach((q, n) => {
+  let body = "";
+  if (q.options) {
+    body = `<div class="list ${q.cols ? "cols" : ""}">` + q.options.map((o, k) => {
+      const inner = `
+        <span class="k">${String(k + 1).padStart(2, "0")}</span>
+        <span class="t">${esc(o.v)}</span>
+        ${o.own ? `<input class="own-input" placeholder="Напишите свой ответ" autocomplete="off">` : ""}
+        ${o.d ? `<span class="d">${esc(o.d)}</span>` : ""}
+        ${q.type === "multi" ? MARK : ""}`;
+      return o.own
+        ? `<div class="opt own" role="button" tabindex="0" data-k="${k}">${inner}</div>`
+        : `<button type="button" class="opt" data-k="${k}">${inner}</button>`;
+    }).join("") + `</div>`;
+  }
+  if (q.type === "text") body = `<input class="field" data-input placeholder="${esc(q.placeholder)}" autocomplete="off">`;
+  if (q.type === "textarea") body = `<textarea class="field" data-input placeholder="${esc(q.placeholder)}"></textarea>`;
+  if (q.type === "contact") body = `<div class="fields">
+      <input class="field" data-c="name" placeholder="Имя" autocomplete="name">
+      <input class="field" data-c="phone" placeholder="Телефон или @telegram" autocomplete="tel">
+      <input class="field wide" data-c="email" placeholder="Email — необязательно" autocomplete="email">
+    </div>`;
+
+  const last = n === Q.length - 1;
+  const kbd = q.options ? `Нажмите <b>1–${q.options.length}</b>` : "<b>Enter</b> ↵";
+  const el = add("", `
+    <p class="num">${String(n + 1).padStart(2, "0")} / ${Q.length}</p>
+    <h2>${esc(q.title)}</h2>
+    ${q.hint ? `<p class="hint">${esc(q.hint)}</p>` : ""}
+    ${body}
+    <div class="actions ${q.type === "single" ? "auto" : ""}">
+      <button class="btn" data-next type="button" ${q.optional ? "" : "disabled"}>${last ? "Отправить" : "Далее"}</button>
+      ${q.optional ? `<button class="link" data-skip type="button">Пропустить</button>` : ""}
+      <span class="kbd">${kbd}</span>
+    </div>`);
+  wire(el, q);
+});
+
+add("done", `
+  <div class="ok"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+  <h2>Спасибо.<br><span style="color:var(--grey)">Заявка у нас.</span></h2>
+  <p class="lead">Изучим ответы и в течение рабочего дня пришлём расчёт стоимости, сроков и план продвижения.</p>`);
+
+function wire(el, q) {
+  const nextBtn = el.querySelector("[data-next]");
+  const skip = el.querySelector("[data-skip]");
+  if (skip) skip.onclick = () => { delete answers[q.id]; next(); };
+  if (nextBtn) nextBtn.onclick = () => submit(el, q);
+
+  if (q.options) {
+    const own = el.querySelector(".opt.own");
+    const ownInput = own && own.querySelector(".own-input");
+    const actions = el.querySelector(".actions");
+    const check = () => {
+      const sel = el.querySelectorAll(".opt.sel");
+      const ownOk = !own.classList.contains("sel") || ownInput.value.trim();
+      nextBtn.disabled = !sel.length || !ownOk;
+    };
+    const pick = b => {
+      const o = q.options[b.dataset.k];
+      if (q.type === "single") {
+        el.querySelectorAll(".opt").forEach(x => x.classList.toggle("sel", x === b));
+        actions.classList.toggle("show", !!o.own);
+        check();
+        if (o.own) { ownInput.focus(); return; }
+        answers[q.id] = o.v;
+        setTimeout(next, 320);
+        return;
+      }
+      const on = !b.classList.contains("sel");
+      if (on) el.querySelectorAll(".opt").forEach(x => {
+        if (x !== b && (o.only || q.options[x.dataset.k].only)) x.classList.remove("sel");
+      });
+      b.classList.toggle("sel", on);
+      if (on && o.own) ownInput.focus();
+      check();
+    };
+    el.querySelectorAll(".opt").forEach(b => b.onclick = e => {
+      if (e.target === ownInput && b.classList.contains("sel")) return;
+      pick(b);
+    });
+    own.onkeydown = e => {
+      if (e.target === own && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); pick(own); }
+    };
+    ownInput.oninput = check;
+  }
+  if (q.type === "text" || q.type === "textarea") {
+    const f = el.querySelector("[data-input]");
+    f.oninput = () => { if (!q.optional) nextBtn.disabled = !f.value.trim(); };
+  }
+  if (q.type === "contact") {
+    const name = el.querySelector('[data-c="name"]'), phone = el.querySelector('[data-c="phone"]');
+    el.querySelectorAll(".field").forEach(f => f.oninput = () => {
+      nextBtn.disabled = !(name.value.trim() && phone.value.trim().length >= 4);
+    });
+  }
+}
+
+function submit(el, q) {
+  const btn = el.querySelector("[data-next]");
+  if (btn && btn.disabled) return;
+  if (q.options) {
+    const vals = [...el.querySelectorAll(".opt.sel")].map(b => {
+      const o = q.options[b.dataset.k];
+      return o.own ? "Свой вариант: " + b.querySelector(".own-input").value.trim() : o.v;
+    });
+    answers[q.id] = q.type === "single" ? vals[0] : vals;
+  }
+  if (q.type === "text" || q.type === "textarea") {
+    const v = el.querySelector("[data-input]").value.trim();
+    v ? answers[q.id] = v : delete answers[q.id];
+  }
+  if (q.type === "contact") {
+    el.querySelectorAll("[data-c]").forEach(f => answers[f.dataset.c] = f.value.trim());
+    send();
+  }
+  next();
+}
+
+async function send() {
+  const payload = { ...answers, submittedAt: new Date().toISOString() };
+  console.log("Заявка:", payload);
+  if (!CONFIG.endpoint) return;
+  try {
+    await fetch(CONFIG.endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+  } catch (e) { console.error("Не удалось отправить заявку", e); }
+}
+
+function show(n) {
+  screens.forEach((s, k) => {
+    s.classList.toggle("active", k === n);
+    s.classList.toggle("past", k < n);
+  });
+  cur = n;
+  const inQuiz = n > 0 && n <= Q.length;
+  bar.style.width = (n === 0 ? 0 : Math.min(n / (Q.length + 1), 1) * 100) + "%";
+  counter.textContent = inQuiz ? `${n} / ${Q.length}` : "";
+  counter.classList.toggle("hide", !inQuiz);
+  backBtn.classList.toggle("hide", !inQuiz);
+  screens[n].scrollTop = 0;
+  const f = screens[n].querySelector("input.field, textarea.field");
+  if (f && matchMedia("(hover: hover)").matches) setTimeout(() => f.focus({ preventScroll: true }), 500);
+}
+function next() { if (cur < screens.length - 1) show(cur + 1); }
+function prev() { if (cur > 0) show(cur - 1); }
+backBtn.onclick = prev;
+
+document.addEventListener("keydown", e => {
+  const s = screens[cur], q = Q[cur - 1];
+  const inField = /INPUT|TEXTAREA/.test(document.activeElement.tagName);
+  if (e.key === "Enter") {
+    if (cur === 0) { e.preventDefault(); next(); return; }
+    if (!q) return;
+    if (q.type === "textarea" && !(e.ctrlKey || e.metaKey)) return;
+    if (document.activeElement.tagName === "BUTTON") return;
+    const btn = s.querySelector("[data-next]");
+    if (btn) { e.preventDefault(); btn.click(); }
+    return;
+  }
+  if (e.key === "Escape" && !inField) { prev(); return; }
+  if (inField || !q || !q.options) return;
+  const k = parseInt(e.key, 10);
+  if (k >= 1 && k <= q.options.length) s.querySelectorAll(".opt")[k - 1].click();
+});
+
+show(0);
+
+/* ---------- заголовок: курсор расталкивает буквы ---------- */
+(function hero() {
+  const h1 = document.getElementById("hero");
+  const LINES = ["Сайт, который", "работает на вас"];
+  h1.innerHTML = LINES.map((line, li) =>
+    `<span class="line l${li}" aria-hidden="true">` +
+    line.split(" ").map(w => `<span class="w">${[...w].map(c => `<span class="ch">${esc(c)}</span>`).join("")}</span>`).join(" ") +
+    `</span>`).join("");
+
+  if (!matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  const R = 230;          /* радиус влияния курсора, px */
+  const PUSH = 74;        /* максимальный сдвиг буквы, px */
+  const letters = [...h1.querySelectorAll(".ch")].map(el => ({
+    el, line: el.closest(".l1") ? 1 : 0, rx: 0, ry: 0, x: 0, y: 0, vx: 0, vy: 0
+  }));
+  let mx = -9999, my = -9999, running = false;
+
+  /* положение букв в покое — относительно заголовка */
+  function measure() {
+    letters.forEach(l => l.el.style.transform = "");
+    const r = h1.getBoundingClientRect();
+    letters.forEach(l => {
+      const b = l.el.getBoundingClientRect();
+      l.rx = b.left + b.width / 2 - r.left;
+      l.ry = b.top + b.height / 2 - r.top;
+    });
+    kick();
+  }
+
+  function frame() {
+    const r = h1.getBoundingClientRect();
+    let moving = false;
+    for (const l of letters) {
+      const dx = r.left + l.rx - mx, dy = r.top + l.ry - my;
+      const d = Math.hypot(dx, dy) || 1;
+      let tx = 0, ty = 0;
+      if (d < R && cur === 0) {
+        const f = 1 - d / R;
+        const p = f * f * PUSH;
+        tx = dx / d * p * 0.35;
+        ty = dy / d * p;
+      }
+      /* пружина */
+      l.vx = (l.vx + (tx - l.x) * 0.16) * 0.74;
+      l.vy = (l.vy + (ty - l.y) * 0.16) * 0.74;
+      l.x += l.vx; l.y += l.vy;
+      if (Math.abs(l.vx) + Math.abs(l.vy) + Math.abs(tx - l.x) + Math.abs(ty - l.y) > 0.05) moving = true;
+
+      l.el.style.transform = `translate3d(${l.x.toFixed(2)}px, ${l.y.toFixed(2)}px, 0) rotate(${(l.x * 0.25).toFixed(2)}deg)`;
+      /* нижняя строка, наехавшая на верхнюю, отбрасывает тень */
+      if (l.line === 1) {
+        const a = Math.min(0.9, Math.max(0, (-l.y - 6) / 36));
+        l.el.style.textShadow = a > 0.01
+          ? `0 ${(6 + a * 14).toFixed(1)}px ${(14 + a * 22).toFixed(1)}px rgba(0,0,0,${a.toFixed(2)}), 0 2px 6px rgba(0,0,0,${(a * 0.7).toFixed(2)})`
+          : "";
+      }
+    }
+    if (moving) requestAnimationFrame(frame); else running = false;
+  }
+  function kick() { if (!running) { running = true; requestAnimationFrame(frame); } }
+
+  window.addEventListener("mousemove", e => { mx = e.clientX; my = e.clientY; kick(); }, { passive: true });
+  document.addEventListener("mouseleave", () => { mx = my = -9999; kick(); });
+  window.addEventListener("resize", measure);
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => setTimeout(measure, 100));
+  setTimeout(measure, 900);
+})();
+</script>
+</body>
+</html>
