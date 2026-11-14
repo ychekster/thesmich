@@ -5,7 +5,7 @@ import { scrolling } from "../../lib/scrolling";
 import { FACE_FS, FACE_VS, SHADOW_FS, SHADOW_VS, SPRITE_FS, SPRITE_VS } from "./shaders";
 
 /*
- * Карты на WebGL: частые вопросы (4 карты) и визитка (одна большая).
+ * Карты на WebGL: частые вопросы (4 карты) и удостоверения команды (одна большая).
  *
  * Один холст поверх сетки карт. Под ним — невидимые DOM-кнопки (клик,
  * клавиатура, экранные дикторы); холст только рисует. Кадры идут, лишь пока
@@ -32,6 +32,8 @@ export interface CardLook {
   shadow: (w: number, h: number) => ShadowLook;
   /** Поля холста вокруг сетки: тень, наклон, раздача снизу. */
   pad: { x: number; top: number; bottom: number };
+  /** Материал: 0 (по умолчанию) — глянец, 1 — матовый с зерном (удостоверения). */
+  matte?: number;
 }
 
 export const FAQ_LOOK: CardLook = {
@@ -60,7 +62,7 @@ export interface CardsOptions {
 /** Растр сторон карт под их размеры (текст, масти, плашки) — см. gl/raster.ts. */
 export type RasterFn = (sizes: { w: number; h: number }[], dpr: number) => Promise<FaceRaster[]>;
 
-const FACE_U = ["u_res", "u_center", "u_size", "u_radius", "u_rot", "u_persp", "u_dealY", "u_back", "u_spec", "u_alpha", "u_tex"] as const;
+const FACE_U = ["u_res", "u_center", "u_size", "u_radius", "u_rot", "u_persp", "u_dealY", "u_back", "u_spec", "u_alpha", "u_matte", "u_tex"] as const;
 const SHADOW_U = ["u_res", "u_rect", "u_sigma", "u_radius", "u_alpha"] as const;
 const SPRITE_U = ["u_res", "u_rect", "u_tex", "u_alpha"] as const;
 
@@ -343,6 +345,7 @@ export class CardsRenderer {
       gl.uniform1f(fu.u_back, back ? 1 : 0);
       gl.uniform3f(fu.u_spec, specX, specY, specO);
       gl.uniform1f(fu.u_alpha, op);
+      gl.uniform1f(fu.u_matte, this.look.matte ?? 0);
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, c.tex[back ? 1 : 0]);
       gl.uniform1i(fu.u_tex, 0);

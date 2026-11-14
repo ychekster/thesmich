@@ -44,6 +44,7 @@ uniform float u_radius;  // скругление углов, css px
 uniform float u_back;    // 0 — лицо, 1 — оборот
 uniform vec3 u_spec;     // сдвиг блика x, y (px) и его opacity
 uniform float u_alpha;   // прозрачность раздачи
+uniform float u_matte;   // 0 — глянец (FAQ), 1 — матовый soft-touch (удостоверения)
 uniform sampler2D u_tex; // текст и масти (предумноженная альфа)
 out vec4 o;
 ${GLSL.sdRoundRect}
@@ -105,7 +106,16 @@ void main() {
        : lt < 0.53 ? seg(lt, 0.50, 0.10, 0.53, 0.06)
        : seg(lt, 0.53, 0.06, 0.59, 0.0);
   }
+  // мат: зеркальная полоса глянца почти гаснет, пятно света тусклее —
+  // свет рассеивается, а не отражается
+  aR *= 1.0 - 0.5 * u_matte;
+  aL *= 1.0 - 0.9 * u_matte;
   col = mix(col, vec3(1.0), (aR + aL * (1.0 - aR)) * u_spec.z);
+  // зерно soft-touch покрытия: шум привязан к точке карты, при наклоне не «плывёт»
+  if (u_matte > 0.0) {
+    float n = fract(sin(dot(floor(v_q * 1.6), vec2(12.9898, 78.233))) * 43758.5453) - 0.5;
+    col += n * u_matte * (back ? 0.022 : 0.016);
+  }
 
   // текст и масти поверх блика
   vec4 tx = texture(u_tex, v_q / u_size);

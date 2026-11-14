@@ -1,0 +1,36 @@
+/* Сетка из одной карты + DOM-версия без WebGL (CSS-3D поверх растров сторон). */
+.grid { display: flex; justify-content: center; }
+
+.deal {
+  opacity: 0; transform: translate3d(0, 120px, 0);
+  transition: opacity .7s ease, transform 1s cubic-bezier(.16, 1, .3, 1);
+}
+.deal[data-dealt] { opacity: 1; transform: none; }
+.hit { position: relative; container-type: size; cursor: pointer; outline: none; perspective: 2800px; -webkit-tap-highlight-color: transparent; }
+.hit:focus-visible { outline: 2px solid var(--accent); outline-offset: 8px; }
+.tilt { width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .3s cubic-bezier(.2, .8, .2, 1); }
+.flip {
+  position: relative; width: 100%; height: 100%; transform-style: preserve-3d;
+  transition: transform .75s cubic-bezier(.65, 0, .35, 1);
+}
+.flipped { transform: rotateY(180deg); }
+.side {
+  position: absolute; inset: 0; overflow: hidden; border-radius: 5.9cqmin;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  background:
+    linear-gradient(155deg, rgba(255,255,255,.05) 0%, rgba(255,255,255,0) 38%, rgba(0,0,0,.35) 100%),
+    #141416;
+  box-shadow: 0 40px 80px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.14), inset 0 0 0 1px rgba(255,255,255,.06);
+}
+.side > canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.back {
+  transform: rotateY(180deg);
+  background:
+    linear-gradient(155deg, rgba(255,255,255,.7) 0%, rgba(255,255,255,0) 45%, rgba(0,0,0,.08) 100%),
+    #ececf0;
+  box-shadow: 0 40px 80px rgba(0,0,0,.6), inset 0 1px 0 #fff, inset 0 0 0 1px rgba(0,0,0,.05);
+}
+.srOnly {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}

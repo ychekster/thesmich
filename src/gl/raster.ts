@@ -13,6 +13,9 @@
  * - data-rot — элемент повёрнут на 180° вокруг своего центра (нижняя масть);
  * - data-paint — плашка: заливка background-color, рамка border-top,
  *   скругление border-radius (полоса, чип, поле подписи на визитке).
+ * - painted(el, fn) — элемент рисует себя сам (QR, штрих-код, узор, портрет):
+ *   fn получает контекст, уже сдвинутый в левый верхний угол элемента, и его
+ *   размер в css px; рисовать векторно — чётко при любой плотности экрана.
  * Рисуется в порядке документа: плашка, затем то, что внутри неё.
  */
 
@@ -25,6 +28,16 @@ export interface RasterFace {
   /** Сторона карты внутри box — от её левого верхнего угла считаются координаты. */
   face: HTMLElement;
   w: number; h: number; // css px
+}
+
+/** Рисует содержимое элемента: контекст сдвинут в его угол, w × h — размер в css px. */
+export type Painter = (ctx: CanvasRenderingContext2D, w: number, h: number) => void;
+const painters = new WeakMap<Element, Painter>();
+
+/** Пометить элемент: при растре его нарисует fn (см. Painter). Возвращает элемент. */
+export function painted<T extends HTMLElement>(el: T, fn: Painter): T {
+  painters.set(el, fn);
+  return el;
 }
 
 const fontOf = (cs: CSSStyleDeclaration) => `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
@@ -65,6 +78,17 @@ export async function rasterDom(faces: RasterFace[], dpr: number, sample: string
       const walker = document.createTreeWalker(face, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
       for (let n = walker.nextNode(); n; n = walker.nextNode()) {
         if (n instanceof HTMLElement) {
+          const painter = painters.get(n);
+          if (painter) {
+            const b = n.getBoundingClientRect();
+            const op = parseFloat(getComputedStyle(n).opacity);
+            ctx.save();
+            ctx.translate(b.left - fr.left, b.top - fr.top);
+            ctx.globalAlpha = Number.isFinite(op) ? op : 1;
+            painter(ctx, b.width, b.height);
+            ctx.restore();
+            continue;
+          }
           if (n.dataset.paint === undefined) continue;
           const cs = getComputedStyle(n);
           const b = n.getBoundingClientRect();

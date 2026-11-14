@@ -5,7 +5,6 @@ import type { ChoiceAnswer, Contacts } from "./types";
 import { Header } from "./components/Header/Header";
 import { Screen, type ScreenState } from "./components/Screen/Screen";
 import { Hero } from "./components/Hero/Hero";
-import { BizCard } from "./components/BizCard/BizCard";
 import { FaqCards } from "./components/FaqCards/FaqCards";
 import { Footer } from "./components/Footer/Footer";
 import { QuestionScreen } from "./components/Quiz/QuestionScreen";
@@ -71,7 +70,6 @@ export default function App() {
       <main>
         <Screen ref={homeRef} state={state(0)} scroll onScroll={onHomeScroll}>
           <Hero active={cur === 0} questions={N} onStart={() => go(1)} />
-          <BizCard />
           <FaqCards live={cur === 0} />
           <Footer live={cur === 0} onQuiz={() => go(1)} onContact={() => go(N)} onFaq={scrollToFaq} />
         </Screen>

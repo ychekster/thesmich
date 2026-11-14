@@ -1,8 +1,12 @@
 # Архитектура
 
-Одностраничный лендинг студии The Smich (Казахстан): сайты-каталоги, интернет-магазины
+Лендинг студии The Smich (Казахстан): сайты-каталоги, интернет-магазины
 и их продвижение. Главная задача страницы — довести человека до анкеты из 8 вопросов
 и получить заявку.
+
+Кроме главной есть страницы-визитки команды: `/yarik/` и `/emir/` — удостоверение
+во весь экран (на главной пока не упоминаются). Идеи владельца на будущее — в
+`docs/IDEAS.md` (не реализовывать без просьбы).
 
 ## Стек
 
@@ -10,8 +14,10 @@
 - **React 19 + TypeScript** (strict).
 - **CSS Modules** — у каждого компонента свой `*.module.css`; общие токены — в
   `src/styles/global.css`. Никаких UI-китов.
-- **WebGL2** (свой тонкий слой `src/gl/`, без 3D-библиотек) — визитку, карты частых
-  вопросов и огромный логотип в футере рисует видеокарта. Без WebGL — DOM-версия.
+- **WebGL2** (свой тонкий слой `src/gl/`, без 3D-библиотек) — карты частых вопросов,
+  удостоверения команды и огромный логотип в футере рисует видеокарта. Без WebGL —
+  DOM-версия.
+- **qrcode-generator** — QR на обороте удостоверения (без зависимостей).
 - **motion** (`motion/react`) — пружины DOM-карт (запасной вариант без WebGL).
 - **@fontsource/inter** — шрифт Inter хранится в проекте, без запросов к Google.
 
@@ -21,37 +27,45 @@
 ## Структура
 
 ```
-index.html               точка входа Vite (title, favicon)
+index.html               главная (точка входа Vite: src/main.tsx)
+yarik/index.html,        страницы-визитки (точка входа src/person.tsx, чья —
+emir/index.html          data-person у #root); список страниц — vite.config.ts
 public/                  статика как есть (favicon.svg)
 src/
-├── main.tsx             монтирование React, подключение global.css
+├── main.tsx             монтирование главной, подключение global.css
+├── person.tsx           монтирование страницы-визитки (PersonPage)
 ├── App.tsx              экраны и переходы, ответы анкеты, отправка заявки
 ├── App.module.css       полоса прогресса
 ├── types.ts             типы вопросов, ответов, карт FAQ
 ├── content/             ВСЕ тексты сайта — правятся здесь, а не в компонентах
 │   ├── site.ts          бренд, слоган, контакты, ссылка на политику
 │   ├── quiz.ts          вопросы анкеты и варианты ответов
-│   ├── card.ts          визитка студии (подписи; контакты — из site.ts)
+│   ├── team.ts          команда: удостоверения Ярика и Эмира, подписи карты
 │   └── faq.ts           4 карты частых вопросов
 ├── gl/                WebGL: core.ts (контекст, шейдеры, текстуры, цикл по требованию),
 │   │                  motion.ts (пружина и cubic-bezier как в CSS/motion),
-│   │                  raster.ts (DOM-сторона карты → canvas для текстуры)
+│   │                  raster.ts (DOM-сторона карты → canvas для текстуры; painted —
+│   │                  элемент, который рисует себя сам: QR, узор, портрет)
 │   └── cards/         общий движок карт: CardsRenderer.ts (наклон, переворот, раздача;
-│                      вид — CardLook), shaders.ts, GlCards.tsx (холст + слоты-кнопки)
+│                      вид — CardLook, в т.ч. matte), shaders.ts, GlCards.tsx (холст + слоты)
 ├── lib/
 │   ├── lead.ts          сборка и отправка заявки
 │   ├── media.ts         проверки «есть мышь» и «без анимаций»
 │   └── scrolling.ts     «идёт прокрутка» — эффекты наведения в это время молчат
 ├── hooks/useInView.ts   «элемент впервые попал в экран»
+├── hooks/useMedia.ts    медиазапрос (PHONE = max-width: 760px) с обновлением
 ├── styles/global.css    токены (цвета, шрифт, поля), сброс стилей
 └── components/
     ├── Screen/          полноэкранный экран и переход между экранами
     ├── Header/          шапка: логотип, «Назад», счётчик, контакты, «Оставить заявку»
     ├── Hero/            первый экран главной
-    ├── BizCard/         визитка-карта во весь экран: BizCard (секция, вид BIZ_LOOK),
-    │                    faces.ts (разметка сторон — и для текстуры, и для DOM-версии)
     ├── FaqCards/        частые вопросы: FaqCards (секция) → GlCards (gl/cards) или
-    │                    FlipCard (DOM, если WebGL нет); gl/faces.ts — стороны для текстуры
+    │                    FlipCard (DOM, если WebGL нет); gl/faces.ts — стороны для текстуры;
+    │                    на телефоне — горизонтальная лента со снапом
+    ├── IdCard/          удостоверение: IdCard (вид ID_LOOK, DOM-запас), faces.ts (стороны,
+    │                    гильош, портрет, QR, штрих-код, MRZ), IdCard.module.css (раскладка)
+    ├── PersonPage/      страница-визитка: карта + кнопки (звонок, Telegram, Instagram,
+    │                    «В контакты» — vCard, ссылка на главную)
     ├── Footer/          футер с огромным логотипом
     ├── Quiz/            QuestionScreen (вопрос, варианты, контакты), DoneScreen
     ├── WaveText/        текст из букв: появление + курсор (engine.ts); gl — WebGL-слой (glText.ts)
@@ -65,7 +79,7 @@ docs/                    документация (этот файл, CONTENT.md
 
 | `cur`     | Экран |
 |-----------|-------|
-| `0`       | Главная. Листается: Hero → BizCard → FaqCards → Footer |
+| `0`       | Главная. Листается: Hero → FaqCards → Footer |
 | `1..N`    | Вопросы анкеты (`N = QUESTIONS.length`), последний — контакты |
 | `N + 1`   | «Спасибо» — заявка отправлена в момент перехода сюда |
 
@@ -97,8 +111,12 @@ docs/                    документация (этот файл, CONTENT.md
 | Буквы: сила толчка, пружина | `src/components/WaveText/` (см. docs/ANIMATIONS.md) |
 | Карты: наклон, переворот, раздача | `src/gl/cards/CardsRenderer.ts` (вид FAQ — `FAQ_LOOK`; DOM-запас — `FlipCard.tsx`) |
 | Карты: фон, кромки, блик, тень | `src/gl/cards/shaders.ts` (повторяют CSS из `FaqCards.module.css`) |
-| Визитка: тексты | `src/content/card.ts` (контакты — `site.ts`) |
-| Визитка: раскладка сторон, размер | `src/components/BizCard/BizCard.module.css` + `faces.ts` |
-| Визитка: наклон, перспектива, тень | `BIZ_LOOK` в `src/components/BizCard/BizCard.tsx` |
+| Карты FAQ на телефоне (лента) | `.rail`/`.cards` в `FaqCards.module.css` + `PHONE_LOOK` в `FaqCards.tsx` |
+| Удостоверения: имена, контакты, фото | `src/content/team.ts` |
+| Удостоверения: раскладка сторон | `src/components/IdCard/IdCard.module.css` + `faces.ts` |
+| Удостоверения: наклон, тень, мат | `ID_LOOK` в `src/components/IdCard/IdCard.tsx` |
+| Страница-визитка: размер карты, кнопки | `src/components/PersonPage/` |
+| Новая страница-визитка | `team.ts` + папка `<slug>/index.html` + `vite.config.ts` |
+| Идеи на будущее | `docs/IDEAS.md` |
 | Логотип в футере (WebGL-буквы) | `src/components/WaveText/glText.ts` |
 | Куда уходит заявка | `.env` → `VITE_LEAD_ENDPOINT`, логика — `src/lib/lead.ts` |
