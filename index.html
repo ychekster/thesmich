@@ -34,6 +34,12 @@
     position: fixed; z-index: 5; left: 0; right: 0; top: 0; height: 72px;
     display: flex; align-items: center; justify-content: space-between;
     padding: 0 var(--x);
+    background: rgba(0,0,0,0); border-bottom: 1px solid transparent;
+    transition: background .3s, border-color .3s, backdrop-filter .3s;
+  }
+  .top.scrolled {
+    background: rgba(0,0,0,.72); border-bottom-color: rgba(255,255,255,.08);
+    backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px);
   }
   .logo { font-size: 20px; font-weight: 600; letter-spacing: -.03em; }
   .logo span { color: var(--accent); }
@@ -99,6 +105,39 @@
   .intro .lead { margin-left: auto; margin-right: auto; }
   .intro .row-cta { justify-content: center; }
 
+  /* главная листается: первый экран на всю высоту, ниже частые вопросы */
+  .screen.intro { justify-content: flex-start; }
+  .intro .inner { margin: 0 auto; }
+  .hero-block { min-height: calc(100vh - 190px); display: flex; flex-direction: column; justify-content: center; }
+
+  .faq { padding: 100px 0 40px; }
+  .faq h2 { margin: 0 auto; text-align: center; max-width: none; }
+  .qa-list { max-width: 760px; margin: 44px auto 0; text-align: left; }
+  .qa + .qa { border-top: 1px solid var(--line); }
+  .qa-q {
+    display: flex; align-items: center; justify-content: space-between; gap: 24px;
+    width: 100%; padding: 20px 0; cursor: pointer; text-align: left;
+    font-size: 19px; font-weight: 600; letter-spacing: -.02em; line-height: 1.3;
+  }
+  .qa-q:focus-visible { outline: none; color: var(--accent); }
+  .qa-q i {
+    flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+    background: rgba(255,255,255,.08); color: var(--text);
+    transition: transform .5s var(--ease), background .25s;
+  }
+  .qa-q:hover i { background: rgba(255,255,255,.16); }
+  .qa-q i svg { width: 16px; height: 16px; }
+  .qa.open .qa-q i { transform: rotate(180deg); background: var(--text); color: #000; }
+  /* плавное раскрытие: строка сетки растёт от 0fr до 1fr */
+  .qa-a { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .5s var(--ease); }
+  .qa-a > div { overflow: hidden; }
+  .qa-a p {
+    padding: 0 54px 22px 0; font-size: 16px; line-height: 1.55; color: var(--grey); max-width: 46em;
+    opacity: 0; transform: translate3d(0, -6px, 0); transition: opacity .3s, transform .4s var(--ease);
+  }
+  .qa.open .qa-a { grid-template-rows: 1fr; }
+  .qa.open .qa-a p { opacity: 1; transform: none; transition-delay: .08s; }
+
   /* появление при загрузке: буквы вылетают снизу из размытия по очереди,
      остальное проявляется следом. Анимируется внутренний span, чтобы не мешать
      реакции букв на курсор (она двигает внешний .ch) */
@@ -109,6 +148,7 @@
     animation-delay: calc(var(--i) * var(--step, 32ms) + var(--d0, 250ms));
   }
   h2.wave { --step: 16ms; --d0: 120ms; }
+  .wave[data-io]:not(.play) .in { opacity: 0; } /* ждёт, пока до заголовка долистают */
   @keyframes letter-in {
     0% { opacity: 0; transform: translate3d(0, .55em, 0) rotate(10deg) scale(.85); filter: blur(14px); }
     60% { opacity: 1; filter: blur(0); }
@@ -223,6 +263,9 @@
     .d { display: none; }
     .kbd { display: none; }
     .opt { padding: 16px 0; }
+    .faq { padding-top: 72px; }
+    .qa-q { padding: 18px 0; font-size: 17px; }
+    .qa-a p { padding-right: 0; font-size: 15px; }
   }
   @media (prefers-reduced-motion: reduce) { * { transition-duration: .01s !important; transition-delay: 0s !important; } }
 </style>
@@ -302,13 +345,44 @@ function add(cls, html) {
 }
 
 add("intro", `
+ <div class="hero-block">
   <p class="eyebrow">Каталоги и интернет-магазины под ключ</p>
   <h1 id="hero" aria-label="Сайт, который работает на вас"></h1>
   <p class="lead">Проектируем, делаем и наполняем сайт, а потом <b>приводим на него покупателей</b>. Ответьте на ${Q.length} вопросов — пришлём расчёт стоимости и сроков.</p>
   <div class="row-cta">
     <button class="btn" data-next type="button">Рассчитать проект</button>
     <span class="meta">Около 2 минут</span>
-  </div>`
+  </div>
+ </div>
+  <section class="faq">
+    <h2 class="wave" data-io aria-label="Частые вопросы">Частые вопросы</h2>
+    <div class="qa-list">
+      <div class="qa">
+        <button class="qa-q" type="button" aria-expanded="false"><span>Сколько стоит сайт?</span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></i></button>
+        <div class="qa-a"><div><p>Зависит от типа и объёма: каталог на несколько десятков товаров стоит меньше, чем магазин с онлайн-оплатой и обменом с 1С. Точную сумму назовём после анкеты — это около двух минут.</p></div></div>
+      </div>
+      <div class="qa">
+        <button class="qa-q" type="button" aria-expanded="false"><span>Сколько времени занимает разработка?</span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></i></button>
+        <div class="qa-a"><div><p>Зависит от объёма каталога и функций. Сроки называем вместе с расчётом и фиксируем в договоре.</p></div></div>
+      </div>
+      <div class="qa">
+        <button class="qa-q" type="button" aria-expanded="false"><span>Что нужно от меня?</span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></i></button>
+        <div class="qa-a"><div><p>Ответить на вопросы анкеты и прислать то, что уже есть: фото, прайс, логотип. Тексты, фотосъёмку и загрузку товаров можем взять на себя.</p></div></div>
+      </div>
+      <div class="qa">
+        <button class="qa-q" type="button" aria-expanded="false"><span>Как вы продвигаете сайт?</span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></i></button>
+        <div class="qa-a"><div><p>Подбираем каналы под нишу и бюджет: SEO в Яндексе и Google, контекстная реклама в Яндекс Директе, таргет в VK и Telegram Ads, закуп рекламы у блогеров и в Telegram-каналах, Яндекс Карты и 2ГИС, маркетплейсы. Каждый месяц показываем, откуда пришли заявки и сколько они стоили.</p></div></div>
+      </div>
+      <div class="qa">
+        <button class="qa-q" type="button" aria-expanded="false"><span>Можно заказать только продвижение для моего сайта?</span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></i></button>
+        <div class="qa-a"><div><p>Да. Начинаем с аудита: смотрим сайт, аналитику и текущую рекламу, затем настраиваем каналы продвижения. Если что-то на сайте мешает продажам, подскажем, что поправить.</p></div></div>
+      </div>
+      <div class="qa">
+        <button class="qa-q" type="button" aria-expanded="false"><span>Смогу сам редактировать сайт?</span><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></i></button>
+        <div class="qa-a"><div><p>Да. Товары, цены, баннеры и тексты меняются в удобной панели управления, без программиста.</p></div></div>
+      </div>
+    </div>
+  </section>`
 ).querySelector("[data-next]").onclick = next;
 
 Q.forEach((q, n) => {
@@ -453,7 +527,7 @@ function show(n) {
   document.getElementById("cta").classList.toggle("hide", n >= Q.length);
   screens[n].scrollTop = 0;
   screens.forEach(s => s.querySelectorAll(".wave").forEach(w => w.classList.remove("play")));
-  screens[n].querySelectorAll(".wave").forEach(w => { void w.offsetWidth; w.classList.add("play"); });
+  screens[n].querySelectorAll(".wave:not([data-io])").forEach(w => { void w.offsetWidth; w.classList.add("play"); });
   const f = screens[n].querySelector("input.field, textarea.field");
   if (f && matchMedia("(hover: hover)").matches) setTimeout(() => f.focus({ preventScroll: true }), 500);
 }
@@ -467,7 +541,7 @@ document.addEventListener("keydown", e => {
   const s = screens[cur], q = Q[cur - 1];
   const inField = /INPUT|TEXTAREA/.test(document.activeElement.tagName);
   if (e.key === "Enter") {
-    if (cur === 0) { e.preventDefault(); next(); return; }
+    if (cur === 0) { if (document.activeElement.tagName !== "BUTTON") { e.preventDefault(); next(); } return; }
     if (!q) return;
     if (q.type === "textarea" && !(e.ctrlKey || e.metaKey)) return;
     if (document.activeElement.tagName === "BUTTON") return;
@@ -482,6 +556,30 @@ document.addEventListener("keydown", e => {
 });
 
 show(0);
+
+/* шапка становится матовой, когда главную пролистали */
+(function headerGlass() {
+  const top = document.querySelector(".top"), intro = screens[0];
+  const upd = () => top.classList.toggle("scrolled", cur === 0 && intro.scrollTop > 8 || cur > 0 && screens[cur].scrollTop > 8);
+  screens.forEach(sc => sc.addEventListener("scroll", upd, { passive: true }));
+  const _show = show;
+  show = n => { _show(n); upd(); };
+})();
+
+/* частые вопросы: открыт только один */
+(function faq() {
+  const items = [...document.querySelectorAll(".qa")];
+  items.forEach(it => it.querySelector(".qa-q").onclick = () => {
+    const open = !it.classList.contains("open");
+    items.forEach(x => { x.classList.remove("open"); x.querySelector(".qa-q").setAttribute("aria-expanded", "false"); });
+    if (open) { it.classList.add("open"); it.querySelector(".qa-q").setAttribute("aria-expanded", "true"); }
+  });
+  /* заголовок «Частые вопросы» собирается из букв, когда до него долистали */
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add("play"); io.unobserve(e.target); }
+  }), { threshold: 0.4 });
+  document.querySelectorAll(".wave[data-io]").forEach(h => io.observe(h));
+})();
 
 /* ---------- заголовки: буквы появляются и расталкиваются курсором ---------- */
 (function waves() {
