@@ -1,0 +1,17 @@
+/*
+ * WebGL-карты: холст рисует, слоты принимают курсор и клики.
+ * Размер слота = размер карты; его (aspect-ratio, высоту) задаёт компонент
+ * через slotClassName, раскладку сетки — через className.
+ */
+.grid { position: relative; }
+.canvas { position: absolute; display: block; pointer-events: none; }
+.slot {
+  position: relative; cursor: pointer; outline: none;
+  border-radius: 26px;
+  -webkit-tap-highlight-color: transparent;
+}
+.slot:focus-visible { outline: 2px solid var(--accent); outline-offset: 8px; }
+.srOnly {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}

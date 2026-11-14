@@ -4,8 +4,12 @@ import { useInView } from "../../hooks/useInView";
 import { webglSupported } from "../../gl/core";
 import { WaveText } from "../WaveText/WaveText";
 import { FlipCard } from "./FlipCard";
-import { GlCards } from "./GlCards";
+import { GlCards } from "../../gl/cards/GlCards";
+import { rasterFaces } from "./gl/faces";
 import s from "./FaqCards.module.css";
+
+const ITEMS = FAQ.map(c => ({ label: c.q, back: c.a }));
+const raster = (sizes: { w: number; h: number }[], dpr: number) => rasterFaces(FAQ, sizes, dpr);
 
 /**
  * Частые вопросы: заголовок и 4 карты. Карты переворачиваются независимо.
@@ -24,7 +28,7 @@ export function FaqCards({ live }: { live: boolean }) {
       </div>
       <div ref={cardsRef}>
         {gl ? (
-          <GlCards cards={FAQ} dealt={cardsIn} onFail={onFail} />
+          <GlCards items={ITEMS} raster={raster} className={s.cards} slotClassName={s.slot} dealt={cardsIn} onFail={onFail} />
         ) : (
           <div className={s.cards}>
             {FAQ.map((card, i) => <FlipCard key={card.q} card={card} index={i} dealt={cardsIn} />)}

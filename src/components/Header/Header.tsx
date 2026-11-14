@@ -1,10 +1,9 @@
+import { forwardRef } from "react";
 import { site } from "../../content/site";
 import { TelegramIcon, InstagramIcon } from "../icons";
 import s from "./Header.module.css";
 
 interface Props {
-  /** Шапка матовая (страницу пролистали). */
-  frosted: boolean;
   /** Номер вопроса для счётчика; null — не в анкете. */
   step: number | null;
   total: number;
@@ -14,10 +13,11 @@ interface Props {
   onCta: () => void;
 }
 
-export function Header({ frosted, step, total, showCta, onBack, onCta }: Props) {
+/** Матовость (страницу пролистали) — атрибут data-frosted, его ставит App напрямую. */
+export const Header = forwardRef<HTMLElement, Props>(function Header({ step, total, showCta, onBack, onCta }, ref) {
   const inQuiz = step !== null;
   return (
-    <header className={`${s.top} ${frosted ? s.frosted : ""}`}>
+    <header ref={ref} className={s.top}>
       <div className={s.logo}>{site.brand}<span>.</span></div>
       <div className={s.nav}>
         <button className={`${s.back} ${inQuiz ? "" : s.hide}`} type="button" onClick={onBack} tabIndex={inQuiz ? 0 : -1}>‹ Назад</button>
@@ -31,4 +31,4 @@ export function Header({ frosted, step, total, showCta, onBack, onCta }: Props) 
       </div>
     </header>
   );
-}
+});

@@ -1,7 +1,7 @@
-import { GLSL } from "../../../gl/core";
+import { GLSL } from "../core";
 
 /*
- * Шейдеры карт. Повторяют прежнюю CSS-вёрстку один в один:
+ * Шейдеры карт (частые вопросы и визитка). Повторяют CSS-вёрстку DOM-карт:
  * - проекция = CSS perspective: 1100px, rotateX/rotateY, scale;
  * - фон, кромки (inset box-shadow) и блик — те же градиенты, что были в
  *   FaqCards.module.css (.front/.back/.spec/.specBack), посчитанные в шейдере;
@@ -40,6 +40,7 @@ export const FACE_FS = /* glsl */ `#version 300 es
 precision highp float;
 in vec2 v_q;
 uniform vec2 u_size;
+uniform float u_radius;  // скругление углов, css px
 uniform float u_back;    // 0 — лицо, 1 — оборот
 uniform vec3 u_spec;     // сдвиг блика x, y (px) и его opacity
 uniform float u_alpha;   // прозрачность раздачи
@@ -60,7 +61,7 @@ float seg(float t, float t0, float a0, float t1, float a1) {
 void main() {
   vec2 c = u_size * 0.5;
   vec2 p = v_q - c;
-  float mask = cover(sdRoundRect(p, c, 26.0));
+  float mask = cover(sdRoundRect(p, c, u_radius));
   if (mask <= 0.0) discard;
   bool back = u_back > 0.5;
 
@@ -78,8 +79,8 @@ void main() {
   }
 
   // кромки: inset 0 0 0 1px (кольцо) и поверх inset 0 1px 0 (светлая полоска сверху)
-  float ring = 1.0 - cover(sdRoundRect(p, c - 1.0, 25.0));
-  float top = 1.0 - cover(sdRoundRect(p - vec2(0.0, 1.0), c, 26.0));
+  float ring = 1.0 - cover(sdRoundRect(p, c - 1.0, u_radius - 1.0));
+  float top = 1.0 - cover(sdRoundRect(p - vec2(0.0, 1.0), c, u_radius));
   col = back ? mix(col, vec3(0.0), 0.05 * ring) : mix(col, vec3(1.0), 0.06 * ring);
   col = back ? mix(col, vec3(1.0), 1.0 * top) : mix(col, vec3(1.0), 0.14 * top);
 

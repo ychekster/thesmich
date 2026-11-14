@@ -14,6 +14,8 @@
  *   (раньше каждая буква всегда была слоем — их были сотни).
  */
 
+import { scrolling } from "../../lib/scrolling";
+
 export interface WaveOptions {
   /** Радиус влияния курсора, px. */
   radius: number;
@@ -149,7 +151,9 @@ const measureAll = () => { items.forEach(measure); kick(); };
 function listen() {
   if (listening) return;
   listening = true;
-  addEventListener("mousemove", e => { mx = e.clientX; my = e.clientY; kick(); }, { passive: true });
+  // во время прокрутки синтетические mousemove (страница едет под курсором)
+  // буквы не трогают — кадры достаются прокрутке
+  addEventListener("mousemove", e => { mx = e.clientX; my = e.clientY; if (!scrolling()) kick(); }, { passive: true });
   document.addEventListener("mouseleave", () => { mx = my = -1e4; kick(); });
   addEventListener("resize", measureAll);
   document.fonts?.ready.then(() => setTimeout(measureAll, 50));

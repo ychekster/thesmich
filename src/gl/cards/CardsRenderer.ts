@@ -1,11 +1,11 @@
-import { canvasDpr, createGl, createLoop, program, renderTarget, textureFrom, unitQuad, type GL, type Program } from "../../../gl/core";
-import { Spring, bezier, clamp, ease } from "../../../gl/motion";
-import type { FaqCard } from "../../../types";
-import { rasterFaces, type FaceRaster } from "./faces";
+import { canvasDpr, createGl, createLoop, program, renderTarget, textureFrom, unitQuad, type GL, type Program } from "../core";
+import { Spring, bezier, clamp, ease } from "../motion";
+import type { FaceRaster } from "../raster";
+import { scrolling } from "../../lib/scrolling";
 import { FACE_FS, FACE_VS, SHADOW_FS, SHADOW_VS, SPRITE_FS, SPRITE_VS } from "./shaders";
 
 /*
- * Карты частых вопросов на WebGL.
+ * Карты на WebGL: частые вопросы (4 карты) и визитка (одна большая).
  *
  * Один холст поверх сетки карт. Под ним — невидимые DOM-кнопки (клик,
  * клавиатура, экранные дикторы); холст только рисует. Кадры идут, лишь пока
@@ -15,18 +15,36 @@ import { FACE_FS, FACE_VS, SHADOW_FS, SHADOW_VS, SPRITE_FS, SPRITE_VS } from "./
  */
 
 const TILT = { k: 170, c: 26, m: 0.7 };   // пружина наклона и нажатия (как useSpring)
-const MAX_TILT = 10;                       // градусов
-const PERSPECTIVE = 1100;
 const FLIP_MS = 750;
 const flipEase = bezier(0.65, 0, 0.35, 1);
 const dealEase = bezier(0.16, 1, 0.3, 1);
-const SHADOW = { sigma: 28, radius: 30, alpha: 0.85 * 0.7 };
 const SHADOW_RES = 0.5; // тень размыта — запекаем в половинном разрешении, разницы не видно
-/** Поля холста вокруг сетки: тень, наклон, раздача снизу. */
-const PAD = { x: 110, top: 60, bottom: 260 };
+
+interface ShadowLook { sigma: number; radius: number; alpha: number; k: number }
+
+/** Вид и физика карт. FAQ_LOOK — карты частых вопросов (как было в CSS). */
+export interface CardLook {
+  /** Скругление углов по размеру карты, css px. */
+  radius: (w: number, h: number) => number;
+  maxTilt: number;      // градусов
+  perspective: number;  // px, как CSS perspective
+  /** Тень: размытие σ, скругление, непрозрачность; k — масштаб её сдвига. */
+  shadow: (w: number, h: number) => ShadowLook;
+  /** Поля холста вокруг сетки: тень, наклон, раздача снизу. */
+  pad: { x: number; top: number; bottom: number };
+}
+
+export const FAQ_LOOK: CardLook = {
+  radius: () => 26,
+  maxTilt: 10,
+  perspective: 1100,
+  shadow: () => ({ sigma: 28, radius: 30, alpha: 0.85 * 0.7, k: 1 }),
+  pad: { x: 110, top: 60, bottom: 260 },
+};
 
 interface Card {
   x: number; y: number; w: number; h: number; // слот на холсте, css px
+  radius: number; sh: ShadowLook;
   rx: Spring; ry: Spring; scale: Spring;
   flipFrom: number; flipTo: number; flipStart: number; flipDur: number; flip: number;
   tex: [WebGLTexture | null, WebGLTexture | null];
@@ -36,9 +54,13 @@ interface Card {
 export interface CardsOptions {
   interactive: boolean; // мышь и без reduced motion: наклон, блик, нажатие
   reduced: boolean;     // reduced motion: без раздачи и с мгновенным переворотом
+  look?: CardLook;      // по умолчанию — FAQ_LOOK
 }
 
-const FACE_U = ["u_res", "u_center", "u_size", "u_rot", "u_persp", "u_dealY", "u_back", "u_spec", "u_alpha", "u_tex"] as const;
+/** Растр сторон карт под их размеры (текст, масти, плашки) — см. gl/raster.ts. */
+export type RasterFn = (sizes: { w: number; h: number }[], dpr: number) => Promise<FaceRaster[]>;
+
+const FACE_U = ["u_res", "u_center", "u_size", "u_radius", "u_rot", "u_persp", "u_dealY", "u_back", "u_spec", "u_alpha", "u_tex"] as const;
 const SHADOW_U = ["u_res", "u_rect", "u_sigma", "u_radius", "u_alpha"] as const;
 const SPRITE_U = ["u_res", "u_rect", "u_tex", "u_alpha"] as const;
 
@@ -48,6 +70,7 @@ export class CardsRenderer {
   private shadow!: Program<typeof SHADOW_U[number]>;
   private sprite!: Program<typeof SPRITE_U[number]>;
   private vao!: WebGLVertexArrayObject;
+  private look: CardLook;
   private cards: Card[];
   private rasters: FaceRaster[] | null = null;
   private cssW = 0; private cssH = 0; private dpr = 1;
@@ -64,12 +87,14 @@ export class CardsRenderer {
     private canvas: HTMLCanvasElement,
     private grid: HTMLElement,
     private slots: HTMLElement[],
-    private data: FaqCard[],
+    private rasterFn: RasterFn,
     private opts: CardsOptions,
   ) {
+    this.look = opts.look ?? FAQ_LOOK;
     this.gl = createGl(canvas);
     this.cards = slots.map(() => ({
       x: 0, y: 0, w: 0, h: 0,
+      radius: 0, sh: this.look.shadow(0, 0),
       rx: new Spring(0, TILT.k, TILT.c, TILT.m),
       ry: new Spring(0, TILT.k, TILT.c, TILT.m),
       scale: new Spring(1, TILT.k, TILT.c, TILT.m),
@@ -112,6 +137,7 @@ export class CardsRenderer {
   private layout() {
     const gl = this.gl;
     if (!gl || this.dead) return;
+    const PAD = this.look.pad;
     const g = this.grid.getBoundingClientRect();
     const vw = document.documentElement.clientWidth;
     // по бокам холст не выходит за экран (иначе появится горизонтальная прокрутка)
@@ -130,6 +156,8 @@ export class CardsRenderer {
       const c = this.cards[i];
       c.x = el.offsetLeft + padL; c.y = el.offsetTop + PAD.top;
       c.w = el.offsetWidth; c.h = el.offsetHeight;
+      c.radius = this.look.radius(c.w, c.h);
+      c.sh = this.look.shadow(c.w, c.h);
     });
     this.loop.invalidate(); // сразу перерисовать со старыми текстурами
     clearTimeout(this.rasterTimer);
@@ -139,7 +167,7 @@ export class CardsRenderer {
   private async raster() {
     const id = ++this.layoutId;
     const sizes = this.cards.map(c => ({ w: c.w, h: c.h }));
-    const rasters = await rasterFaces(this.data, sizes, this.dpr);
+    const rasters = await this.rasterFn(sizes, this.dpr);
     if (id !== this.layoutId || this.dead) return; // пока растеризовали, размер снова поменялся
     this.rasters = rasters;
     this.upload();
@@ -160,7 +188,8 @@ export class CardsRenderer {
   /** Тень = размытый скруглённый прямоугольник; форма не меняется, только сдвиг. */
   private bakeShadow(c: Card) {
     const gl = this.gl!;
-    const m = 3 * SHADOW.sigma;
+    const S = c.sh;
+    const m = 3 * S.sigma;
     const qw = c.w * 0.84 + 2 * m, qh = c.h * 0.9 + 2 * m;
     const rt = renderTarget(gl, Math.ceil(qw * this.dpr * SHADOW_RES), Math.ceil(qh * this.dpr * SHADOW_RES));
     gl.bindFramebuffer(gl.FRAMEBUFFER, rt.fb);
@@ -171,9 +200,9 @@ export class CardsRenderer {
     const su = this.shadow.u;
     gl.uniform2f(su.u_res, qw, qh);
     gl.uniform4f(su.u_rect, m, m, c.w * 0.84, c.h * 0.9);
-    gl.uniform1f(su.u_sigma, SHADOW.sigma);
-    gl.uniform1f(su.u_radius, SHADOW.radius);
-    gl.uniform1f(su.u_alpha, SHADOW.alpha);
+    gl.uniform1f(su.u_sigma, S.sigma);
+    gl.uniform1f(su.u_radius, S.radius);
+    gl.uniform1f(su.u_alpha, S.alpha);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.deleteFramebuffer(rt.fb);
@@ -186,10 +215,13 @@ export class CardsRenderer {
 
   /** px, py — положение курсора в слоте, 0..1. */
   pointer(i: number, px: number, py: number) {
-    if (!this.opts.interactive) return;
+    // карта, проехавшая под неподвижным курсором при прокрутке, не наклоняется:
+    // кадры холста во время прокрутки не нужны
+    if (!this.opts.interactive || scrolling()) return;
     const c = this.cards[i];
-    c.rx.set(-(py - 0.5) * 2 * MAX_TILT); // точка под курсором уходит вглубь
-    c.ry.set((px - 0.5) * 2 * MAX_TILT);
+    const t = this.look.maxTilt;
+    c.rx.set(-(py - 0.5) * 2 * t); // точка под курсором уходит вглубь
+    c.ry.set((px - 0.5) * 2 * t);
     this.loop.invalidate();
   }
   leave(i: number) {
@@ -277,8 +309,9 @@ export class CardsRenderer {
 
       const rx = c.rx.x, ry = c.ry.x;
       // тень на «столе»: вниз-вправо от света, дальше при наклоне
-      const sx = ry * -1.6, sy = 22 + rx * 1.6;
-      const m = 3 * SHADOW.sigma;
+      const S = c.sh;
+      const sx = ry * -1.6 * S.k, sy = (22 + rx * 1.6) * S.k;
+      const m = 3 * S.sigma;
       gl.useProgram(this.sprite.prog);
       const pu = this.sprite.u;
       gl.uniform2f(pu.u_res, this.cssW, this.cssH);
@@ -303,8 +336,9 @@ export class CardsRenderer {
       gl.uniform2f(fu.u_res, this.cssW, this.cssH);
       gl.uniform2f(fu.u_center, c.x + c.w / 2, c.y + c.h / 2);
       gl.uniform2f(fu.u_size, c.w, c.h);
+      gl.uniform1f(fu.u_radius, c.radius);
       gl.uniform3f(fu.u_rot, (rx * Math.PI) / 180, (angle * Math.PI) / 180, c.scale.x);
-      gl.uniform1f(fu.u_persp, PERSPECTIVE);
+      gl.uniform1f(fu.u_persp, this.look.perspective);
       gl.uniform1f(fu.u_dealY, dealY);
       gl.uniform1f(fu.u_back, back ? 1 : 0);
       gl.uniform3f(fu.u_spec, specX, specY, specO);

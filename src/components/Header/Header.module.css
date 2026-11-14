@@ -5,7 +5,8 @@
   background: rgba(0,0,0,0); border-bottom: 1px solid transparent;
   transition: background .3s, border-color .3s;
 }
-.frosted {
+/* data-frosted ставит App прямо в DOM (без перерисовки React) */
+.top[data-frosted] {
   background: rgba(0,0,0,.72); border-bottom-color: rgba(255,255,255,.08);
   backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px);
 }

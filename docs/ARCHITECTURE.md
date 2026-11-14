@@ -10,8 +10,8 @@
 - **React 19 + TypeScript** (strict).
 - **CSS Modules** — у каждого компонента свой `*.module.css`; общие токены — в
   `src/styles/global.css`. Никаких UI-китов.
-- **WebGL2** (свой тонкий слой `src/gl/`, без 3D-библиотек) — карты частых вопросов
-  и огромный логотип в футере рисует видеокарта. Без WebGL — DOM-версия.
+- **WebGL2** (свой тонкий слой `src/gl/`, без 3D-библиотек) — визитку, карты частых
+  вопросов и огромный логотип в футере рисует видеокарта. Без WebGL — DOM-версия.
 - **motion** (`motion/react`) — пружины DOM-карт (запасной вариант без WebGL).
 - **@fontsource/inter** — шрифт Inter хранится в проекте, без запросов к Google.
 
@@ -31,20 +31,27 @@ src/
 ├── content/             ВСЕ тексты сайта — правятся здесь, а не в компонентах
 │   ├── site.ts          бренд, слоган, контакты, ссылка на политику
 │   ├── quiz.ts          вопросы анкеты и варианты ответов
+│   ├── card.ts          визитка студии (подписи; контакты — из site.ts)
 │   └── faq.ts           4 карты частых вопросов
 ├── gl/                WebGL: core.ts (контекст, шейдеры, текстуры, цикл по требованию),
-│                      motion.ts (пружина и cubic-bezier как в CSS/motion)
+│   │                  motion.ts (пружина и cubic-bezier как в CSS/motion),
+│   │                  raster.ts (DOM-сторона карты → canvas для текстуры)
+│   └── cards/         общий движок карт: CardsRenderer.ts (наклон, переворот, раздача;
+│                      вид — CardLook), shaders.ts, GlCards.tsx (холст + слоты-кнопки)
 ├── lib/
 │   ├── lead.ts          сборка и отправка заявки
-│   └── media.ts         проверки «есть мышь» и «без анимаций»
+│   ├── media.ts         проверки «есть мышь» и «без анимаций»
+│   └── scrolling.ts     «идёт прокрутка» — эффекты наведения в это время молчат
 ├── hooks/useInView.ts   «элемент впервые попал в экран»
 ├── styles/global.css    токены (цвета, шрифт, поля), сброс стилей
 └── components/
     ├── Screen/          полноэкранный экран и переход между экранами
     ├── Header/          шапка: логотип, «Назад», счётчик, контакты, «Оставить заявку»
     ├── Hero/            первый экран главной
-    ├── FaqCards/        частые вопросы: FaqCards (секция) → GlCards (WebGL, gl/) или
-    │                    FlipCard (DOM, если WebGL нет)
+    ├── BizCard/         визитка-карта во весь экран: BizCard (секция, вид BIZ_LOOK),
+    │                    faces.ts (разметка сторон — и для текстуры, и для DOM-версии)
+    ├── FaqCards/        частые вопросы: FaqCards (секция) → GlCards (gl/cards) или
+    │                    FlipCard (DOM, если WebGL нет); gl/faces.ts — стороны для текстуры
     ├── Footer/          футер с огромным логотипом
     ├── Quiz/            QuestionScreen (вопрос, варианты, контакты), DoneScreen
     ├── WaveText/        текст из букв: появление + курсор (engine.ts); gl — WebGL-слой (glText.ts)
@@ -58,7 +65,7 @@ docs/                    документация (этот файл, CONTENT.md
 
 | `cur`     | Экран |
 |-----------|-------|
-| `0`       | Главная. Листается: Hero → FaqCards → Footer |
+| `0`       | Главная. Листается: Hero → BizCard → FaqCards → Footer |
 | `1..N`    | Вопросы анкеты (`N = QUESTIONS.length`), последний — контакты |
 | `N + 1`   | «Спасибо» — заявка отправлена в момент перехода сюда |
 
@@ -88,7 +95,10 @@ docs/                    документация (этот файл, CONTENT.md
 | Цвета, шрифт, боковые поля | `src/styles/global.css` |
 | Порядок секций главной | `src/App.tsx` (экран 0) |
 | Буквы: сила толчка, пружина | `src/components/WaveText/` (см. docs/ANIMATIONS.md) |
-| Карты: наклон, переворот, раздача | `src/components/FaqCards/gl/CardsRenderer.ts` (DOM-запас — `FlipCard.tsx`) |
-| Карты: фон, кромки, блик, тень | `src/components/FaqCards/gl/shaders.ts` (повторяют CSS из `FaqCards.module.css`) |
+| Карты: наклон, переворот, раздача | `src/gl/cards/CardsRenderer.ts` (вид FAQ — `FAQ_LOOK`; DOM-запас — `FlipCard.tsx`) |
+| Карты: фон, кромки, блик, тень | `src/gl/cards/shaders.ts` (повторяют CSS из `FaqCards.module.css`) |
+| Визитка: тексты | `src/content/card.ts` (контакты — `site.ts`) |
+| Визитка: раскладка сторон, размер | `src/components/BizCard/BizCard.module.css` + `faces.ts` |
+| Визитка: наклон, перспектива, тень | `BIZ_LOOK` в `src/components/BizCard/BizCard.tsx` |
 | Логотип в футере (WebGL-буквы) | `src/components/WaveText/glText.ts` |
 | Куда уходит заявка | `.env` → `VITE_LEAD_ENDPOINT`, логика — `src/lib/lead.ts` |

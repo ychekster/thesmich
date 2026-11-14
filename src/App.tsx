@@ -5,6 +5,7 @@ import type { ChoiceAnswer, Contacts } from "./types";
 import { Header } from "./components/Header/Header";
 import { Screen, type ScreenState } from "./components/Screen/Screen";
 import { Hero } from "./components/Hero/Hero";
+import { BizCard } from "./components/BizCard/BizCard";
 import { FaqCards } from "./components/FaqCards/FaqCards";
 import { Footer } from "./components/Footer/Footer";
 import { QuestionScreen } from "./components/Quiz/QuestionScreen";
@@ -22,7 +23,7 @@ export default function App() {
   const [cur, setCur] = useState(0);
   const [answers, setAnswers] = useState<Record<string, ChoiceAnswer>>({});
   const [contacts, setContacts] = useState<Contacts>({ name: "", phone: "", email: "" });
-  const [frosted, setFrosted] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
   const homeRef = useRef<HTMLElement>(null);
 
   const go = useCallback((n: number) => setCur(Math.max(0, Math.min(DONE, n))), []);
@@ -46,15 +47,12 @@ export default function App() {
     return () => removeEventListener("keydown", onKey);
   }, [cur, go]);
 
-  // шапка матовая, если активный экран пролистан
-  useEffect(() => { setFrosted(cur === 0 && (homeRef.current?.scrollTop ?? 0) > 8); }, [cur]);
-  // при прокрутке React трогаем только когда матовость реально меняется
-  const frostedRef = useRef(frosted);
-  frostedRef.current = frosted;
-  const onHomeScroll = useCallback((e: React.UIEvent<HTMLElement>) => {
-    const f = e.currentTarget.scrollTop > 8;
-    if (f !== frostedRef.current) { frostedRef.current = f; setFrosted(f); }
-  }, []);
+  /* шапка матовая, если главная пролистана. Атрибут пишем прямо в DOM, без
+     React: смена состояния App перерисовывала все экраны (сотни букв) —
+     20+ мс, рывок при каждом старте прокрутки от верха */
+  const frost = (f: boolean) => headerRef.current?.toggleAttribute("data-frosted", f);
+  useEffect(() => { frost(cur === 0 && (homeRef.current?.scrollTop ?? 0) > 8); }, [cur]);
+  const onHomeScroll = useCallback((e: React.UIEvent<HTMLElement>) => frost(e.currentTarget.scrollTop > 8), []);
 
   const state = (i: number): ScreenState => (i === cur ? "active" : i < cur ? "past" : "future");
   const scrollToFaq = () => document.getElementById("faq")?.scrollIntoView({ behavior: "smooth" });
@@ -62,7 +60,7 @@ export default function App() {
   return (
     <>
       <Header
-        frosted={frosted}
+        ref={headerRef}
         step={cur > 0 && cur <= N ? cur : null}
         total={N}
         showCta={cur < N}
@@ -73,6 +71,7 @@ export default function App() {
       <main>
         <Screen ref={homeRef} state={state(0)} scroll onScroll={onHomeScroll}>
           <Hero active={cur === 0} questions={N} onStart={() => go(1)} />
+          <BizCard />
           <FaqCards live={cur === 0} />
           <Footer live={cur === 0} onQuiz={() => go(1)} onContact={() => go(N)} onFaq={scrollToFaq} />
         </Screen>
