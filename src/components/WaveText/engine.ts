@@ -2,8 +2,16 @@
  * Физика «курсор расталкивает буквы» — один общий движок на всю страницу.
  *
  * Каждый WaveText регистрирует свои буквы. Движок слушает мышь, считает пружины
- * и пишет transform прямо в style — без перерисовок React. Кадры крутятся только
- * пока буквы движутся; в покое requestAnimationFrame не вызывается.
+ * и пишет transform прямо в style — без перерисовок React.
+ *
+ * Производительность (см. docs/ANIMATIONS.md):
+ * - один цикл requestAnimationFrame на все заголовки; в покое он не крутится;
+ * - в кадре сначала все чтения (getBoundingClientRect), потом все записи —
+ *   без принудительных пересчётов раскладки;
+ * - заголовок далеко от курсора и в покое пропускается целиком;
+ * - в style пишется только изменившееся значение;
+ * - буква в покое сбрасывает transform, и браузер убирает её отдельный слой
+ *   (раньше каждая буква всегда была слоем — их были сотни).
  */
 
 export interface WaveOptions {
@@ -20,12 +28,14 @@ interface Letter {
   rx: number; ry: number; // центр буквы в покое — относительно контейнера
   line: number;           // номер строки (для тени при наезде на верхнюю)
   x: number; y: number; vx: number; vy: number;
+  tf: string; sh: string; // последние записанные transform и text-shadow
 }
 
 interface Item extends WaveOptions {
   root: HTMLElement;
   letters: Letter[];
-  running: boolean;
+  w: number; h: number;   // размер контейнера (для отсечения по расстоянию)
+  moving: boolean;        // есть сдвинутые буквы
 }
 
 const STIFFNESS = 0.16; // жёсткость пружины
@@ -35,10 +45,12 @@ const EPS = 0.05;       // ниже этого считаем, что буква
 const items = new Set<Item>();
 let mx = -1e4, my = -1e4;
 let listening = false;
+let raf = 0;
 
 function measure(it: Item) {
-  for (const l of it.letters) l.el.style.transform = "";
+  for (const l of it.letters) { l.el.style.transform = ""; l.el.style.textShadow = ""; }
   const r = it.root.getBoundingClientRect();
+  it.w = r.width; it.h = r.height;
   const lh = parseFloat(getComputedStyle(it.root).fontSize) * 0.9;
   let top0: number | null = null;
   for (const l of it.letters) {
@@ -48,58 +60,90 @@ function measure(it: Item) {
     if (top0 === null) top0 = l.ry;
     l.line = Math.round((l.ry - top0) / lh);
     l.x = l.y = l.vx = l.vy = 0;
+    l.tf = l.sh = "";
   }
+  it.moving = false;
 }
 
-function frame(it: Item) {
-  const r = it.root.getBoundingClientRect();
-  const live = it.isLive();
+/** Курсор достаточно близко к заголовку, чтобы задеть буквы. */
+function near(it: Item, r: DOMRect) {
+  const pad = it.radius;
+  return mx > r.left - pad && mx < r.left + it.w + pad && my > r.top - pad && my < r.top + it.h + pad;
+}
+
+function step(it: Item, r: DOMRect) {
+  const live = it.isLive() && near(it, r);
   let moving = false;
 
   for (const l of it.letters) {
-    const dx = r.left + l.rx - mx, dy = r.top + l.ry - my;
-    const d = Math.hypot(dx, dy) || 1;
     let tx = 0, ty = 0;
-    if (live && d < it.radius) {
-      const f = 1 - d / it.radius;
-      const p = f * f * it.push;
-      tx = (dx / d) * p * 0.35;
-      ty = (dy / d) * p;
+    if (live) {
+      const dx = r.left + l.rx - mx, dy = r.top + l.ry - my;
+      const d = Math.hypot(dx, dy) || 1;
+      if (d < it.radius) {
+        const f = 1 - d / it.radius;
+        const p = f * f * it.push;
+        tx = (dx / d) * p * 0.35;
+        ty = (dy / d) * p;
+      }
     }
     l.vx = (l.vx + (tx - l.x) * STIFFNESS) * DAMPING;
     l.vy = (l.vy + (ty - l.y) * STIFFNESS) * DAMPING;
     l.x += l.vx; l.y += l.vy;
-    if (Math.abs(l.vx) + Math.abs(l.vy) + Math.abs(tx - l.x) + Math.abs(ty - l.y) > EPS) moving = true;
 
-    l.el.style.transform = `translate3d(${l.x.toFixed(2)}px, ${l.y.toFixed(2)}px, 0) rotate(${(l.x * 0.25).toFixed(2)}deg)`;
+    let tf: string;
+    if (Math.abs(l.vx) + Math.abs(l.vy) + Math.abs(tx - l.x) + Math.abs(ty - l.y) > EPS) {
+      moving = true;
+      tf = `translate3d(${l.x.toFixed(2)}px, ${l.y.toFixed(2)}px, 0) rotate(${(l.x * 0.25).toFixed(2)}deg)`;
+    } else if (tx === 0 && ty === 0) {
+      // буква вернулась на место — снимаем transform, слой исчезает
+      l.x = l.y = l.vx = l.vy = 0;
+      tf = "";
+    } else {
+      tf = l.tf; // замерла в сдвинутом положении — ничего не пишем
+    }
+    if (tf !== l.tf) { l.el.style.transform = tf; l.tf = tf; }
 
     // буква нижней строки, наехавшая на верхнюю, отбрасывает тень
     if (l.line > 0) {
       const a = Math.min(0.9, Math.max(0, (-l.y - 6) / 36));
-      l.el.style.textShadow = a > 0.01
+      const sh = a > 0.01
         ? `0 ${(6 + a * 14).toFixed(1)}px ${(14 + a * 22).toFixed(1)}px rgba(0,0,0,${a.toFixed(2)}), 0 2px 6px rgba(0,0,0,${(a * 0.7).toFixed(2)})`
         : "";
+      if (sh !== l.sh) { l.el.style.textShadow = sh; l.sh = sh; }
     }
   }
-
-  if (moving) requestAnimationFrame(() => frame(it));
-  else it.running = false;
+  it.moving = moving;
+  return moving;
 }
 
-function kick(it: Item) {
-  if (it.running) return;
-  it.running = true;
-  requestAnimationFrame(() => frame(it));
+function frame() {
+  raf = 0;
+  // 1) только чтения
+  const work: [Item, DOMRect][] = [];
+  for (const it of items) {
+    if (!it.moving && !it.isLive()) continue;
+    const r = it.root.getBoundingClientRect();
+    if (!it.moving && !near(it, r)) continue; // далеко и в покое — пропускаем
+    work.push([it, r]);
+  }
+  // 2) только записи
+  let again = false;
+  for (const [it, r] of work) if (step(it, r)) again = true;
+  if (again) raf = requestAnimationFrame(frame);
 }
 
-const kickLive = () => items.forEach(it => { if (it.isLive() || it.running) kick(it); });
-const measureAll = () => { items.forEach(measure); kickLive(); };
+function kick() {
+  if (!raf) raf = requestAnimationFrame(frame);
+}
+
+const measureAll = () => { items.forEach(measure); kick(); };
 
 function listen() {
   if (listening) return;
   listening = true;
-  addEventListener("mousemove", e => { mx = e.clientX; my = e.clientY; kickLive(); }, { passive: true });
-  document.addEventListener("mouseleave", () => { mx = my = -1e4; kickLive(); });
+  addEventListener("mousemove", e => { mx = e.clientX; my = e.clientY; kick(); }, { passive: true });
+  document.addEventListener("mouseleave", () => { mx = my = -1e4; kick(); });
   addEventListener("resize", measureAll);
   document.fonts?.ready.then(() => setTimeout(measureAll, 50));
 }
@@ -108,9 +152,9 @@ function listen() {
 export function register(root: HTMLElement, opts: WaveOptions) {
   listen();
   const letters: Letter[] = [...root.querySelectorAll<HTMLElement>("[data-ch]")].map(el => ({
-    el, rx: 0, ry: 0, line: 0, x: 0, y: 0, vx: 0, vy: 0,
+    el, rx: 0, ry: 0, line: 0, x: 0, y: 0, vx: 0, vy: 0, tf: "", sh: "",
   }));
-  const it: Item = { ...opts, root, letters, running: false };
+  const it: Item = { ...opts, root, letters, w: 0, h: 0, moving: false };
   items.add(it);
   measure(it);
   return {

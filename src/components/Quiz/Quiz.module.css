@@ -75,7 +75,7 @@
 .ok {
   width: 88px; height: 88px; border-radius: 50%; background: var(--accent); color: #fff;
   display: grid; place-items: center; margin-bottom: 36px;
-  animation: pop .7s var(--ease) .3s both;
+  animation: pop .7s var(--ease) .3s backwards;
 }
 @keyframes pop { from { transform: scale(.5); opacity: 0; } }
 .grey { color: var(--grey); }

@@ -19,4 +19,7 @@
 
 /* листающийся экран (главная): контент сверху, без нижнего поля */
 .scroll { justify-content: flex-start; padding-bottom: 0; }
+/* непрозрачный фон (тот же чёрный, что у body) — браузер прокручивает экран
+   на видеокарте, не перерисовывая содержимое */
+.scroll { background: var(--bg); }
 .scroll .inner { margin: 0 auto; max-width: 1280px; }

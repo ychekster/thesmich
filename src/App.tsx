@@ -48,6 +48,13 @@ export default function App() {
 
   // шапка матовая, если активный экран пролистан
   useEffect(() => { setFrosted(cur === 0 && (homeRef.current?.scrollTop ?? 0) > 8); }, [cur]);
+  // при прокрутке React трогаем только когда матовость реально меняется
+  const frostedRef = useRef(frosted);
+  frostedRef.current = frosted;
+  const onHomeScroll = useCallback((e: React.UIEvent<HTMLElement>) => {
+    const f = e.currentTarget.scrollTop > 8;
+    if (f !== frostedRef.current) { frostedRef.current = f; setFrosted(f); }
+  }, []);
 
   const state = (i: number): ScreenState => (i === cur ? "active" : i < cur ? "past" : "future");
   const scrollToFaq = () => document.getElementById("faq")?.scrollIntoView({ behavior: "smooth" });
@@ -64,7 +71,7 @@ export default function App() {
       />
 
       <main>
-        <Screen ref={homeRef} state={state(0)} scroll onScroll={e => setFrosted(e.currentTarget.scrollTop > 8)}>
+        <Screen ref={homeRef} state={state(0)} scroll onScroll={onHomeScroll}>
           <Hero active={cur === 0} questions={N} onStart={() => go(1)} />
           <FaqCards live={cur === 0} />
           <Footer live={cur === 0} onQuiz={() => go(1)} onContact={() => go(N)} onFaq={scrollToFaq} />
