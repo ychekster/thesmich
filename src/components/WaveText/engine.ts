@@ -21,9 +21,14 @@ export interface WaveOptions {
   push: number;
   /** Можно ли сейчас реагировать на курсор (экран активен). */
   isLive: () => boolean;
+  /**
+   * Свой отрисовщик (WebGL): движок не пишет style, а после каждого шага
+   * вызывает onFrame — смещения букв лежат в handle.letters (x, y).
+   */
+  onFrame?: () => void;
 }
 
-interface Letter {
+export interface Letter {
   el: HTMLElement;
   rx: number; ry: number; // центр буквы в покое — относительно контейнера
   line: number;           // номер строки (для тени при наезде на верхнюю)
@@ -102,6 +107,7 @@ function step(it: Item, r: DOMRect) {
     } else {
       tf = l.tf; // замерла в сдвинутом положении — ничего не пишем
     }
+    if (it.onFrame) continue; // рисует WebGL — в DOM ничего не пишем
     if (tf !== l.tf) { l.el.style.transform = tf; l.tf = tf; }
 
     // буква нижней строки, наехавшая на верхнюю, отбрасывает тень
@@ -114,6 +120,7 @@ function step(it: Item, r: DOMRect) {
     }
   }
   it.moving = moving;
+  it.onFrame?.();
   return moving;
 }
 
@@ -158,6 +165,7 @@ export function register(root: HTMLElement, opts: WaveOptions) {
   items.add(it);
   measure(it);
   return {
+    letters,
     remeasure: () => measure(it),
     unregister: () => { items.delete(it); },
   };

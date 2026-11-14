@@ -44,7 +44,7 @@ export function Footer({ live, onQuiz, onContact, onFaq }: Props) {
 
       {/* огромный логотип — буквы тоже расталкиваются курсором */}
       <div ref={markRef}>
-        <WaveText text={`${site.brand}.`} className={s.mark} play={markIn} live={live} strength="huge" step={16} delay={120} accentLast />
+        <WaveText text={`${site.brand}.`} className={s.mark} play={markIn} live={live} strength="huge" step={16} delay={120} accentLast gl />
       </div>
 
       <div className={s.bottom}>

@@ -24,3 +24,8 @@
   60% { opacity: 1; filter: blur(0); }
   100% { opacity: 1; transform: none; filter: blur(0); }
 }
+
+/* WebGL-режим (glText.ts): DOM-буквы невидимы, но держат раскладку; рисует холст */
+.gl { position: relative; }
+.gl .in { animation: none !important; opacity: 0 !important; }
+.glCanvas { position: absolute; display: block; pointer-events: none; }

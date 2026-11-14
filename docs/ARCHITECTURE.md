@@ -10,7 +10,9 @@
 - **React 19 + TypeScript** (strict).
 - **CSS Modules** — у каждого компонента свой `*.module.css`; общие токены — в
   `src/styles/global.css`. Никаких UI-китов.
-- **motion** (`motion/react`) — пружинные анимации карт частых вопросов.
+- **WebGL2** (свой тонкий слой `src/gl/`, без 3D-библиотек) — карты частых вопросов
+  и огромный логотип в футере рисует видеокарта. Без WebGL — DOM-версия.
+- **motion** (`motion/react`) — пружины DOM-карт (запасной вариант без WebGL).
 - **@fontsource/inter** — шрифт Inter хранится в проекте, без запросов к Google.
 
 Серверной части пока нет. Заявка уходит POST-запросом на `VITE_LEAD_ENDPOINT`
@@ -30,6 +32,8 @@ src/
 │   ├── site.ts          бренд, слоган, контакты, ссылка на политику
 │   ├── quiz.ts          вопросы анкеты и варианты ответов
 │   └── faq.ts           4 карты частых вопросов
+├── gl/                WebGL: core.ts (контекст, шейдеры, текстуры, цикл по требованию),
+│                      motion.ts (пружина и cubic-bezier как в CSS/motion)
 ├── lib/
 │   ├── lead.ts          сборка и отправка заявки
 │   └── media.ts         проверки «есть мышь» и «без анимаций»
@@ -39,10 +43,11 @@ src/
     ├── Screen/          полноэкранный экран и переход между экранами
     ├── Header/          шапка: логотип, «Назад», счётчик, контакты, «Оставить заявку»
     ├── Hero/            первый экран главной
-    ├── FaqCards/        частые вопросы: FaqCards (секция) + FlipCard (карта)
+    ├── FaqCards/        частые вопросы: FaqCards (секция) → GlCards (WebGL, gl/) или
+    │                    FlipCard (DOM, если WebGL нет)
     ├── Footer/          футер с огромным логотипом
     ├── Quiz/            QuestionScreen (вопрос, варианты, контакты), DoneScreen
-    ├── WaveText/        текст из букв: появление + реакция на курсор (engine.ts)
+    ├── WaveText/        текст из букв: появление + курсор (engine.ts); gl — WebGL-слой (glText.ts)
     └── icons.tsx        SVG-иконки
 docs/                    документация (этот файл, CONTENT.md, ANIMATIONS.md)
 ```
@@ -83,5 +88,7 @@ docs/                    документация (этот файл, CONTENT.md
 | Цвета, шрифт, боковые поля | `src/styles/global.css` |
 | Порядок секций главной | `src/App.tsx` (экран 0) |
 | Буквы: сила толчка, пружина | `src/components/WaveText/` (см. docs/ANIMATIONS.md) |
-| Карты: наклон, блик, переворот | `src/components/FaqCards/FlipCard.tsx` |
+| Карты: наклон, переворот, раздача | `src/components/FaqCards/gl/CardsRenderer.ts` (DOM-запас — `FlipCard.tsx`) |
+| Карты: фон, кромки, блик, тень | `src/components/FaqCards/gl/shaders.ts` (повторяют CSS из `FaqCards.module.css`) |
+| Логотип в футере (WebGL-буквы) | `src/components/WaveText/glText.ts` |
 | Куда уходит заявка | `.env` → `VITE_LEAD_ENDPOINT`, логика — `src/lib/lead.ts` |

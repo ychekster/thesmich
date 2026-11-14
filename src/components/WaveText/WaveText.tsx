@@ -1,6 +1,8 @@
-import { useEffect, useRef, type CSSProperties, type ElementType } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ElementType } from "react";
 import { finePointer, reducedMotion } from "../../lib/media";
+import { webglSupported } from "../../gl/core";
 import { register } from "./engine";
+import { GlTextLayer } from "./glText";
 import s from "./WaveText.module.css";
 
 /** Сила реакции на курсор: под размер шрифта. */
@@ -27,6 +29,12 @@ interface Props {
   lineClassNames?: string[];
   /** Подсветить последний символ (точку в логотипе). */
   accentLast?: boolean;
+  /**
+   * Рисовать буквы на WebGL (glText.ts): появление из размытия без покадрового
+   * blur. DOM-буквы остаются невидимыми — для раскладки, курсора и дикторов.
+   * Без WebGL — обычная DOM-версия.
+   */
+  gl?: boolean;
 }
 
 /**
@@ -36,37 +44,54 @@ interface Props {
  */
 export function WaveText({
   text, as: Tag = "p", className, play, live = true, strength = "normal",
-  step = 32, delay = 250, lineClassNames, accentLast,
+  step = 32, delay = 250, lineClassNames, accentLast, gl: wantGl,
 }: Props) {
   const ref = useRef<HTMLElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const layerRef = useRef<GlTextLayer | null>(null);
   const liveRef = useRef(live);
   liveRef.current = live;
+  const [gl, setGl] = useState(() => !!wantGl && webglSupported());
 
   const lines = Array.isArray(text) ? text : [text];
   const label = lines.join(" ");
   const total = lines.join("").replace(/\s/g, "").length;
 
+  // WebGL-слой букв
+  useEffect(() => {
+    if (!gl) return;
+    const layer = new GlTextLayer(canvasRef.current!, ref.current!, { step, delay, reduced: reducedMotion() });
+    if (!layer.ok) { layer.destroy(); setGl(false); return; }
+    layerRef.current = layer;
+    return () => { layer.destroy(); layerRef.current = null; };
+  }, [gl, label, step, delay]);
+
+  // курсор расталкивает буквы (в WebGL-режиме движок только считает, рисует слой)
   useEffect(() => {
     const el = ref.current;
     if (!el || !finePointer() || reducedMotion()) return;
-    const h = register(el, { ...STRENGTH[strength], isLive: () => liveRef.current });
+    const layer = layerRef.current;
+    const h = register(el, { ...STRENGTH[strength], isLive: () => liveRef.current, onFrame: layer?.invalidate });
+    if (layer) layer.letters = h.letters;
     return h.unregister;
-  }, [label, strength]);
+  }, [label, strength, gl]);
 
   /* появление: при play=true перезапускаем анимацию; при play=false буквы
      остаются видимыми (иначе они исчезали бы, пока экран плавно уходит) */
   useEffect(() => {
     const el = ref.current;
     if (!el || !play) return;
+    if (layerRef.current) { layerRef.current.play(); return; }
     el.classList.remove(s.play);
     void el.offsetWidth; // перезапуск CSS-анимации
     el.classList.add(s.play);
-  }, [play]);
+  }, [play, gl]);
 
   let i = 0;
   const style = { "--step": `${step}ms`, "--d0": `${delay}ms` } as CSSProperties;
   return (
-    <Tag ref={ref} className={`${s.wave} ${className ?? ""}`} style={style} aria-label={label}>
+    <Tag ref={ref} className={`${s.wave} ${gl ? s.gl : ""} ${className ?? ""}`} style={style} aria-label={label}>
+      {gl && <canvas ref={canvasRef} className={s.glCanvas} aria-hidden="true" />}
       {lines.map((line, li) => (
         <span key={li} className={`${Array.isArray(text) ? s.line : ""} ${lineClassNames?.[li] ?? ""}`} aria-hidden="true">
           {line.split(" ").map((word, wi, words) => (
