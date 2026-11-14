@@ -10,6 +10,7 @@ import d from "./DomIdCard.module.css";
 /*
  * Удостоверение — одна большая карта на тот же движок, что карты FAQ:
  * наклон к курсору, блик от неподвижного света, переворот по клику.
+ * На телефоне карту наклоняют пальцем (зажал и ведёшь), тап — переворот.
  * Материал — матовый (matte: глянцевая полоса гаснет, зерно soft-touch).
  * Большой карте — меньший наклон и «дальняя» перспектива, иначе края искажаются.
  */
@@ -45,7 +46,7 @@ export function IdCard({ person, slotClassName, backText }: Props) {
   useEffect(() => { const t = setTimeout(() => setDealt(true), 120); return () => clearTimeout(t); }, []);
 
   return gl ? (
-    <GlCards items={items} raster={raster} look={ID_LOOK} className={d.grid} slotClassName={slotClassName} dealt={dealt} onFail={onFail} />
+    <GlCards items={items} raster={raster} look={ID_LOOK} className={d.grid} slotClassName={slotClassName} dealt={dealt} onFail={onFail} touchTilt />
   ) : (
     <DomIdCard person={person} slotClassName={slotClassName} backText={backText} dealt={dealt} />
   );
@@ -75,6 +76,14 @@ function DomIdCard({ person, slotClassName, backText, dealt }: Props & { dealt: 
   }, [person]);
 
   const hover = finePointer() && !reducedMotion();
+  const touchTilt = !reducedMotion();
+  const drag = useRef<{ x: number; y: number; moved: boolean } | null>(null);
+  const dragged = useRef(false);
+  const tiltAt = (e: React.PointerEvent<HTMLDivElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    const k = (v: number) => Math.min(1, Math.max(0, v)) - 0.5;
+    tilt(k((e.clientX - r.left) / r.width), k((e.clientY - r.top) / r.height));
+  };
   const tilt = (x: number, y: number) => {
     const el = tiltRef.current;
     if (el) el.style.transform = `rotateX(${(-y * 2 * ID_LOOK.maxTilt).toFixed(2)}deg) rotateY(${(x * 2 * ID_LOOK.maxTilt).toFixed(2)}deg)`;
@@ -86,12 +95,21 @@ function DomIdCard({ person, slotClassName, backText, dealt }: Props & { dealt: 
         ref={hitRef}
         className={`${slotClassName} ${d.hit}`}
         role="button" tabIndex={0} aria-pressed={flipped} aria-label={idText.label(person)}
-        onPointerMove={hover ? e => {
-          const r = e.currentTarget.getBoundingClientRect();
-          tilt((e.clientX - r.left) / r.width - 0.5, (e.clientY - r.top) / r.height - 0.5);
-        } : undefined}
-        onPointerLeave={hover ? () => tilt(0, 0) : undefined}
-        onClick={() => setFlipped(v => !v)}
+        onPointerDown={e => {
+          dragged.current = false;
+          if (e.pointerType === "touch" && touchTilt) { drag.current = { x: e.clientX, y: e.clientY, moved: false }; tiltAt(e); }
+        }}
+        onPointerMove={e => {
+          if (e.pointerType !== "touch") { if (hover) tiltAt(e); return; }
+          const t = drag.current;
+          if (!t) return;
+          if (Math.hypot(e.clientX - t.x, e.clientY - t.y) > 10) t.moved = true;
+          tiltAt(e);
+        }}
+        onPointerUp={e => { if (e.pointerType === "touch") { dragged.current = !!drag.current?.moved; drag.current = null; tilt(0, 0); } }}
+        onPointerCancel={() => { drag.current = null; tilt(0, 0); }}
+        onPointerLeave={e => { if (hover && e.pointerType !== "touch") tilt(0, 0); }}
+        onClick={() => { if (dragged.current) { dragged.current = false; return; } setFlipped(v => !v); }}
         onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setFlipped(v => !v); } }}
       >
         <div ref={tiltRef} className={d.tilt}>

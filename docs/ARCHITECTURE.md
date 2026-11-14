@@ -64,8 +64,7 @@ src/
     │                    на телефоне — горизонтальная лента со снапом
     ├── IdCard/          удостоверение: IdCard (вид ID_LOOK, DOM-запас), faces.ts (стороны,
     │                    гильош, портрет, QR, штрих-код, MRZ), IdCard.module.css (раскладка)
-    ├── PersonPage/      страница-визитка: карта + кнопки (звонок, Telegram, Instagram,
-    │                    «В контакты» — vCard, ссылка на главную)
+    ├── PersonPage/      страница-визитка: только карта во весь экран, экран зафиксирован
     ├── Footer/          футер с огромным логотипом
     ├── Quiz/            QuestionScreen (вопрос, варианты, контакты), DoneScreen
     ├── WaveText/        текст из букв: появление + курсор (engine.ts); gl — WebGL-слой (glText.ts)
@@ -115,7 +114,7 @@ docs/                    документация (этот файл, CONTENT.md
 | Удостоверения: имена, контакты, фото | `src/content/team.ts` |
 | Удостоверения: раскладка сторон | `src/components/IdCard/IdCard.module.css` + `faces.ts` |
 | Удостоверения: наклон, тень, мат | `ID_LOOK` в `src/components/IdCard/IdCard.tsx` |
-| Страница-визитка: размер карты, кнопки | `src/components/PersonPage/` |
+| Страница-визитка: размер карты | `src/components/PersonPage/` |
 | Новая страница-визитка | `team.ts` + папка `<slug>/index.html` + `vite.config.ts` |
 | Идеи на будущее | `docs/IDEAS.md` |
 | Логотип в футере (WebGL-буквы) | `src/components/WaveText/glText.ts` |

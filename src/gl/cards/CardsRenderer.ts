@@ -57,6 +57,8 @@ export interface CardsOptions {
   interactive: boolean; // мышь и без reduced motion: наклон, блик, нажатие
   reduced: boolean;     // reduced motion: без раздачи и с мгновенным переворотом
   look?: CardLook;      // по умолчанию — FAQ_LOOK
+  touch?: boolean;      // наклон пальцем (удостоверения): pointer/press с force
+  onError?: () => void; // растр сторон упал — компонент покажет DOM-карты
 }
 
 /** Растр сторон карт под их размеры (текст, масти, плашки) — см. gl/raster.ts. */
@@ -169,7 +171,15 @@ export class CardsRenderer {
   private async raster() {
     const id = ++this.layoutId;
     const sizes = this.cards.map(c => ({ w: c.w, h: c.h }));
-    const rasters = await this.rasterFn(sizes, this.dpr);
+    let rasters: FaceRaster[];
+    try {
+      rasters = await this.rasterFn(sizes, this.dpr);
+    } catch (e) {
+      // без этого карта молча не появилась бы (чёрный экран)
+      console.warn(e);
+      if (!this.dead) this.opts.onError?.();
+      return;
+    }
     if (id !== this.layoutId || this.dead) return; // пока растеризовали, размер снова поменялся
     this.rasters = rasters;
     this.upload();
@@ -215,11 +225,11 @@ export class CardsRenderer {
 
   // ---------- ввод ----------
 
-  /** px, py — положение курсора в слоте, 0..1. */
-  pointer(i: number, px: number, py: number) {
+  /** px, py — положение курсора в слоте, 0..1. touch — палец (если включено opts.touch). */
+  pointer(i: number, px: number, py: number, touch = false) {
     // карта, проехавшая под неподвижным курсором при прокрутке, не наклоняется:
     // кадры холста во время прокрутки не нужны
-    if (!this.opts.interactive || scrolling()) return;
+    if (touch ? !this.opts.touch || this.opts.reduced : !this.opts.interactive || scrolling()) return;
     const c = this.cards[i];
     const t = this.look.maxTilt;
     c.rx.set(-(py - 0.5) * 2 * t); // точка под курсором уходит вглубь
@@ -231,8 +241,8 @@ export class CardsRenderer {
     c.rx.set(0); c.ry.set(0); c.scale.set(1);
     this.loop.invalidate();
   }
-  press(i: number, down: boolean) {
-    if (!this.opts.interactive) return;
+  press(i: number, down: boolean, touch = false) {
+    if (touch ? !this.opts.touch || this.opts.reduced : !this.opts.interactive) return;
     this.cards[i].scale.set(down ? 0.97 : 1);
     this.loop.invalidate();
   }

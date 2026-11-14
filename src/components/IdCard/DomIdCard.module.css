@@ -6,7 +6,7 @@
   transition: opacity .7s ease, transform 1s cubic-bezier(.16, 1, .3, 1);
 }
 .deal[data-dealt] { opacity: 1; transform: none; }
-.hit { position: relative; container-type: size; cursor: pointer; outline: none; perspective: 2800px; -webkit-tap-highlight-color: transparent; }
+.hit { position: relative; container-type: size; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; cursor: pointer; outline: none; perspective: 2800px; -webkit-tap-highlight-color: transparent; }
 .hit:focus-visible { outline: 2px solid var(--accent); outline-offset: 8px; }
 .tilt { width: 100%; height: 100%; transform-style: preserve-3d; transition: transform .3s cubic-bezier(.2, .8, .2, 1); }
 .flip {

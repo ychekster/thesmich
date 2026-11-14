@@ -1,36 +1,22 @@
 /*
- * Страница-визитка: карта по центру во весь экран, под ней — контакты.
- * Холст карты выходит за слот (тень, раздача снизу), поэтому страница
- * обрезает лишнее и не прокручивается.
+ * Страница-визитка: только карта по центру, во весь экран. Холст карты выходит
+ * за слот (тень, раздача снизу), поэтому страница обрезает лишнее и не
+ * прокручивается. Экран зафиксирован: не тянется и не листается пальцем —
+ * жесты по карте наклоняют её (touchTilt в GlCards).
  */
+:global(html), :global(body) { overflow: hidden; overscroll-behavior: none; }
+
 .page {
   position: fixed; inset: 0; overflow: hidden;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 40px; padding: 32px 24px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+  touch-action: none;
 }
 
 /* слот = размер карты: ID-1 85.6 × 54, сколько позволяет экран */
 .slot {
-  width: min(calc(100vw - 192px), 1440px, calc((100vh - 180px) * 1.5852));
+  width: min(calc(100vw - 192px), 1520px, calc((100vh - 120px) * 1.5852));
   aspect-ratio: 85.6 / 54;
-}
-
-.actions { position: relative; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-.action {
-  display: inline-flex; align-items: center; height: 40px; padding: 0 18px;
-  border-radius: 999px; background: rgba(255,255,255,.08);
-  font-size: 15px; font-weight: 500; letter-spacing: -.01em; color: var(--text);
-  text-decoration: none; cursor: pointer;
-  transition: background-color .2s ease, transform .2s ease;
-}
-.action:active { transform: scale(.96); }
-.action:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-.primary { background: var(--accent); color: #fff; }
-.home { background: none; color: var(--grey); }
-@media (hover: hover) and (pointer: fine) {
-  .action:hover { background: rgba(255,255,255,.14); }
-  .primary:hover { background: #4aa8ff; }
-  .home:hover { background: none; color: var(--text); }
 }
 
 .srOnly {
@@ -38,10 +24,8 @@
   clip-path: inset(50%); white-space: nowrap;
 }
 
-/* телефон: вертикальная карта на всю ширину, кнопки ниже */
+/* телефон: вертикальная карта, сколько влезает по ширине и высоте */
 @media (max-width: 760px) {
-  .page { gap: 22px; padding: 20px 16px calc(16px + env(safe-area-inset-bottom)); }
-  .slot { width: min(calc(100vw - 32px), calc((100svh - 150px) * .6308)); aspect-ratio: 54 / 85.6; }
-  .actions { gap: 8px; }
-  .action { height: 36px; padding: 0 14px; font-size: 14px; }
+  .page { padding: 16px; }
+  .slot { width: min(calc(100vw - 32px), calc((100svh - 48px) * .6308)); aspect-ratio: 54 / 85.6; }
 }

@@ -5,7 +5,7 @@ import { site } from "./site";
  * На главной пока не упоминаются (см. docs/IDEAS.md).
  *
  * Данные-заглушки помечены TODO: их заменяет только владелец. Пустая фамилия
- * или пустой контакт — поле на карте и кнопка под ней просто не показываются.
+ * или пустой контакт — поле на карте просто не показывается.
  */
 
 export interface Person {
@@ -77,7 +77,5 @@ export const idText = {
   validValue: "Мерзімсіз / Бессрочно",
   contacts: { phone: "Телефон", telegram: "Telegram", instagram: "Instagram", email: "Почта" },
   qrNote: "Наведите камеру — визитка откроется на телефоне",
-  /** Кнопки под картой — контакты должны быть кликабельными. */
-  actions: { call: "Позвонить", telegram: "Telegram", instagram: "Instagram", save: "В контакты", site: "Сайт студии" },
   label: (p: Person) => `Удостоверение: ${p.name}${p.surname ? " " + p.surname : ""}, ${site.brand}`,
 };

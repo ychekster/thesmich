@@ -60,7 +60,10 @@ export async function rasterDom(faces: RasterFace[], dpr: number, sample: string
     // дождаться нужных начертаний (подмножества шрифта грузятся лениво)
     const loads = new Set<string>();
     host.querySelectorAll("*").forEach(el => { if (el.textContent) loads.add(fontOf(getComputedStyle(el))); });
-    await Promise.all([...loads].map(f => document.fonts.load(f, sample).catch(() => [])));
+    // не дольше 2 с: если браузер так и не ответит про шрифт, рисуем тем, что есть,
+    // иначе карта не появилась бы вовсе
+    const wait = new Promise(r => setTimeout(r, 2000));
+    await Promise.race([wait, Promise.all([...loads].map(f => document.fonts.load(f, sample).catch(() => [])))]);
 
     const range = document.createRange();
     const ascent = new Map<string, number>();
