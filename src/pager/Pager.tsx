@@ -5,7 +5,7 @@ import { nav } from "./nav";
 import s from "./Pager.module.css";
 
 /** Однотонные фоны секций — у каждой свой цвет (Pager.module.css, .bg_*). */
-export type Backdrop = "ink" | "paper" | "graphite" | "red" | "black" | "sand" | "night" | "coal";
+export type Backdrop = "ink" | "red" | "smoke" | "mist" | "white";
 /** Тема: перекрашивает токены текста (global.css) и шапку. */
 export type Theme = "dark" | "light" | "accent";
 
@@ -17,8 +17,6 @@ export interface Page {
   theme: Theme;
   node: ReactNode;
 }
-
-const pad = (k: number) => String(k).padStart(2, "0");
 
 /**
  * Полноэкранные секции главной. React рисует их один раз; переходы, сборку
@@ -44,7 +42,7 @@ export const Pager = memo(function Pager({ pages }: { pages: Page[] }) {
       onTone: t => { document.documentElement.dataset.tone = t; },
       onIndex: i => {
         tickRefs.current.forEach((b, k) => b.toggleAttribute("aria-current", k === i));
-        if (countRef.current) countRef.current.textContent = pad(i + 1);
+        if (countRef.current) countRef.current.textContent = String(i + 1);
       },
     });
     nav.go = id => engine.go(pages.findIndex(p => p.id === id));
@@ -75,17 +73,15 @@ export const Pager = memo(function Pager({ pages }: { pages: Page[] }) {
         </section>
       ))}
 
-      {/* индикатор слева: номер секции и риски (переход по клику) */}
+      {/* индикатор: «1 / 8» и риски (переход по клику); слева, на телефоне — снизу */}
       <nav className={s.meter} aria-label="Разделы страницы">
-        <p className={s.count}><b ref={countRef}>{pad(start + 1)}</b> / {pad(pages.length)}</p>
-        <div className={s.ticks}>
-          {pages.map((p, i) => (
-            <button
-              key={p.id} type="button" className={s.tick} aria-label={p.label} title={p.label}
-              ref={el => { if (el) tickRefs.current[i] = el; }} onClick={() => nav.go(p.id)}
-            />
-          ))}
-        </div>
+        <p className={s.count}><b ref={countRef}>{start + 1}</b> / {pages.length}</p>
+        {pages.map((p, i) => (
+          <button
+            key={p.id} type="button" className={s.tick} aria-label={p.label} title={p.label}
+            ref={el => { if (el) tickRefs.current[i] = el; }} onClick={() => nav.go(p.id)}
+          />
+        ))}
       </nav>
     </div>
   );

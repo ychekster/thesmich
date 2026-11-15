@@ -17,13 +17,13 @@ import { Contacts } from "./sections/Contacts/Contacts";
 export default function App() {
   const pages = useMemo<Page[]>(() => [
     { id: "top", label: "Главная", bg: "ink", theme: "dark", node: <Hero /> },
-    { id: "about", label: "О студии", bg: "paper", theme: "light", node: <About /> },
-    { id: "sites", label: "Какие сайты делаем", bg: "graphite", theme: "dark", node: <Sites /> },
+    { id: "about", label: "О студии", bg: "red", theme: "accent", node: <About /> },
+    { id: "sites", label: "Какие сайты делаем", bg: "smoke", theme: "light", node: <Sites /> },
     { id: "channels", label: "Каналы продвижения", bg: "red", theme: "accent", node: <Channels /> },
-    { id: "promo", label: "Промо-ролик", bg: "black", theme: "dark", node: <Promo /> },
-    { id: "bonus", label: "Колесо бонусов", bg: "sand", theme: "light", node: <Wheel /> },
-    { id: "partners", label: "Вакансии", bg: "night", theme: "dark", node: <Partners /> },
-    { id: "contacts", label: "Контакты", bg: "coal", theme: "dark", node: <Contacts /> },
+    { id: "promo", label: "Промо-ролик", bg: "ink", theme: "dark", node: <Promo /> },
+    { id: "bonus", label: "Колесо бонусов", bg: "mist", theme: "light", node: <Wheel /> },
+    { id: "partners", label: "Карьера", bg: "ink", theme: "dark", node: <Partners /> },
+    { id: "contacts", label: "Контакты", bg: "white", theme: "light", node: <Contacts /> },
   ], []);
 
   return (

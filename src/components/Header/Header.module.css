@@ -1,30 +1,40 @@
+/* Шапка по макету: логотип «the smich.» и кнопка-«таблетка» в контейнере 1250. */
 .header {
   position: fixed; top: 0; left: 0; right: 0; z-index: 10;
   height: var(--header);
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 var(--x);
-  /* цвета шапки по теме секции под ней */
-  --h-text: #f5f5f7; --h-btn: var(--accent); --h-btn-ink: #fff;
+  padding: 0 var(--side);
+  /* цвета шапки по теме секции под ней (html[data-tone], ставит движок) */
+  --h-text: #fff; --h-line: #fff; --h-dot: var(--accent);
   color: var(--h-text);
   transition: color .45s ease;
   pointer-events: none;
 }
-:global(html[data-tone="light"]) .header { --h-text: #111113; }
-:global(html[data-tone="accent"]) .header { --h-btn: #fff; --h-btn-ink: var(--accent); }
+:global(html[data-tone="light"]) .header { --h-text: #212121; --h-line: #b1b3b6; }
+:global(html[data-tone="accent"]) .header { --h-dot: #fff; }
 
 .logo, .cta { pointer-events: auto; }
-.logo { font-size: 19px; font-weight: 700; letter-spacing: -.03em; text-decoration: none; }
+.logo {
+  font: 800 calc(40 * var(--u)) / 1 var(--font); letter-spacing: -.02em;
+  text-transform: lowercase; text-decoration: none;
+}
+.dot { color: var(--h-dot); transition: color .45s ease; }
 
 .cta {
-  height: 42px; padding: 0 20px; border-radius: 21px;
-  font-size: 14px; font-weight: 600;
-  background: var(--h-btn); color: var(--h-btn-ink);
-  transition: background-color .45s ease, color .45s ease, transform .25s var(--ease);
+  display: inline-flex; align-items: center;
+  height: calc(55 * var(--u)); padding: 0 calc(28 * var(--u));
+  border: 1px solid var(--h-line); border-radius: 999px;
+  font: 700 calc(18 * var(--u)) / 1 var(--font); text-transform: uppercase;
+  transition: border-color .45s ease, background-color .25s ease, color .25s ease;
 }
-.cta:active { transform: scale(.96); }
-.cta:focus-visible, .logo:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+@media (hover: hover) and (pointer: fine) {
+  .cta:hover { background: var(--h-text); color: var(--h-hover, #fff); }
+  :global(html[data-tone="dark"]) .cta:hover { --h-hover: #212121; }
+  :global(html[data-tone="accent"]) .cta:hover { --h-hover: var(--accent); }
+}
+.cta:focus-visible, .logo:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 
 @media (max-width: 760px) {
-  .logo { font-size: 17px; }
-  .cta { height: 36px; padding: 0 14px; font-size: 13px; }
+  .logo { font-size: 24px; }
+  .cta { height: 44px; padding: 0 18px; font-size: 13px; }
 }

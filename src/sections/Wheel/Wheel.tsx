@@ -11,15 +11,19 @@ const N = BONUSES.length;
 const SEG = 360 / N;
 /** Длительность прокрутки, мс (должна совпадать с transition в Wheel.module.css). */
 const SPIN_MS = 5600;
+/** Колесо в макете: viewBox 700, центр 350, радиус секторов 330, надписи на радиусе 205. */
+const C = 350, R = 330, LABEL_R = 205;
+/** Цвета секторов по кругу (макет): красный, белый, тёмный, белый. */
+const FILL = [s.segRed, s.segWhite, s.segDark, s.segWhite];
 
-/** Точка на окружности (viewBox 200×200, центр 100,100); угол от верха по часовой. */
-const pt = (deg: number, rad = 100) => {
+/** Точка на окружности; угол от верха по часовой. */
+const pt = (deg: number, rad = R) => {
   const a = ((deg - 90) * Math.PI) / 180;
-  return `${(100 + rad * Math.cos(a)).toFixed(3)} ${(100 + rad * Math.sin(a)).toFixed(3)}`;
+  return `${(C + rad * Math.cos(a)).toFixed(2)} ${(C + rad * Math.sin(a)).toFixed(2)}`;
 };
 
 /**
- * Колесо фортуны: SVG-колесо поворачивается одним CSS-переходом transform (ведёт
+ * Колесо бонусов: SVG-колесо поворачивается одним CSS-переходом transform (ведёт
  * композитор). Выигрыш выбирается заранее (равные шансы), под указатель встаёт
  * случайная точка его сектора. Крутить можно сколько угодно; последний бонус
  * уходит в форму заявки (lib/store.ts).
@@ -59,16 +63,19 @@ export function Wheel() {
   return (
     <div className={s.wrap}>
       <div className={s.text}>
-        <p className={ui.eyebrow} {...r(0)}>{wheelText.eyebrow}</p>
-        <Lines lines={wheelText.title} className={`${ui.title} ${s.title}`} from={1} />
-        <p className={ui.lead} {...r(3)}>{wheelText.lead}</p>
-        <div className={s.result} aria-live="polite" {...r(4)}>
-          <div className={s.prize} data-on={won !== null ? "" : undefined}>
+        <Lines lines={wheelText.title} className={`${ui.h2} ${s.title}`} />
+        <p className={`${ui.body} ${s.lead}`} {...r(2)}>
+          <span className={ui.desktop}>{wheelText.lead}</span>
+          <span className={ui.mobile}>{wheelText.leadShort}</span>
+        </p>
+        <p className={`${ui.note} ${s.note}`} {...r(3)}>{wheelText.note}</p>
+        <div className={s.result} aria-live="polite" {...r(5)}>
+          <p className={s.prize} data-on={won !== null ? "" : undefined}>
             <span className={s.prizeLabel}>{wheelText.result}</span>
-            <span className={s.prizeText}>{won !== null ? BONUSES[won].full : " "}</span>
-          </div>
+            <span className={s.prizeText}>{won !== null ? BONUSES[won].full : " "}</span>
+          </p>
           <div className={s.actions}>
-            <button className={`${ui.btn} ${won !== null ? ui.ghost : ""}`} type="button" onClick={spin} disabled={spinning}>
+            <button className={ui.btn} type="button" onClick={spin} disabled={spinning}>
               {won !== null ? wheelText.again : wheelText.spin}
             </button>
             {won !== null && (
@@ -78,21 +85,34 @@ export function Wheel() {
         </div>
       </div>
 
-      <div className={s.stage} {...r(2)}>
-        <span className={s.pointer} aria-hidden="true" />
-        <svg ref={wheelRef} className={s.wheel} viewBox="0 0 200 200" style={{ transitionDuration: `${SPIN_MS}ms` }} aria-hidden="true">
-          {BONUSES.map((b, k) => {
-            const a0 = k * SEG - SEG / 2, a1 = a0 + SEG;
-            return (
-              <g key={k}>
-                <path d={`M100 100 L${pt(a0)} A100 100 0 0 1 ${pt(a1)} Z`} className={k % 2 ? s.segDark : s.segRed} />
-                <text className={s.label} transform={`rotate(${k * SEG} 100 100) translate(100 40) rotate(-90)`}
-                  textAnchor="middle" dominantBaseline="central">{b.short}</text>
-              </g>
-            );
-          })}
-          <circle cx="100" cy="100" r="14" className={s.hub} />
-        </svg>
+      <div className={s.stage} {...r(4)}>
+        <svg className={s.pointer} viewBox="0 0 44 40" aria-hidden="true"><path d="M0 0 H44 L22 40 Z" /></svg>
+        <div className={s.disc}>
+          <svg
+            ref={wheelRef} className={s.wheel} viewBox="0 0 700 700" role="img"
+            aria-label={`${wheelText.label}: ${BONUSES.map(b => b.short).join(", ")}`}
+            style={{ transitionDuration: `${SPIN_MS}ms` }}
+          >
+            {BONUSES.map((b, k) => {
+              const a0 = k * SEG - SEG / 2, a1 = a0 + SEG;
+              const fill = FILL[k % FILL.length];
+              return (
+                <g key={k}>
+                  <path d={`M${C} ${C} L${pt(a0)} A${R} ${R} 0 0 1 ${pt(a1)} Z`} className={fill} />
+                  <text
+                    x={C + LABEL_R} y={C} transform={`rotate(${k * SEG - 90} ${C} ${C})`}
+                    textAnchor="middle" dominantBaseline="middle"
+                    className={`${s.label} ${fill === s.segWhite ? s.labelDark : ""}`}
+                    fontSize={b.short.length > 12 ? 19 : 22}
+                  >{b.short.toUpperCase()}</text>
+                </g>
+              );
+            })}
+            <circle cx={C} cy={C} r={R} className={s.rim} />
+            <circle cx={C} cy={C} r="54" className={s.hub} />
+            <circle cx={C} cy={C} r="16" className={s.segRed} />
+          </svg>
+        </div>
       </div>
     </div>
   );

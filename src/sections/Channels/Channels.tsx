@@ -3,17 +3,19 @@ import { Lines, r } from "../../pager/reveal";
 import ui from "../ui.module.css";
 import s from "./Channels.module.css";
 
-/** Каналы продвижения: список площадок крупным шрифтом. */
+/** Каналы продвижения: заголовок, фраза справа и белые «таблетки» площадок. */
 export function Channels() {
   return (
     <div className={s.channels}>
-      <div>
-        <p className={ui.eyebrow} {...r(0)}>{channels.eyebrow}</p>
-        <Lines lines={channels.title} className={ui.title} from={1} />
+      <div className={s.head}>
+        <Lines lines={channels.title} className={ui.h2} />
+        <p className={`${ui.lead} ${s.lead}`} {...r(2)}>
+          {channels.lead[0]}<br className={ui.desktop} /> {channels.lead[1]}
+        </p>
       </div>
       <ul className={s.list}>
         {channels.items.map((it, k) => (
-          <li key={it.title} className={s.item} {...r(3 + k)}>
+          <li key={it.title} className={s.pill} {...r(3 + k)}>
             <span className={s.h}>{it.title}</span>
             <span className={s.t}>{it.text}</span>
           </li>

@@ -1,9 +1,24 @@
-.hero { display: flex; flex-direction: column; align-items: center; text-align: center; }
-.title { font-size: clamp(48px, 8.4vw, 150px); letter-spacing: -.05em; }
-.lead { max-width: 30em; }
-.cta { margin-top: 44px; }
+.hero { display: flex; flex-direction: column; gap: calc(40 * var(--u)); }
+
+.title {
+  font: 400 calc(330 * var(--u)) / .82 var(--font-display);
+  text-transform: uppercase;
+}
+.text { display: flex; flex-direction: column; gap: calc(12 * var(--u)); }
+.lead { color: var(--grey); }
+/* большой красный треугольник в правом нижнем углу экрана (.content — position: absolute) */
+.corner {
+  position: absolute; right: 0; bottom: 0;
+  width: calc(300 * var(--u)); height: calc(300 * var(--u));
+  background: var(--accent);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  pointer-events: none;
+}
 
 @media (max-width: 760px) {
-  .title { font-size: clamp(42px, 12.5vw, 56px); }
-  .cta { margin-top: 32px; }
+  .hero { gap: 20px; }
+  .title { font-size: 120px; }
+  .text { gap: 20px; }
+  .text .lead { font-size: 16px; line-height: 1.6; max-width: 330px; }
+  .corner { width: 140px; height: 140px; }
 }

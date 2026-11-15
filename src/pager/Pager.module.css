@@ -25,14 +25,11 @@
 
 /* фон — отдельный слой: при уходе секции он ужимается, контент — нет */
 .bg { position: absolute; inset: 0; }
-.bg_ink { background: #0b0b0c; }
-.bg_paper { background: #f3f2ee; }
-.bg_graphite { background: #1b1b1e; }
+.bg_ink { background: #212121; }
 .bg_red { background: var(--accent); }
-.bg_black { background: #000; }
-.bg_sand { background: #e9e5dc; }
-.bg_night { background: #101218; }
-.bg_coal { background: #141415; }
+.bg_smoke { background: #f5f5f5; }
+.bg_mist { background: #eff3f6; }
+.bg_white { background: #fff; }
 
 /* контент: ниже шапки, по центру оставшейся высоты */
 .content {
@@ -41,7 +38,8 @@
   padding-top: var(--header);
   overflow: hidden;
 }
-.inner { width: 100%; margin: auto 0; padding: 32px var(--x) 48px; }
+/* контейнер макета (1250 из 1920) по центру; снизу поле под индикатор на телефоне */
+.inner { width: var(--container); margin: auto; padding: calc(24 * var(--u)) 0 var(--bottom); }
 
 /* до первого появления контент спрятан — сборку начинает движок */
 .pager:not([data-ready]) [data-r] { opacity: 0; }
@@ -54,31 +52,48 @@
 }
 .line { display: block; }
 
-/* ---------- индикатор слева ---------- */
+/* ---------- индикатор: «1 / 8» и риски; слева, на телефоне — снизу ---------- */
 .meter {
-  position: absolute; left: 28px; top: 50%; z-index: 5;
-  transform: translateY(-50%);
-  display: flex; flex-direction: column; align-items: center; gap: 18px;
-  color: var(--meter, rgba(255, 255, 255, .55));
-  transition: color .4s ease;
+  position: absolute; z-index: 5;
+  left: calc(40 * var(--u)); top: calc(300 * var(--u));
+  display: flex; flex-direction: column; align-items: flex-start; gap: calc(34 * var(--u));
+  /* цвета по секции под индикатором (html[data-tone], ставит движок) */
+  --m-text: #fff; --m-on: var(--accent);
+  color: var(--m-text);
+  transition: color .45s ease;
 }
-:global(html[data-tone="light"]) .meter { --meter: rgba(0, 0, 0, .45); }
-.count { font-size: 12px; font-weight: 500; letter-spacing: .02em; writing-mode: vertical-rl; transform: rotate(180deg); }
-.count b { font-weight: 600; color: currentColor; }
-.ticks { display: flex; flex-direction: column; gap: 4px; }
-.tick { width: 16px; height: 14px; position: relative; }
-.tick::before {
-  content: ""; position: absolute; left: 4px; right: 4px; top: 6px; height: 2px; border-radius: 1px;
-  background: currentColor; opacity: .45; transform-origin: left;
-  transition: transform .4s var(--ease), opacity .4s ease;
+:global(html[data-tone="light"]) .meter { --m-text: #212121; }
+:global(html[data-tone="accent"]) .meter { --m-on: #212121; }
+.count { font: 400 calc(26 * var(--u)) / 1 var(--font); }
+.count b { font-weight: 800; }
+/* риска: 21×3, текущая — вдвое длиннее и красная (на красной секции — тёмная).
+   Длина — scaleX, цвет — прозрачность второго слоя: только transform/opacity. */
+.tick {
+  position: relative; display: block;
+  width: calc(42 * var(--u)); height: 3px;
+  /* зона нажатия больше самой риски */
+  margin: -8px 0; padding: 8px 0;
+  transform-origin: left; transform: scaleX(.5);
+  transition: transform .45s var(--ease);
 }
-.tick[aria-current]::before { opacity: 1; transform: scaleX(1.5); }
+.tick::before, .tick::after { content: ""; position: absolute; left: 0; right: 0; top: 8px; height: 3px; }
+.tick::before { background: currentColor; }
+.tick::after { background: var(--m-on); opacity: 0; transition: opacity .45s ease, background-color .45s ease; }
+.tick[aria-current] { transform: none; }
+.tick[aria-current]::after { opacity: 1; }
+.tick:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* ---------- телефон ---------- */
 @media (max-width: 760px) {
   /* невлезающий контент прокручивается внутри секции */
   .content { overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
   .content::-webkit-scrollbar { display: none; }
-  .inner { padding: 24px var(--x) 40px; }
-  .meter { display: none; }
+  .inner { padding: 16px 0 var(--bottom); }
+  .meter {
+    left: var(--x); top: auto; bottom: 18px;
+    flex-direction: row; align-items: center; gap: 2px;
+  }
+  .count { font-size: 14px; margin-right: 6px; }
+  /* в ряд: укорачиваем от центра, чтобы промежутки оставались ровными */
+  .tick { width: 28px; transform-origin: center; }
 }

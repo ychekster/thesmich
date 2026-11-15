@@ -17,7 +17,8 @@
 - **CSS Modules** — у каждого компонента свой `*.module.css`; токены — в
   `src/styles/global.css`. Никаких UI-китов.
 - **qrcode-generator** — QR на обороте визитки (SVG-путь).
-- **@fontsource/inter** — шрифт в проекте, без запросов к Google.
+- **@fontsource/montserrat**, **@fontsource/bebas-neue** — шрифты главной (макет);
+  **@fontsource/inter** — только визитки. Всё в проекте, без запросов к Google.
 
 Серверной части нет. Заявка уходит POST-запросом (JSON) на `VITE_LEAD_ENDPOINT`
 (см. `.env.example`); без него — только `console.log`.
@@ -34,7 +35,7 @@ src/
 ├── content/             ВСЕ тексты
 │   ├── site.ts          бренд, контакты, кнопка заявки
 │   ├── home.ts          тексты всех секций главной (кроме колеса)
-│   ├── wheel.ts         колесо фортуны: бонусы и подписи
+│   ├── wheel.ts         колесо бонусов: бонусы и подписи
 │   └── team.ts          визитки: люди, контакты, подписи
 ├── pager/               движок полноэкранных секций
 │   ├── engine.ts        переходы и сборка контента (Web Animations), соседи наготове
@@ -45,7 +46,7 @@ src/
 │   └── Pager.module.css раскладка секций, фоны (.bg_*), индикатор
 ├── sections/            секции главной: Hero, About, Sites, Channels, Promo, Wheel,
 │   │                    Partners, Contacts — у каждой .tsx + .module.css
-│   └── ui.module.css    общая типографика: надзаголовок, заголовок, вводный текст, кнопка
+│   └── ui.module.css    общая типографика по макету: заголовки, подзаголовок, кнопка, уголок
 ├── components/Header/   шапка: логотип и «Оставить заявку»
 ├── team/                визитка: TeamCard (CSS-3D, наклон, блик, переворот),
 │                        contact.ts (vCard, строки контактов, QR), PersonPage
@@ -53,7 +54,7 @@ src/
 │   ├── lead.ts          отправка заявки
 │   ├── store.ts         общее состояние секций: бонус колеса, тема заявки
 │   └── media.ts         «есть мышь», «без анимаций»
-└── styles/global.css    токены, темы секций (.theme-light / .theme-accent), сброс
+└── styles/global.css    шрифты, токены, масштаб --u, темы секций (.theme-light / .theme-accent)
 docs/                    PLAN.md, ARCHITECTURE.md, ANIMATIONS.md, CONTENT.md, IDEAS.md
 ```
 
@@ -65,14 +66,25 @@ docs/                    PLAN.md, ARCHITECTURE.md, ANIMATIONS.md, CONTENT.md, ID
 
 | # | id | Секция | Фон | Тема |
 |---|----|--------|-----|------|
-| 1 | `top` | Приветствие (`Hero`) | `ink` | dark |
-| 2 | `about` | О студии | `paper` | light |
-| 3 | `sites` | Какие сайты делаем | `graphite` | dark |
+| 1 | `top` | Приветствие (`Hero`) | `ink` `#212121` | dark |
+| 2 | `about` | О студии | `red` | accent |
+| 3 | `sites` | Какие сайты делаем | `smoke` `#f5f5f5` | light |
 | 4 | `channels` | Каналы продвижения | `red` | accent |
-| 5 | `promo` | Промо-ролик | `black` | dark |
-| 6 | `bonus` | Колесо фортуны | `sand` | light |
-| 7 | `partners` | Вакансии (60%) | `night` | dark |
-| 8 | `contacts` | Контакты + форма | `coal` | dark |
+| 5 | `promo` | Промо-ролик | `ink` | dark |
+| 6 | `bonus` | Колесо бонусов | `mist` `#eff3f6` | light |
+| 7 | `partners` | Карьера (вакансии) | `ink` | dark |
+| 8 | `contacts` | Контакты + форма | `white` | light |
+
+**Дизайн — макет Claude Design** (1920×1080 и 390×844). На компьютере все размеры —
+`calc(N * var(--u))`, где N — пиксели макета, а `--u` (global.css) — масштаб
+экрана к 1920×1080 (по меньшей стороне, от .6px до 1.25px): дизайн пропорционально
+сжимается и всегда влезает по высоте. Контент — в контейнере `--container`
+(1250 в макете) по центру; `--side` — поле до него (шапка, копирайт). На телефоне
+(`max-width: 760px`) — свои размеры в px из мобильного макета. Красный
+уголок — `ui.corner`; показать только на компьютере/телефоне — `ui.desktop`/`ui.mobile`.
+
+Индикатор — «1 / 8» и риски: на компьютере слева столбиком, на телефоне снизу в ряд.
+Текущая риска длиннее (scaleX) и красная (на красной секции — тёмная).
 
 - **Якоря**: `/#contacts` открывает сразу секцию; ссылка `#id` на странице листает
   к ней; адрес обновляется после перехода (`history.replaceState`).
@@ -82,9 +94,10 @@ docs/                    PLAN.md, ARCHITECTURE.md, ANIMATIONS.md, CONTENT.md, ID
 - **Контент должен влезать в экран** на компьютере (размеры от высоты: `svh`, `clamp`).
   На телефоне невлезающее прокручивается внутри секции, переход — когда упёрлись в край.
 - Неактивные секции — `inert` (Tab не уводит за экран).
-- **Связь секций** — `lib/store.ts`, не стейт App: колесо → бонус в форме,
-  «Вакансии» → тема «Хочу в партнёры». App не перерисовывается никогда.
-- Кнопки «Оставить заявку» (шапка, первый экран, колесо) — `nav.go("contacts")`.
+- **Связь секций** — `lib/store.ts`, не стейт App: колесо → бонус в форме.
+  Тема заявки (`topic`) пока всегда «Нужен сайт» — переключателя в макете нет.
+  App не перерисовывается никогда.
+- Кнопки «Оставить заявку» (шапка, колесо) — `nav.go("contacts")`.
 
 ## Где что менять — быстрый указатель
 
@@ -97,16 +110,18 @@ docs/                    PLAN.md, ARCHITECTURE.md, ANIMATIONS.md, CONTENT.md, ID
 | Порядок секций, якоря, фон и тема секции | `pages` в `src/App.tsx` |
 | Цвета фонов секций | `.bg_*` в `src/pager/Pager.module.css` |
 | Акцент, токены, темы | `src/styles/global.css` |
-| Типографика секций (заголовки, кнопки) | `src/sections/ui.module.css` |
+| Типографика секций (заголовки, кнопки, красный уголок) | `src/sections/ui.module.css` |
+| Масштаб дизайна, ширина контейнера | `--u`, `--container` в `global.css` |
+| Шрифты | `@import` вверху `global.css` |
 | Вёрстка конкретной секции | `src/sections/<Имя>/` |
 | Новая секция | компонент в `src/sections/`, тексты в `content/home.ts`, строка в `pages` (`App.tsx`); элементы — `r(i)`/`<Lines>` |
 | Переход: длительность, кривая, ужатие фона, сдвиг сборки | константы вверху `src/pager/engine.ts` |
 | Чувствительность колеса/свайпа | константы вверху `src/pager/input.ts` |
 | Индикатор слева | `Pager.tsx` + `.meter` в `Pager.module.css` |
 | Шапка | `src/components/Header/` |
-| Высота шапки, боковые поля | `--header`, `--x` в `global.css` |
+| Высота шапки, поля, контейнер | `--header`, `--x`, `--container` в `global.css` |
 | Колесо: вид, длительность | `src/sections/Wheel/` (`SPIN_MS` + transition в css) |
-| Промо-ролик | `promo.youtubeId` в `content/home.ts` |
+| Промо-ролик | `promo.youtubeId` (+ `youtubeIdVertical` для телефона) в `content/home.ts` |
 | Форма заявки | `src/sections/Contacts/`, отправка — `src/lib/lead.ts` |
 | Куда уходит заявка | `.env` → `VITE_LEAD_ENDPOINT` |
 | Визитки: имена, фото, контакты | `src/content/team.ts` |

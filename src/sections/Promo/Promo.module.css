@@ -1,34 +1,42 @@
-.promo { display: flex; flex-direction: column; align-items: center; gap: clamp(28px, 5vh, 56px); text-align: center; }
-.head { display: flex; flex-direction: column; align-items: center; }
+.promo { display: flex; flex-direction: column; align-items: center; gap: calc(40 * var(--u)); }
+.title { text-align: center; }
 
-/* рамка 16:9: сколько позволяет высота экрана под заголовком */
+/* рамка 16:9, 1120 × 630 в макете */
 .frame {
-  width: min(100%, calc((100svh - var(--header) - 380px) * 16 / 9), 1280px);
-  aspect-ratio: 16 / 9;
-  border-radius: 24px; overflow: hidden;
-  background: #161618;
+  position: relative; overflow: hidden;
+  width: min(calc(1120 * var(--u)), 100%); aspect-ratio: 16 / 9;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface);
 }
-.video, .poster { display: block; width: 100%; height: 100%; border: 0; }
-.poster {
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
-  background: radial-gradient(120% 90% at 50% 40%, #232326 0%, #111112 70%);
-  color: #fff;
+.video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.caption {
+  position: absolute; left: calc(40 * var(--u)); top: calc(34 * var(--u));
+  font: 700 calc(26 * var(--u)) / 1.3 var(--font);
 }
-.poster:disabled { cursor: default; }
+.soon {
+  position: absolute; left: calc(40 * var(--u)); bottom: calc(34 * var(--u));
+  font: 400 calc(18 * var(--u)) / 1.3 var(--font); color: var(--grey);
+}
 .play {
-  width: 84px; height: 84px; border-radius: 50%;
-  background: var(--accent); position: relative;
+  width: calc(120 * var(--u)); height: calc(120 * var(--u)); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: #fff; box-shadow: 0 6px 20px rgba(0, 0, 0, .18);
   transition: transform .3s var(--ease);
 }
-.play::after {
-  content: ""; position: absolute; left: 35px; top: 27px;
-  border-left: 22px solid #fff; border-top: 15px solid transparent; border-bottom: 15px solid transparent;
+.play svg { width: 43%; height: 43%; fill: #212121; }
+.play:disabled { cursor: default; }
+.play:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+@media (hover: hover) and (pointer: fine) {
+  .play:not(:disabled):hover { transform: scale(1.06); }
 }
-.poster:not(:disabled):hover .play { transform: scale(1.06); }
-.caption { font-size: 15px; font-weight: 500; color: rgba(255, 255, 255, .7); }
 
+/* телефон: вертикальная рамка, 300 × 500 в макете */
 @media (max-width: 760px) {
-  .frame { width: 100%; border-radius: 16px; }
-  .play { width: 64px; height: 64px; }
-  .play::after { left: 26px; top: 20px; border-left-width: 17px; border-top-width: 12px; border-bottom-width: 12px; }
+  .promo { gap: 22px; }
+  .title { font-size: 36px; }
+  .frame { width: min(300px, 100%, (100svh - 260px) * .6); aspect-ratio: 3 / 5; }
+  .caption { left: 20px; top: 20px; font-size: 14px; }
+  .soon { left: 20px; bottom: 20px; font-size: 13px; }
+  .play { width: 70px; height: 70px; }
+  .frame .corner { width: 32px; height: 32px; }
 }

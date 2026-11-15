@@ -1,14 +1,15 @@
-.about { display: flex; flex-direction: column; gap: clamp(40px, 7vh, 96px); }
-.points { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
-.point { border-top: 1.5px solid var(--line); padding-top: 22px; }
-.n { font-size: 13px; font-weight: 600; color: var(--accent); }
-.h { margin-top: 14px; font-size: clamp(22px, 1.8vw, 30px); font-weight: 700; letter-spacing: -.03em; }
-.t { margin-top: 10px; font-size: 16px; line-height: 1.5; color: var(--grey); max-width: 24em; }
+.about { display: flex; flex-direction: column; gap: calc(30 * var(--u)); }
+.row { display: flex; align-items: center; gap: calc(86 * var(--u)); }
+.tagline { line-height: 1.8; }
+/* абзац — справа, шириной 896 из 1250 */
+.text {
+  align-self: flex-end; width: calc(896 * var(--u)); margin-top: calc(40 * var(--u));
+  display: flex; flex-direction: column; gap: calc(6 * var(--u));
+}
 
 @media (max-width: 760px) {
-  .about { gap: 36px; }
-  .points { grid-template-columns: 1fr; gap: 22px; }
-  .point { padding-top: 16px; }
-  .h { margin-top: 8px; font-size: 20px; }
-  .t { font-size: 15px; }
+  .about { gap: 0; }
+  .row { display: block; }
+  .tagline { margin-top: 24px; }
+  .text { width: auto; align-self: stretch; margin-top: 24px; gap: 24px; }
 }

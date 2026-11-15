@@ -1,60 +1,92 @@
-/* Дизайн-токены и базовые стили. Цвета и отступы компонентов берутся отсюда. */
+/* Дизайн-токены и базовые стили. Цвета и отступы компонентов берутся отсюда.
+   Дизайн главной — макет Claude Design (2026-11-15): Montserrat + Bebas Neue,
+   контейнер 1250px на экране 1920×1080, красные уголки-треугольники. */
+@import "@fontsource/montserrat/400.css";
+@import "@fontsource/montserrat/500.css";
+@import "@fontsource/montserrat/700.css";
+@import "@fontsource/montserrat/800.css";
+@import "@fontsource/bebas-neue/400.css";
+/* Inter — только визитки команды (/yarik/, /emir/), их дизайн не меняли */
 @import "@fontsource/inter/400.css";
-@import "@fontsource/inter/500.css";
 @import "@fontsource/inter/600.css";
-@import "@fontsource/inter/700.css";
 @import "@fontsource/inter/800.css";
 
 :root {
   /* акцент — красный (решение владельца, docs/PLAN.md) */
-  --accent: #f2272e;
+  --accent: #ed0644;
   --accent-ink: #fff;
+  --ink: #212121;
 
   /* тема секции по умолчанию — тёмная; светлая и красная переопределяют токены
      (.theme-light / .theme-accent ниже), компоненты на токенах перекрашиваются сами */
-  --bg: #0b0b0c;
-  --text: #f5f5f7;
-  --grey: #8e8e93;
-  --line: rgba(255, 255, 255, .12);
-  --surface: rgba(255, 255, 255, .05);
-  --btn: var(--accent);
-  --btn-ink: var(--accent-ink);
+  --bg: #212121;
+  --text: #fff;
+  /* второстепенный текст */
+  --grey: #cad5e1;
+  /* плашки на фоне секции (карточки вакансий, рамка ролика) */
+  --surface: #3d3d3d;
+  /* обводка кнопок-«таблеток» */
+  --btn-line: #fff;
+  /* цвет текста на заливке цветом --text (кнопка при наведении) */
+  --on-text: #212121;
+  --line: rgba(255, 255, 255, .2);
 
-  --font: Inter, -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
+  --font: Montserrat, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Bebas Neue", Impact, "Arial Narrow", sans-serif;
+  --font-team: Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   /* кривая появления/исчезновения элементов */
   --ease: cubic-bezier(.22, .8, .2, 1);
+
+  /*
+   * Масштаб макета: макет нарисован под 1920×1080, на компьютере всё в нём
+   * задаётся как calc(N * var(--u)) — экран меньше или больше просто
+   * пропорционально уменьшает/увеличивает дизайн, и он влезает по высоте.
+   */
+  --u: clamp(.6px, min(100vw / 1920, 100svh / 1080), 1.25px);
+  /* боковые поля и ширина контента (1250 в макете) */
+  --x: 40px;
+  --container: min(calc(1250 * var(--u)), calc(100vw - 2 * var(--x)));
+  --side: calc((100vw - var(--container)) / 2);
   /* высота шапки: контент секций начинается ниже */
-  --header: 76px;
-  /* боковые поля страницы */
-  --x: max(24px, 7vw);
+  --header: calc(140 * var(--u));
+  /* поле снизу под контентом секции */
+  --bottom: calc(60 * var(--u));
+  /* красный уголок-треугольник в углу карточек */
+  --corner: calc(42 * var(--u));
 }
 
 .theme-light {
-  --text: #111113;
-  --grey: #6e6e73;
-  --line: rgba(0, 0, 0, .1);
-  --surface: rgba(0, 0, 0, .04);
+  --text: #212121;
+  --grey: #5c5c5c;
+  --surface: #fff;
+  --btn-line: #212121;
+  --on-text: #fff;
+  --line: rgba(0, 0, 0, .12);
 }
 .theme-accent {
   --text: #fff;
-  --grey: rgba(255, 255, 255, .72);
-  --line: rgba(255, 255, 255, .28);
-  --surface: rgba(255, 255, 255, .1);
-  --btn: #fff;
-  --btn-ink: var(--accent);
+  --grey: #fff;
+  --surface: #fff;
+  --btn-line: #fff;
+  --on-text: var(--accent);
+  --line: rgba(255, 255, 255, .35);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body, #root { height: 100%; }
 body {
   background: var(--bg); color: var(--text); font-family: var(--font);
-  font-feature-settings: "cv11", "ss01"; letter-spacing: -.015em;
   -webkit-font-smoothing: antialiased; overflow: hidden; overscroll-behavior: none;
 }
+#root[data-person] { font-family: var(--font-team); letter-spacing: -.015em; }
 button, input, textarea { font: inherit; color: inherit; background: none; border: 0; letter-spacing: inherit; }
 button { cursor: pointer; }
 a { color: inherit; }
 
 @media (max-width: 760px) {
-  :root { --x: 20px; --header: 64px; }
+  :root {
+    --x: 20px; --header: 76px; --bottom: 52px;
+    --container: calc(100vw - 2 * var(--x));
+    --corner: 24px;
+  }
 }
