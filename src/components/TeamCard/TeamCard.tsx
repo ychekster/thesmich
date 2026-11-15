@@ -9,9 +9,9 @@ import s from "./TeamCard.module.css";
 import d from "./DomTeamCard.module.css";
 
 /*
- * Визитка — одна большая карта ID-1 (на телефоне вертикальная) на тот же движок, что карты FAQ:
+ * Визитка — одна большая вертикальная карта на тот же движок, что карты FAQ:
  * наклон к курсору (на телефоне — пальцем: зажал и ведёшь), блик от
- * неподвижного света, переворот по клику/тапу. Обе стороны светлые, матовые.
+ * неподвижного света, переворот по клику/тапу. Лицо тёмное (фото), оборот светлый, обе матовые.
  * Когда открыт оборот, поверх карты лежит невидимый слой с той же разметкой
  * (LinkLayer): строки контактов — настоящие ссылки, их можно нажать. Нажатие
  * мимо ссылок переворачивает карту обратно.
@@ -26,7 +26,6 @@ export const TEAM_LOOK: CardLook = {
   },
   pad: { x: 170, top: 90, bottom: 320 },
   matte: 1,
-  light: true, // белая с обеих сторон: тёмная карта на чёрном фоне плохо читалась
 };
 
 interface Props {
@@ -67,7 +66,7 @@ function LinkLayer({ person, active }: { person: Person; active: boolean }) {
   useEffect(() => {
     const face = buildFace(person, true);
     face.querySelectorAll("a").forEach(a => { a.className += " " + d.link; });
-    // «Сохранить контакт» — файл .vcf: телефон сам предложит добавить контакт
+    // QR — «Сохранить контакт»: файл .vcf, телефон сам предложит добавить контакт
     const url = URL.createObjectURL(new Blob([vcard(person)], { type: "text/vcard;charset=utf-8" }));
     const save = face.querySelector<HTMLAnchorElement>("a[data-save]");
     if (save) { save.href = url; save.download = `${person.slug}.vcf`; }

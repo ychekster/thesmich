@@ -1,19 +1,22 @@
 import qrcode from "qrcode-generator";
 import { site } from "../../content/site";
-import { cardText, studio, type Person } from "../../content/team";
+import { cardText, type Person } from "../../content/team";
 import { painted, rasterDom, type FaceRaster, type Painter } from "../../gl/raster";
 import s from "./TeamCard.module.css";
 
 /*
- * Стороны визитки (ID-1 85.6 × 54; на телефоне вертикальная). Обе стороны
- * светлые. Раскладку делает CSS (TeamCard.module.css, размеры в cqw), графику —
- * «художники» (painted из gl/raster.ts): портрет-монограмма и QR.
+ * Стороны визитки — по образцу владельца: вертикальная карта (54 × 85.6) и на
+ * компьютере, и на телефоне. Раскладку делает CSS (TeamCard.module.css, размеры
+ * в cqw), графику — «художники» (painted из gl/raster.ts): фото и QR.
  *
- * Лицо — доверие: фото, полное имя, роль в студии, чем занимаемся, где работаем.
- * Оборот — связь: контакты и две кнопки. Строки и кнопки — настоящие ссылки:
- * та же разметка лежит невидимым слоем поверх карты (TeamCard.tsx, LinkLayer).
- * QR — vCard: камера телефона сразу предлагает сохранить контакт.
+ * Лицо — фото во весь размер, поверх крупное имя заглавными. Нет фото — под
+ * именем тёмный материал карты (шейдер), без заглушек.
+ * Оборот — светлый: роль сверху, QR по центру, внизу имя и контакты. Контакты и
+ * QR — настоящие ссылки: та же разметка лежит невидимым слоем поверх карты
+ * (TeamCard.tsx, LinkLayer). QR — vCard: камера телефона предлагает сохранить
+ * контакт, нажатие по QR скачивает его файлом.
  */
+import "@fontsource/inter/800.css";
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls: string, text?: string) {
   const e = document.createElement(tag);
@@ -46,12 +49,11 @@ export function vcard(p: Person) {
   ].filter(Boolean).join("\r\n");
 }
 
-/** Строки контактов оборота: подпись, значение, ссылка. Пустые — не показываем. */
+/** Строки контактов оборота: подпись (только для дикторов), значение, ссылка. Пустые — не показываем. */
 export function contactRows(p: Person) {
   const c = p.contacts, L = cardText.contacts;
   const handle = (url: string) => "@" + url.replace(/\/+$/, "").split("/").pop();
   return ([
-    [L.whatsapp, c.whatsapp && c.phone, c.whatsapp],
     [L.telegram, c.telegram && handle(c.telegram), c.telegram],
     [L.phone, c.phone, c.phoneHref],
     [L.instagram, c.instagram && handle(c.instagram), c.instagram],
@@ -61,36 +63,25 @@ export function contactRows(p: Person) {
 
 // ---------- графика ----------
 
-/** Портрет: фото (обрезка по центру) или монограмма, как в «Контактах» Apple. */
-function portrait(p: Person, img: HTMLImageElement | null): Painter {
+/** Фото во весь размер карты (обрезка по центру) и лёгкое затемнение под белое имя. */
+function portrait(img: HTMLImageElement): Painter {
   return (ctx, w, h) => {
-    ctx.save();
-    ctx.beginPath();
-    ctx.roundRect(0, 0, w, h, Math.min(w, h) * 0.08);
-    ctx.clip();
-    if (img) {
-      const k = Math.max(w / img.naturalWidth, h / img.naturalHeight);
-      const iw = img.naturalWidth * k, ih = img.naturalHeight * k;
-      ctx.drawImage(img, (w - iw) / 2, (h - ih) / 2, iw, ih);
-    } else {
-      const g = ctx.createLinearGradient(0, 0, 0, h);
-      g.addColorStop(0, "#a5abb8");
-      g.addColorStop(1, "#7d828e");
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = "#fff";
-      ctx.font = `600 ${Math.min(w, h) * 0.36}px Inter, system-ui, sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(p.name.slice(0, 1) + p.surname.slice(0, 1), w / 2, h * 0.53);
-    }
-    ctx.restore();
+    const k = Math.max(w / img.naturalWidth, h / img.naturalHeight);
+    const iw = img.naturalWidth * k, ih = img.naturalHeight * k;
+    ctx.drawImage(img, (w - iw) / 2, (h - ih) / 2, iw, ih);
+    const g = ctx.createLinearGradient(0, 0, 0, h);
+    g.addColorStop(0, "rgba(0,0,0,0)");
+    g.addColorStop(0.45, "rgba(0,0,0,.18)");
+    g.addColorStop(1, "rgba(0,0,0,.35)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
   };
 }
 
 /**
- * QR (vCard) на белой плашке. Кириллица — байтами UTF-8: библиотека пишет
- * каждый символ строки одним байтом, поэтому отдаём ей уже готовые байты.
+ * QR (vCard) прямо на светлом обороте, без плашки. Кириллица — байтами UTF-8:
+ * библиотека пишет каждый символ строки одним байтом, поэтому отдаём ей уже
+ * готовые байты.
  */
 function qr(text: string): Painter {
   const utf8 = String.fromCharCode(...new TextEncoder().encode(text));
@@ -99,64 +90,42 @@ function qr(text: string): Painter {
   code.make();
   const n = code.getModuleCount();
   return (ctx, w) => {
-    ctx.fillStyle = "#fff";
-    ctx.beginPath();
-    ctx.roundRect(0, 0, w, w, w * 0.06);
-    ctx.fill();
-    const q = w * 0.06;              // тихая зона
-    const m = (w - 2 * q) / n;
+    const m = w / n;
     ctx.fillStyle = "#1d1d1f";
     for (let r = 0; r < n; r++)
       for (let c = 0; c < n; c++)
-        if (code.isDark(r, c)) ctx.fillRect(q + c * m - 0.02, q + r * m - 0.02, m + 0.04, m + 0.04); // без щелей
+        if (code.isDark(r, c)) ctx.fillRect(c * m - 0.02, r * m - 0.02, m + 0.04, m + 0.04); // без щелей
   };
 }
 
 // ---------- стороны ----------
 
-function logo() {
-  const l = el("span", s.logo, site.brand);
-  l.append(el("span", s.dot, "."));
-  return l;
-}
-
 export function buildFace(p: Person, back: boolean, img: HTMLImageElement | null = null): HTMLElement {
   const face = el("div", `${s.face} ${back ? s.back : s.front}`);
   if (!back) {
-    const info = el("div", s.info);
-    const top = el("div", s.top);
-    top.append(logo());
-    if (studio.bin) top.append(el("span", s.bin, `${cardText.bin} ${studio.bin}`));
-    const who = el("div", s.who);
-    who.append(el("p", s.name, p.name), el("p", s.name, p.surname), el("p", s.role, cardText.roleAt(p)));
-    const about = el("div", s.about);
-    about.append(el("p", s.tagline, studio.tagline), el("p", s.area, studio.area));
-    info.append(top, who, about);
-    face.append(painted(el("div", s.photo), portrait(p, img)), info);
+    if (img) face.append(painted(el("div", s.photo), portrait(img)));
+    const name = el("div", s.name);
+    name.append(el("p", "", p.name), el("p", "", p.surname));
+    face.append(name);
   } else {
-    const main = el("div", s.main);
-    main.append(el("p", s.title, cardText.title));
+    const role = el("div", s.role);
+    for (const line of cardText.roleLines(p)) role.append(el("p", "", line));
+
+    const code = painted(el("a", s.qr), qr(vcard(p)));
+    code.dataset.save = ""; // ссылку на vCard ставит LinkLayer
+    code.setAttribute("aria-label", cardText.save);
+
+    const foot = el("div", s.foot);
+    foot.append(el("p", s.fullName, `${p.name} ${p.surname}`));
     const list = el("div", s.list);
     for (const r of contactRows(p)) {
-      const a = el("a", s.row);
+      const a = el("a", s.row, r.value);
       a.href = r.href;
       if (/^https?:/.test(r.href)) { a.target = "_blank"; a.rel = "noreferrer"; }
-      a.append(el("span", s.rowLbl, r.label), el("span", s.rowVal, r.value));
-      const sep = el("i", s.sep);
-      sep.dataset.paint = ""; // линия-разделитель: растр рисует плашки, а не рамки
-      list.append(sep, a);
+      list.append(a);
     }
-    const btns = el("div", s.btns);
-    const save = el("a", `${s.btn} ${s.btnSave}`, cardText.save);
-    save.dataset.paint = ""; save.dataset.save = ""; // ссылку на vCard ставит LinkLayer
-    const quiz = el("a", `${s.btn} ${s.btnQuiz}`, cardText.quiz);
-    quiz.dataset.paint = ""; quiz.href = "/#quiz";
-    btns.append(save, quiz);
-    main.append(list, btns);
-
-    const side = el("div", s.side);
-    side.append(painted(el("div", s.qr), qr(vcard(p))), el("p", s.qrNote, cardText.qrNote));
-    face.append(main, side);
+    foot.append(list);
+    face.append(role, code, foot);
   }
   return face;
 }
@@ -184,8 +153,8 @@ export async function rasterTeamCard(p: Person, size: { w: number; h: number }, 
     box.append(face);
     return { box, face, w, h };
   });
-  const sample = [site.brand, p.name, p.surname, cardText.roleAt(p), studio.tagline, studio.area, studio.bin,
-    cardText.title, cardText.save, cardText.quiz, cardText.qrNote, ...contactRows(p).flatMap(r => [r.label, r.value])].join("");
+  const sample = [p.name, p.surname, p.name.toUpperCase(), p.surname.toUpperCase(), ...cardText.roleLines(p),
+    ...contactRows(p).map(r => r.value)].join("");
   const [front, back] = await rasterDom(faces, dpr, sample);
   return { front, back };
 }
