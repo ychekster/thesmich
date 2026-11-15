@@ -1,4 +1,3 @@
-import { forwardRef } from "react";
 import { site } from "../../content/site";
 import { TelegramIcon, InstagramIcon } from "../icons";
 import s from "./Header.module.css";
@@ -11,14 +10,18 @@ interface Props {
   showCta: boolean;
   onBack: () => void;
   onCta: () => void;
+  /** Логотип — на первую секцию главной. */
+  onHome: () => void;
+  /** Фон секции под шапкой: light — тёмные надписи, vivid (синий) — белый акцент. */
+  tone: "dark" | "light" | "vivid";
 }
 
-/** Матовость (страницу пролистали) — атрибут data-frosted, его ставит App напрямую. */
-export const Header = forwardRef<HTMLElement, Props>(function Header({ step, total, showCta, onBack, onCta }, ref) {
+/** Шапка висит поверх всех экранов и секций; контент под неё не заезжает (--header). */
+export function Header({ step, total, showCta, onBack, onCta, onHome, tone }: Props) {
   const inQuiz = step !== null;
   return (
-    <header ref={ref} className={s.top}>
-      <div className={s.logo}>{site.brand}<span>.</span></div>
+    <header className={s.top} data-tone={tone}>
+      <button className={s.logo} type="button" onClick={onHome}>{site.brand}<span>.</span></button>
       <div className={s.nav}>
         <button className={`${s.back} ${inQuiz ? "" : s.hide}`} type="button" onClick={onBack} tabIndex={inQuiz ? 0 : -1}>‹ Назад</button>
         <span className={`${s.counter} ${inQuiz ? "" : s.hide}`}>{inQuiz ? `${step} / ${total}` : ""}</span>
@@ -31,4 +34,4 @@ export const Header = forwardRef<HTMLElement, Props>(function Header({ step, tot
       </div>
     </header>
   );
-});
+}

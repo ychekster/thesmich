@@ -38,7 +38,7 @@ interface Props {
 }
 
 /**
- * Текст, разбитый на буквы: буквы по очереди вылетают снизу из размытия
+ * Текст, разбитый на буквы: буквы по очереди вылетают снизу (без размытия — оно тормозило)
  * и расталкиваются курсором. Появление — CSS (внутренний span), реакция на
  * курсор — движок engine.ts (внешний span), поэтому они не мешают друг другу.
  */
@@ -76,19 +76,27 @@ export function WaveText({
     return h.unregister;
   }, [label, strength, gl]);
 
-  /* появление: при play=true перезапускаем анимацию; при play=false буквы
-     остаются видимыми (иначе они исчезали бы, пока экран плавно уходит) */
+  /* появление: play=true — заголовок собирается по словам (заново при каждом заходе
+     в секцию); play=false после сборки — разбирается: обратная перемотка, последнее
+     слово уходит первым (секция уезжает, Pager) */
   useEffect(() => {
     const el = ref.current;
-    if (!el || !play) return;
-    if (layerRef.current) { layerRef.current.play(); return; }
-    el.classList.remove(s.play);
-    void el.offsetWidth; // перезапуск CSS-анимации
-    el.classList.add(s.play);
+    if (!el) return;
+    if (layerRef.current) { if (play) layerRef.current.play(); return; }
+    if (!play) {
+      if (el.classList.contains(s.play)) { el.classList.remove(s.play); el.classList.add(s.out); }
+      return;
+    }
+    // перезапуск CSS-анимации через кадр, а не через el.offsetWidth: тот
+    // пересчитывал раскладку всей страницы прямо в момент жеста (фриз)
+    el.classList.remove(s.play, s.out);
+    const raf = requestAnimationFrame(() => el.classList.add(s.play));
+    return () => cancelAnimationFrame(raf);
   }, [play, gl]);
 
-  let i = 0;
-  const style = { "--step": `${step}ms`, "--d0": `${delay}ms` } as CSSProperties;
+  let i = 0, w = 0;
+  const words = lines.join(" ").split(" ").filter(Boolean).length;
+  const style = { "--step": `${step}ms`, "--d0": `${delay}ms`, "--wn": words } as CSSProperties;
   return (
     <Tag ref={ref} className={`${s.wave} ${gl ? s.gl : ""} ${className ?? ""}`} style={style} aria-label={label}>
       {gl && <canvas ref={canvasRef} className={s.glCanvas} aria-hidden="true" />}
@@ -96,13 +104,15 @@ export function WaveText({
         <span key={li} className={`${Array.isArray(text) ? s.line : ""} ${lineClassNames?.[li] ?? ""}`} aria-hidden="true">
           {line.split(" ").map((word, wi, words) => (
             <span key={wi}>
-              <span className={s.word}>
+              {/* сборка/разборка — по словам (слово — один движущийся объект), а буквы
+                  внутри неподвижны и оживают, только когда их расталкивает курсор */}
+              <span className={s.word} style={{ "--w": w++ } as CSSProperties}>
                 {[...word].map((c, ci) => {
                   const n = i++;
                   const last = accentLast && n === total - 1;
                   return (
                     <span key={ci} data-ch className={`${s.ch} ${last ? s.accent : ""}`}>
-                      <span className={s.in} style={{ "--i": n } as CSSProperties}>{c}</span>
+                      <span className={s.in}>{c}</span>
                     </span>
                   );
                 })}

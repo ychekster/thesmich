@@ -14,3 +14,9 @@ addEventListener("scroll", mark, { capture: true, passive: true });
 addEventListener("wheel", mark, { passive: true });
 
 export const scrolling = (): boolean => performance.now() < until;
+
+/**
+ * Считать, что прокрутка идёт ещё ms: переход между секциями (Pager) — пока экран
+ * едет, буквы и карты не реагируют на курсор (иначе каждый кадр — пересчёт раскладки).
+ */
+export const holdScrolling = (ms: number) => { until = Math.max(until, performance.now() + ms); };

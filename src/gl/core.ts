@@ -18,9 +18,10 @@ const ATTRS: WebGLContextAttributes = {
   failIfMajorPerformanceCaveat: true,
 };
 
-export function createGl(canvas: HTMLCanvasElement): GL | null {
+/** opaque — холст без прозрачности: композитор не рисует то, что под ним (фоны секций). */
+export function createGl(canvas: HTMLCanvasElement, opaque = false): GL | null {
   try {
-    return canvas.getContext("webgl2", ATTRS) as GL | null;
+    return canvas.getContext("webgl2", opaque ? { ...ATTRS, alpha: false } : ATTRS) as GL | null;
   } catch {
     return null;
   }

@@ -1,7 +1,7 @@
 .screen {
   position: fixed; inset: 0;
   display: flex; flex-direction: column; justify-content: center;
-  padding: 110px var(--x) 80px;
+  padding: calc(var(--header) + 38px) var(--x) 80px;
   overflow-y: auto; scrollbar-width: none;
   opacity: 0; visibility: hidden;
   transform: translate3d(0, 48px, 0);
@@ -17,9 +17,5 @@
 
 .inner { width: 100%; max-width: 1080px; margin: auto 0; }
 
-/* листающийся экран (главная): контент сверху, без нижнего поля */
-.scroll { justify-content: flex-start; padding-bottom: 0; }
-/* непрозрачный фон (тот же чёрный, что у body) — браузер прокручивает экран
-   на видеокарте, не перерисовывая содержимое */
-.scroll { background: var(--bg); }
-.scroll .inner { margin: 0 auto; max-width: 1280px; }
+/* главная: экран целиком отдан полноэкранным секциям (Pager) */
+.full { padding: 0; overflow: hidden; }

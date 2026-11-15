@@ -1,4 +1,4 @@
-import { forwardRef, type ReactNode, type UIEventHandler } from "react";
+import type { ReactNode } from "react";
 import s from "./Screen.module.css";
 
 export type ScreenState = "active" | "past" | "future";
@@ -7,9 +7,8 @@ interface Props {
   state: ScreenState;
   children: ReactNode;
   className?: string;
-  /** Экран листается (главная), а не центрируется по высоте. */
-  scroll?: boolean;
-  onScroll?: UIEventHandler<HTMLElement>;
+  /** Без полей и центровки: экран целиком отдан детям (главная — секции Pager). */
+  full?: boolean;
 }
 
 /**
@@ -17,17 +16,13 @@ interface Props {
  * переход между ними — только opacity и transform (рисует видеокарта, без
  * пересчёта раскладки), поэтому смена экранов плавная.
  */
-export const Screen = forwardRef<HTMLElement, Props>(function Screen(
-  { state, children, className, scroll, onScroll }, ref,
-) {
+export function Screen({ state, children, className, full }: Props) {
   return (
     <section
-      ref={ref}
-      className={`${s.screen} ${s[state]} ${scroll ? s.scroll : ""} ${className ?? ""}`}
+      className={`${s.screen} ${s[state]} ${full ? s.full : ""} ${className ?? ""}`}
       aria-hidden={state !== "active"}
-      onScroll={onScroll}
     >
-      <div className={s.inner}>{children}</div>
+      {full ? children : <div className={s.inner}>{children}</div>}
     </section>
   );
-});
+}

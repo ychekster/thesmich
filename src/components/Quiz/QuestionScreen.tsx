@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import type { ChoiceAnswer, ChoiceQuestion, Contacts, Question } from "../../types";
 import { CheckIcon } from "../icons";
 import { WaveText } from "../WaveText/WaveText";
-import { wheelText } from "../../content/wheel";
+import { rouletteText } from "../../content/roulette";
 import s from "./Quiz.module.css";
 
 const EMPTY: ChoiceAnswer = { picked: [], own: "" };
@@ -67,7 +67,7 @@ export function QuestionScreen({ q, index, total, active, answer, contacts, bonu
       <WaveText as="h2" text={q.title} className={s.title} play={active} live={active} step={16} delay={120} />
       {q.hint && <p className={s.hint}>{q.hint}</p>}
       {q.type === "contact" && bonus && (
-        <p className={s.bonus}><span>{wheelText.attached}:</span> {bonus}</p>
+        <p className={s.bonus}><span>{rouletteText.attached}:</span> {bonus}</p>
       )}
 
       {q.type === "contact"

@@ -1,9 +1,9 @@
 import { useCallback, useState } from "react";
 import { FAQ } from "../../content/faq";
-import { useInView } from "../../hooks/useInView";
 import { PHONE, useMedia } from "../../hooks/useMedia";
 import { webglSupported } from "../../gl/core";
 import { WaveText } from "../WaveText/WaveText";
+import { reveal } from "../Pager/Pager";
 import { FlipCard } from "./FlipCard";
 import { GlCards } from "../../gl/cards/GlCards";
 import { FAQ_LOOK, type CardLook } from "../../gl/cards/CardsRenderer";
@@ -26,22 +26,20 @@ const PHONE_LOOK: CardLook = { ...FAQ_LOOK, pad: { x: 0, top: 40, bottom: 150 } 
  * скриншоты в App Store: лента со снапом (.rail в css).
  */
 export function FaqCards({ live }: { live: boolean }) {
-  const [headRef, headIn] = useInView<HTMLDivElement>(0.4);
-  const [cardsRef, cardsIn] = useInView<HTMLDivElement>(0.25);
   const [gl, setGl] = useState(webglSupported);
   const onFail = useCallback(() => setGl(false), []);
   const phone = useMedia(PHONE);
   return (
     <section className={s.faq} id="faq">
-      <div ref={headRef}>
-        <WaveText as="h2" text="Частые вопросы" className={s.title} play={headIn} live={live} step={16} delay={120} />
+      <div {...reveal(0)}>
+        <WaveText as="h2" text="Частые вопросы" className={s.title} play={live} live={live} step={16} delay={120} />
       </div>
-      <div ref={cardsRef} className={s.rail}>
+      <div className={s.rail} {...reveal(2)}>
         {gl ? (
-          <GlCards items={ITEMS} raster={raster} look={phone ? PHONE_LOOK : FAQ_LOOK} className={s.cards} slotClassName={s.slot} dealt={cardsIn} onFail={onFail} />
+          <GlCards items={ITEMS} raster={raster} look={phone ? PHONE_LOOK : FAQ_LOOK} className={s.cards} slotClassName={s.slot} dealt={live} onFail={onFail} />
         ) : (
           <div className={s.cards}>
-            {FAQ.map((card, i) => <FlipCard key={card.q} card={card} index={i} dealt={cardsIn} />)}
+            {FAQ.map((card, i) => <FlipCard key={card.q} card={card} index={i} dealt={live} />)}
           </div>
         )}
       </div>

@@ -6,8 +6,11 @@
  *
  * Производительность (см. docs/ANIMATIONS.md):
  * - один цикл requestAnimationFrame на все заголовки; в покое он не крутится;
- * - в кадре сначала все чтения (getBoundingClientRect), потом все записи —
- *   без принудительных пересчётов раскладки;
+ * - положение заголовка на экране кешируется (страница не прокручивается — секции
+ *   Pager неподвижны между переходами) и перечитывается только после ресайза и
+ *   перехода секций (invalidateRects). Раньше getBoundingClientRect звался каждый
+ *   кадр движения мыши — пока идут анимации появления, это принудительный пересчёт
+ *   раскладки на каждом кадре (замер: ~375 мс за переход на слабом процессоре);
  * - заголовок далеко от курсора и в покое пропускается целиком;
  * - в style пишется только изменившееся значение;
  * - буква в покое сбрасывает transform, и браузер убирает её отдельный слой
@@ -43,6 +46,7 @@ interface Item extends WaveOptions {
   letters: Letter[];
   w: number; h: number;   // размер контейнера (для отсечения по расстоянию)
   moving: boolean;        // есть сдвинутые буквы
+  rect: { left: number; top: number } | null; // положение на экране (кеш; null — перечитать)
 }
 
 const STIFFNESS = 0.16; // жёсткость пружины
@@ -58,6 +62,7 @@ function measure(it: Item) {
   for (const l of it.letters) { l.el.style.transform = ""; l.el.style.textShadow = ""; }
   const r = it.root.getBoundingClientRect();
   it.w = r.width; it.h = r.height;
+  it.rect = null; // в момент замера секция могла быть за экраном — перечитаем при первом кадре
   const lh = parseFloat(getComputedStyle(it.root).fontSize) * 0.9;
   let top0: number | null = null;
   for (const l of it.letters) {
@@ -73,12 +78,12 @@ function measure(it: Item) {
 }
 
 /** Курсор достаточно близко к заголовку, чтобы задеть буквы. */
-function near(it: Item, r: DOMRect) {
+function near(it: Item, r: { left: number; top: number }) {
   const pad = it.radius;
   return mx > r.left - pad && mx < r.left + it.w + pad && my > r.top - pad && my < r.top + it.h + pad;
 }
 
-function step(it: Item, r: DOMRect) {
+function step(it: Item, r: { left: number; top: number }) {
   const live = it.isLive() && near(it, r);
   let moving = false;
 
@@ -128,11 +133,12 @@ function step(it: Item, r: DOMRect) {
 
 function frame() {
   raf = 0;
-  // 1) только чтения
-  const work: [Item, DOMRect][] = [];
+  // 1) только чтения (и то из кеша)
+  const work: [Item, { left: number; top: number }][] = [];
   for (const it of items) {
     if (!it.moving && !it.isLive()) continue;
-    const r = it.root.getBoundingClientRect();
+    if (!it.rect) { const b = it.root.getBoundingClientRect(); it.rect = { left: b.left, top: b.top }; }
+    const r = it.rect;
     if (!it.moving && !near(it, r)) continue; // далеко и в покое — пропускаем
     work.push([it, r]);
   }
@@ -147,6 +153,9 @@ function kick() {
 }
 
 const measureAll = () => { items.forEach(measure); kick(); };
+
+/** Заголовки сдвинулись на экране (закончился переход секций) — перечитать положение. */
+export function invalidateRects() { items.forEach(it => { it.rect = null; }); }
 
 function listen() {
   if (listening) return;
@@ -165,7 +174,7 @@ export function register(root: HTMLElement, opts: WaveOptions) {
   const letters: Letter[] = [...root.querySelectorAll<HTMLElement>("[data-ch]")].map(el => ({
     el, rx: 0, ry: 0, line: 0, x: 0, y: 0, vx: 0, vy: 0, tf: "", sh: "",
   }));
-  const it: Item = { ...opts, root, letters, w: 0, h: 0, moving: false };
+  const it: Item = { ...opts, root, letters, w: 0, h: 0, moving: false, rect: null };
   items.add(it);
   measure(it);
   return {

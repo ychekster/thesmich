@@ -1,5 +1,10 @@
-/* overflow-y: clip — холст букв логотипа (поля под вылет снизу) не удлиняет прокрутку */
-.footer { margin-top: 140px; text-align: left; overflow-y: clip; }
+/* последняя секция Pager на всю высоту: колонки сверху, логотип посередине, строка © снизу.
+   overflow-y: clip — холст букв логотипа (поля под вылет снизу) не выходит за секцию */
+.footer {
+  flex: 1; display: flex; flex-direction: column;
+  padding-top: clamp(8px, 4vh, 48px);
+  text-align: left; overflow-y: clip;
+}
 
 .grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; }
 .logo { font-size: 24px; font-weight: 600; letter-spacing: -.03em; }
@@ -15,22 +20,23 @@
 .col a:hover, .col button:hover { color: #fff; }
 .col a:focus-visible, .col button:focus-visible, .bottom a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
+/* обёртка логотипа делит свободную высоту секции сверху и снизу поровну */
+.markWrap { margin: auto 0; padding: 32px 0; }
 .mark {
-  margin-top: 96px; text-align: center; line-height: .78; white-space: nowrap;
+  text-align: center; line-height: .78; white-space: nowrap;
   font-size: clamp(56px, 13.5vw, 260px); font-weight: 700; letter-spacing: -.065em;
-  color: #1d1d1f;
+  color: #26262a; /* чуть светлее графитового фона секции */
 }
 
 .bottom {
   display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px;
-  margin-top: 40px; padding: 24px 0 28px; border-top: 1px solid var(--line);
+  padding-top: 24px; border-top: 1px solid var(--line);
   font-size: 13px; color: var(--grey);
 }
 .bottom a { color: var(--grey); text-decoration: none; transition: color .2s; }
 .bottom a:hover { color: var(--text); }
 
 @media (max-width: 760px) {
-  .footer { margin-top: 96px; }
   .grid { grid-template-columns: 1fr 1fr; gap: 36px 24px; }
   .about { grid-column: 1 / -1; }
 }
