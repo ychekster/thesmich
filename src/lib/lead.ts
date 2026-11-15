@@ -11,13 +11,17 @@ export function answerText(q: ChoiceQuestion, a: ChoiceAnswer | undefined): stri
   return q.type === "single" ? vals[0] : vals;
 }
 
-/** Собирает заявку из ответов и отправляет её. Без ENDPOINT — только пишет в консоль. */
-export async function sendLead(answers: Record<string, ChoiceAnswer>, contacts: Contacts) {
+/**
+ * Собирает заявку из ответов и отправляет её. Без ENDPOINT — только пишет в консоль.
+ * bonus — последний выпавший бонус рулетки (если крутили).
+ */
+export async function sendLead(answers: Record<string, ChoiceAnswer>, contacts: Contacts, bonus: string | null = null) {
   const payload: Record<string, unknown> = { submittedAt: new Date().toISOString() };
   for (const q of QUESTIONS) {
     if (q.type !== "contact") payload[q.id] = answerText(q, answers[q.id]);
   }
   Object.assign(payload, contacts);
+  if (bonus) payload.bonus = bonus;
 
   console.log("Заявка:", payload);
   if (!ENDPOINT) return;

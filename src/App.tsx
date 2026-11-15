@@ -5,6 +5,7 @@ import type { ChoiceAnswer, Contacts } from "./types";
 import { Header } from "./components/Header/Header";
 import { Screen, type ScreenState } from "./components/Screen/Screen";
 import { Hero } from "./components/Hero/Hero";
+import { Wheel } from "./components/Wheel/Wheel";
 import { FaqCards } from "./components/FaqCards/FaqCards";
 import { Footer } from "./components/Footer/Footer";
 import { QuestionScreen } from "./components/Quiz/QuestionScreen";
@@ -12,16 +13,19 @@ import { DoneScreen } from "./components/Quiz/DoneScreen";
 import s from "./App.module.css";
 
 /*
- * Экраны по номерам: 0 — главная (листается: первый экран, вопросы-карты, футер),
+ * Экраны по номерам: 0 — главная (листается: первый экран, рулетка, вопросы-карты, футер),
  * 1..N — вопросы анкеты (N-й — контакты), N+1 — «Спасибо».
  */
 const N = QUESTIONS.length;
 const DONE = N + 1;
 
 export default function App() {
-  const [cur, setCur] = useState(0);
+  // /#quiz — сразу первый вопрос (кнопка «Рассчитать стоимость сайта» на визитках)
+  const [cur, setCur] = useState(() => (location.hash === "#quiz" ? 1 : 0));
   const [answers, setAnswers] = useState<Record<string, ChoiceAnswer>>({});
   const [contacts, setContacts] = useState<Contacts>({ name: "", phone: "", email: "" });
+  // последний выпавший бонус рулетки — уходит в заявку (меняется раз за прокрутку, не при скролле)
+  const [bonus, setBonus] = useState<string | null>(null);
   const headerRef = useRef<HTMLElement>(null);
   const homeRef = useRef<HTMLElement>(null);
 
@@ -29,10 +33,10 @@ export default function App() {
 
   const next = useCallback(() => {
     if (cur === N) {
-      sendLead(answers, contacts);
+      sendLead(answers, contacts, bonus);
       go(DONE);
     } else go(cur + 1);
-  }, [cur, answers, contacts, go]);
+  }, [cur, answers, contacts, bonus, go]);
 
   // Esc — назад (кроме главной и «Спасибо»)
   useEffect(() => {
@@ -70,6 +74,7 @@ export default function App() {
       <main>
         <Screen ref={homeRef} state={state(0)} scroll onScroll={onHomeScroll}>
           <Hero active={cur === 0} questions={N} onStart={() => go(1)} />
+          <Wheel live={cur === 0} onBonus={setBonus} onApply={() => go(N)} />
           <FaqCards live={cur === 0} />
           <Footer live={cur === 0} onQuiz={() => go(1)} onContact={() => go(N)} onFaq={scrollToFaq} />
         </Screen>
@@ -78,7 +83,7 @@ export default function App() {
           <Screen key={q.id} state={state(i + 1)}>
             <QuestionScreen
               q={q} index={i} total={N} active={cur === i + 1}
-              answer={answers[q.id]} contacts={contacts}
+              answer={answers[q.id]} contacts={contacts} bonus={bonus}
               onAnswer={a => setAnswers(prev => ({ ...prev, [q.id]: a }))}
               onContacts={setContacts}
               onNext={next}
@@ -87,7 +92,7 @@ export default function App() {
         ))}
 
         <Screen state={state(DONE)}>
-          <DoneScreen />
+          <DoneScreen bonus={bonus} />
         </Screen>
       </main>
 

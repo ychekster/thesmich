@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import type { ChoiceAnswer, ChoiceQuestion, Contacts, Question } from "../../types";
 import { CheckIcon } from "../icons";
 import { WaveText } from "../WaveText/WaveText";
+import { wheelText } from "../../content/wheel";
 import s from "./Quiz.module.css";
 
 const EMPTY: ChoiceAnswer = { picked: [], own: "" };
@@ -13,6 +14,8 @@ interface Props {
   active: boolean;
   answer?: ChoiceAnswer;
   contacts: Contacts;
+  /** Бонус рулетки — показываем на экране контактов. */
+  bonus?: string | null;
   onAnswer: (a: ChoiceAnswer) => void;
   onContacts: (c: Contacts) => void;
   onNext: () => void;
@@ -26,7 +29,7 @@ export function isValid(q: Question, a: ChoiceAnswer | undefined, c: Contacts) {
 }
 
 /** Экран одного вопроса: заголовок из букв, варианты или поля контактов. */
-export function QuestionScreen({ q, index, total, active, answer, contacts, onAnswer, onContacts, onNext }: Props) {
+export function QuestionScreen({ q, index, total, active, answer, contacts, bonus, onAnswer, onContacts, onNext }: Props) {
   const valid = isValid(q, answer, contacts);
   const last = index === total - 1;
   const showNext = q.type !== "single" || (answer?.picked.some(i => q.options[i].own) ?? false);
@@ -63,6 +66,9 @@ export function QuestionScreen({ q, index, total, active, answer, contacts, onAn
       <p className={s.num}>{String(index + 1).padStart(2, "0")} / {total}</p>
       <WaveText as="h2" text={q.title} className={s.title} play={active} live={active} step={16} delay={120} />
       {q.hint && <p className={s.hint}>{q.hint}</p>}
+      {q.type === "contact" && bonus && (
+        <p className={s.bonus}><span>{wheelText.attached}:</span> {bonus}</p>
+      )}
 
       {q.type === "contact"
         ? <ContactFields value={contacts} onChange={onContacts} />

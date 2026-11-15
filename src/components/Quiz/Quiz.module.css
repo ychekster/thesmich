@@ -4,6 +4,13 @@
   margin-top: 14px; max-width: 15em; text-wrap: balance;
 }
 .hint { font-size: 19px; color: var(--grey); margin-top: 16px; }
+/* бонус рулетки, закреплённый за заявкой (экран контактов и «Спасибо») */
+.bonus {
+  display: inline-block; margin-top: 20px; padding: 10px 16px; border-radius: 14px;
+  background: rgba(41,151,255,.12); color: var(--text);
+  font-size: 16px; font-weight: 600; line-height: 1.35;
+}
+.bonus span { color: var(--accent); font-weight: 500; }
 
 /* ---------- варианты ---------- */
 .list { margin-top: 48px; border-top: 1px solid var(--line); }
