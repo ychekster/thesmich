@@ -1,0 +1,9 @@
+.hero { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.title { font-size: clamp(48px, 8.4vw, 150px); letter-spacing: -.05em; }
+.lead { max-width: 30em; }
+.cta { margin-top: 44px; }
+
+@media (max-width: 760px) {
+  .title { font-size: clamp(42px, 12.5vw, 56px); }
+  .cta { margin-top: 32px; }
+}

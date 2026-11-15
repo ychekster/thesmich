@@ -1,0 +1,16 @@
+.channels { display: flex; flex-direction: column; gap: clamp(36px, 6vh, 80px); }
+.list { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 40px; }
+.item {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: clamp(16px, 2.6vh, 28px) 0; border-top: 1.5px solid var(--line);
+}
+.h { font-size: clamp(26px, 2.6vw, 46px); font-weight: 700; letter-spacing: -.035em; }
+.t { font-size: 15px; color: var(--grey); }
+
+@media (max-width: 760px) {
+  .channels { gap: 28px; }
+  .list { grid-template-columns: 1fr 1fr; column-gap: 16px; }
+  .item { padding: 14px 0; gap: 4px; }
+  .h { font-size: 22px; }
+  .t { font-size: 13px; }
+}

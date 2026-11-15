@@ -1,0 +1,35 @@
+/*
+ * Общая типографика секций: надзаголовок, заголовок, вводный текст, кнопка.
+ * Цвета — токены темы секции (global.css: --text, --grey, --line, --btn…).
+ */
+.eyebrow {
+  font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--grey);
+  margin-bottom: 22px;
+}
+.title {
+  font-size: clamp(40px, 6.2vw, 104px); font-weight: 700;
+  line-height: 1; letter-spacing: -.045em;
+}
+.lead {
+  max-width: 36em; margin-top: 28px;
+  font-size: clamp(17px, 1.35vw, 22px); line-height: 1.45; color: var(--grey);
+}
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 56px; padding: 0 30px; border-radius: 28px;
+  font-size: 16px; font-weight: 600; text-decoration: none;
+  background: var(--btn); color: var(--btn-ink);
+  transition: transform .25s var(--ease), opacity .2s ease;
+}
+.btn:active { transform: scale(.96); }
+.btn:disabled { opacity: .5; cursor: default; }
+.btn:focus-visible { outline: 2px solid var(--text); outline-offset: 4px; }
+.ghost { background: transparent; color: var(--text); box-shadow: inset 0 0 0 1.5px var(--line); }
+
+@media (max-width: 760px) {
+  .eyebrow { font-size: 12px; margin-bottom: 16px; }
+  .title { font-size: clamp(34px, 10vw, 46px); }
+  .lead { margin-top: 18px; font-size: 16px; }
+  .btn { height: 52px; padding: 0 24px; font-size: 15px; }
+}

@@ -1,0 +1,14 @@
+.about { display: flex; flex-direction: column; gap: clamp(40px, 7vh, 96px); }
+.points { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+.point { border-top: 1.5px solid var(--line); padding-top: 22px; }
+.n { font-size: 13px; font-weight: 600; color: var(--accent); }
+.h { margin-top: 14px; font-size: clamp(22px, 1.8vw, 30px); font-weight: 700; letter-spacing: -.03em; }
+.t { margin-top: 10px; font-size: 16px; line-height: 1.5; color: var(--grey); max-width: 24em; }
+
+@media (max-width: 760px) {
+  .about { gap: 36px; }
+  .points { grid-template-columns: 1fr; gap: 22px; }
+  .point { padding-top: 16px; }
+  .h { margin-top: 8px; font-size: 20px; }
+  .t { font-size: 15px; }
+}

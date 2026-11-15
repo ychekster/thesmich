@@ -1,0 +1,34 @@
+.promo { display: flex; flex-direction: column; align-items: center; gap: clamp(28px, 5vh, 56px); text-align: center; }
+.head { display: flex; flex-direction: column; align-items: center; }
+
+/* рамка 16:9: сколько позволяет высота экрана под заголовком */
+.frame {
+  width: min(100%, calc((100svh - var(--header) - 380px) * 16 / 9), 1280px);
+  aspect-ratio: 16 / 9;
+  border-radius: 24px; overflow: hidden;
+  background: #161618;
+}
+.video, .poster { display: block; width: 100%; height: 100%; border: 0; }
+.poster {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+  background: radial-gradient(120% 90% at 50% 40%, #232326 0%, #111112 70%);
+  color: #fff;
+}
+.poster:disabled { cursor: default; }
+.play {
+  width: 84px; height: 84px; border-radius: 50%;
+  background: var(--accent); position: relative;
+  transition: transform .3s var(--ease);
+}
+.play::after {
+  content: ""; position: absolute; left: 35px; top: 27px;
+  border-left: 22px solid #fff; border-top: 15px solid transparent; border-bottom: 15px solid transparent;
+}
+.poster:not(:disabled):hover .play { transform: scale(1.06); }
+.caption { font-size: 15px; font-weight: 500; color: rgba(255, 255, 255, .7); }
+
+@media (max-width: 760px) {
+  .frame { width: 100%; border-radius: 16px; }
+  .play { width: 64px; height: 64px; }
+  .play::after { left: 26px; top: 20px; border-left-width: 17px; border-top-width: 12px; border-bottom-width: 12px; }
+}

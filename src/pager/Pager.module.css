@@ -1,0 +1,84 @@
+/*
+ * Полноэкранные секции. Все лежат друг на друге; видна только текущая (и на время
+ * перехода — уходящая). Движение задаёт движок (engine.ts) через Web Animations,
+ * здесь — только раскладка и покой.
+ */
+.pager { position: fixed; inset: 0; overflow: hidden; }
+
+.page {
+  position: absolute; inset: 0; overflow: hidden;
+  visibility: hidden;
+  color: var(--text);
+}
+.page[data-on], .page[data-near] { visibility: visible; }
+/*
+ * Слои заранее — только у текущей секции и соседей (data-near: лежат за краем
+ * экрана, engine.ts → placeNear). Это ровно то, что двигается при следующем
+ * жесте; остальные секции слоёв не держат.
+ */
+.page[data-on], .page[data-near],
+.page[data-on] > .bg, .page[data-near] > .bg,
+.page[data-on] > .content, .page[data-near] > .content { will-change: transform; }
+.page[data-on] [data-r], .page[data-near] [data-r] { will-change: transform, opacity; }
+/* прогрев: секция рисуется почти прозрачной, чтобы браузер заранее растрировал её слои */
+.page[data-warm] { visibility: visible; opacity: .01; }
+
+/* фон — отдельный слой: при уходе секции он ужимается, контент — нет */
+.bg { position: absolute; inset: 0; }
+.bg_ink { background: #0b0b0c; }
+.bg_paper { background: #f3f2ee; }
+.bg_graphite { background: #1b1b1e; }
+.bg_red { background: var(--accent); }
+.bg_black { background: #000; }
+.bg_sand { background: #e9e5dc; }
+.bg_night { background: #101218; }
+.bg_coal { background: #141415; }
+
+/* контент: ниже шапки, по центру оставшейся высоты */
+.content {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  padding-top: var(--header);
+  overflow: hidden;
+}
+.inner { width: 100%; margin: auto 0; padding: 32px var(--x) 48px; }
+
+/* до первого появления контент спрятан — сборку начинает движок */
+.pager:not([data-ready]) [data-r] { opacity: 0; }
+
+/* строка заголовка под маской (reveal.tsx → Lines) */
+.mask {
+  display: block; overflow: hidden;
+  /* запас под выносные элементы букв, чтобы маска их не резала */
+  padding: .08em 0 .14em; margin: -.08em 0 -.14em;
+}
+.line { display: block; }
+
+/* ---------- индикатор слева ---------- */
+.meter {
+  position: absolute; left: 28px; top: 50%; z-index: 5;
+  transform: translateY(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 18px;
+  color: var(--meter, rgba(255, 255, 255, .55));
+  transition: color .4s ease;
+}
+:global(html[data-tone="light"]) .meter { --meter: rgba(0, 0, 0, .45); }
+.count { font-size: 12px; font-weight: 500; letter-spacing: .02em; writing-mode: vertical-rl; transform: rotate(180deg); }
+.count b { font-weight: 600; color: currentColor; }
+.ticks { display: flex; flex-direction: column; gap: 4px; }
+.tick { width: 16px; height: 14px; position: relative; }
+.tick::before {
+  content: ""; position: absolute; left: 4px; right: 4px; top: 6px; height: 2px; border-radius: 1px;
+  background: currentColor; opacity: .45; transform-origin: left;
+  transition: transform .4s var(--ease), opacity .4s ease;
+}
+.tick[aria-current]::before { opacity: 1; transform: scaleX(1.5); }
+
+/* ---------- телефон ---------- */
+@media (max-width: 760px) {
+  /* невлезающий контент прокручивается внутри секции */
+  .content { overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .content::-webkit-scrollbar { display: none; }
+  .inner { padding: 24px var(--x) 40px; }
+  .meter { display: none; }
+}

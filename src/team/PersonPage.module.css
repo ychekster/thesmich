@@ -1,0 +1,11 @@
+/* Страница-визитка: только карта по центру. Экран зафиксирован — жесты по карте наклоняют её. */
+.page {
+  position: fixed; inset: 0; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px; touch-action: none;
+}
+.srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+@media (max-width: 760px) {
+  .page { padding: 16px; }
+}
