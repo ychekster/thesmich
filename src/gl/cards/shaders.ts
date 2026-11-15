@@ -44,6 +44,7 @@ uniform float u_radius;  // скругление углов, css px
 uniform float u_back;    // 0 — лицо, 1 — оборот
 uniform vec3 u_spec;     // сдвиг блика x, y (px) и его opacity
 uniform float u_alpha;   // прозрачность раздачи
+uniform float u_light;   // 1 — лицо тоже светлое (материал оборота), визитки команды
 uniform float u_matte;   // 0 — глянец (FAQ), 1 — матовый soft-touch (удостоверения)
 uniform sampler2D u_tex; // текст и масти (предумноженная альфа)
 out vec4 o;
@@ -65,11 +66,13 @@ void main() {
   float mask = cover(sdRoundRect(p, c, u_radius));
   if (mask <= 0.0) discard;
   bool back = u_back > 0.5;
+  // материал: светлый у оборота и у лица при u_light; положение блика — по стороне
+  bool lite = back || u_light > 0.5;
 
   // фон: цвет + linear-gradient(155deg, ...) — интерполяция в предумноженной альфе
   float t = gradT(p, u_size, 155.0);
   vec3 col;
-  if (!back) {
+  if (!lite) {
     vec4 g = t < 0.38 ? mix(vec4(vec3(0.07), 0.07), vec4(0.0), t / 0.38)
                       : mix(vec4(0.0), vec4(0.0, 0.0, 0.0, 0.35), (t - 0.38) / 0.62);
     col = vec3(20.0, 20.0, 22.0) / 255.0 * (1.0 - g.a) + g.rgb;
@@ -82,20 +85,20 @@ void main() {
   // кромки: inset 0 0 0 1px (кольцо) и поверх inset 0 1px 0 (светлая полоска сверху)
   float ring = 1.0 - cover(sdRoundRect(p, c - 1.0, u_radius - 1.0));
   float top = 1.0 - cover(sdRoundRect(p - vec2(0.0, 1.0), c, u_radius));
-  col = back ? mix(col, vec3(0.0), 0.05 * ring) : mix(col, vec3(1.0), 0.06 * ring);
-  col = back ? mix(col, vec3(1.0), 1.0 * top) : mix(col, vec3(1.0), 0.14 * top);
+  col = lite ? mix(col, vec3(0.0), 0.05 * ring) : mix(col, vec3(1.0), 0.06 * ring);
+  col = lite ? mix(col, vec3(1.0), 1.0 * top) : mix(col, vec3(1.0), 0.14 * top);
 
   // блик: слой на 40% больше карты со всех сторон, сдвигается и меняет яркость
   vec2 S = u_size * 1.8;
   vec2 sp = v_q + u_size * 0.4 - u_spec.xy;
   vec2 rc = back ? vec2(0.64, 0.30) : vec2(0.36, 0.30);
   float rt = length((sp - rc * S) / (vec2(0.34, 0.24) * S));
-  float aR = back
+  float aR = lite
     ? (rt < 0.45 ? seg(rt, 0.0, 0.95, 0.45, 0.35) : seg(rt, 0.45, 0.35, 0.72, 0.0))
     : (rt < 0.45 ? seg(rt, 0.0, 0.16, 0.45, 0.05) : seg(rt, 0.45, 0.05, 0.72, 0.0));
   float lt = gradT(sp - S * 0.5, S, back ? 62.0 : 118.0);
   float aL;
-  if (back) {
+  if (lite) {
     aL = lt < 0.48 ? seg(lt, 0.41, 0.0, 0.48, 0.45)
        : lt < 0.50 ? seg(lt, 0.48, 0.45, 0.50, 0.7)
        : lt < 0.52 ? seg(lt, 0.50, 0.7, 0.52, 0.45)
@@ -114,7 +117,7 @@ void main() {
   // зерно soft-touch покрытия: шум привязан к точке карты, при наклоне не «плывёт»
   if (u_matte > 0.0) {
     float n = fract(sin(dot(floor(v_q * 1.6), vec2(12.9898, 78.233))) * 43758.5453) - 0.5;
-    col += n * u_matte * (back ? 0.022 : 0.016);
+    col += n * u_matte * (lite ? 0.022 : 0.016);
   }
 
   // текст и масти поверх блика

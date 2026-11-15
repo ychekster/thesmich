@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { finePointer, reducedMotion } from "../../lib/media";
 import { CardsRenderer, type CardLook, type RasterFn } from "./CardsRenderer";
 import s from "./GlCards.module.css";
@@ -24,6 +24,8 @@ interface Props {
   onFail: () => void;
   /** Наклон пальцем: зажал и ведёшь — как курсором; экран под картой не листается. */
   touchTilt?: boolean;
+  /** Своё содержимое слота поверх холста (например, невидимые ссылки оборота). */
+  renderSlot?: (i: number, flipped: boolean) => ReactNode;
 }
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
@@ -33,7 +35,7 @@ const TAP_SLOP = 10; // px: дальше — это проводка пальц�
  * Карты на WebGL: холст рисует, невидимые слоты под ним принимают курсор,
  * клики и клавиатуру и озвучивают стороны для экранных дикторов.
  */
-export function GlCards({ items, raster, look, className, slotClassName, dealt, onFail, touchTilt = false }: Props) {
+export function GlCards({ items, raster, look, className, slotClassName, dealt, onFail, touchTilt = false, renderSlot }: Props) {
   const gridRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const slotRefs = useRef<HTMLDivElement[]>([]);
@@ -125,6 +127,7 @@ export function GlCards({ items, raster, look, className, slotClassName, dealt, 
         >
           {/* оборот для экранных дикторов, когда карта открыта */}
           <span className={s.srOnly} aria-live="polite">{flipped[i] ? item.back : ""}</span>
+          {renderSlot?.(i, flipped[i])}
         </div>
       ))}
     </div>

@@ -1,4 +1,4 @@
-/* Сетка из одной карты + DOM-версия без WebGL (CSS-3D поверх растров сторон). */
+/* Сетка из одной карты, слой ссылок оборота + DOM-версия без WebGL (CSS-3D поверх растров сторон). */
 .grid { display: flex; justify-content: center; }
 
 .deal {
@@ -17,10 +17,11 @@
 .side {
   position: absolute; inset: 0; overflow: hidden; border-radius: 5.9cqmin;
   backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  /* обе стороны светлые — как TEAM_LOOK.light в WebGL */
   background:
-    linear-gradient(155deg, rgba(255,255,255,.05) 0%, rgba(255,255,255,0) 38%, rgba(0,0,0,.35) 100%),
-    #141416;
-  box-shadow: 0 40px 80px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.14), inset 0 0 0 1px rgba(255,255,255,.06);
+    linear-gradient(155deg, rgba(255,255,255,.7) 0%, rgba(255,255,255,0) 45%, rgba(0,0,0,.08) 100%),
+    #ececf0;
+  box-shadow: 0 40px 80px rgba(0,0,0,.6), inset 0 1px 0 #fff, inset 0 0 0 1px rgba(0,0,0,.05);
 }
 .side > canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 .back {
@@ -34,3 +35,12 @@
   position: absolute; width: 1px; height: 1px; overflow: hidden;
   clip-path: inset(50%); white-space: nowrap;
 }
+
+/*
+ * Невидимый слой ссылок оборота (LinkLayer): та же разметка, что в растре,
+ * лежит поверх карты. Нажимаются только сами ссылки и только когда открыт
+ * оборот; нажатие мимо них уходит карте (переворот).
+ */
+.links { opacity: 0; visibility: hidden; pointer-events: none; }
+.links[data-active] { visibility: visible; }
+.link { pointer-events: auto; cursor: pointer; -webkit-tap-highlight-color: transparent; }

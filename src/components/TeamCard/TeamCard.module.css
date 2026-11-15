@@ -1,0 +1,89 @@
+/*
+ * Визитка — карта ID-1 (85.6 × 54, как банковская), на телефоне вертикальная.
+ * Обе стороны светлые (шейдер: light + matte), текст тёмный. Размеры — в cqw
+ * (доля ширины карты): раскладка масштабируется целиком. Плашки с data-paint
+ * (кнопки, разделители) растр рисует заливкой, рамкой и скруглением.
+ */
+.box { position: relative; container-type: size; }
+
+.face {
+  position: absolute; inset: 0;
+  display: flex; gap: 5cqw;
+  padding: 4.4cqw;
+  text-align: left; color: #1d1d1f;
+}
+.dot { color: var(--accent); }
+.logo { font-size: 3cqw; font-weight: 700; letter-spacing: -.045em; line-height: 1; }
+
+/* ---------- лицо: доверие ---------- */
+.photo { flex: none; height: 100%; aspect-ratio: 3 / 4; }
+.info { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: .6cqw 0; }
+.top { display: flex; justify-content: space-between; align-items: baseline; gap: 2cqw; }
+.bin { font-size: max(9px, 1.3cqw); font-weight: 500; color: #6e6e73; letter-spacing: .02em; }
+.who { margin: auto 0; }
+.name { font-size: 6.6cqw; font-weight: 700; letter-spacing: -.045em; line-height: 1.02; }
+.role { margin-top: 1.8cqw; font-size: 2.1cqw; font-weight: 500; color: #6e6e73; line-height: 1.2; }
+.about { display: flex; flex-direction: column; gap: .8cqw; }
+.tagline { font-size: 1.9cqw; font-weight: 600; letter-spacing: -.01em; line-height: 1.25; }
+.area { font-size: 1.75cqw; color: #6e6e73; line-height: 1.25; }
+
+/* ---------- оборот: связь ---------- */
+.back { padding: 4.4cqw 5cqw; }
+.main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.title { font-size: 4cqw; font-weight: 700; letter-spacing: -.04em; line-height: 1; }
+.list { margin-top: 3cqw; display: flex; flex-direction: column; }
+.sep { display: block; height: 1px; background: rgba(0,0,0,.1); }
+/* строка контакта — ссылка; в растре рисуется как текст, нажимается через LinkLayer */
+.row {
+  display: flex; align-items: baseline; gap: 2cqw; padding: 2.3cqw 0;
+  text-decoration: none; color: inherit;
+}
+.rowLbl { font-size: 2.1cqw; font-weight: 500; color: #6e6e73; }
+.rowVal {
+  margin-left: auto; min-width: 0;
+  font-size: 2.6cqw; font-weight: 600; letter-spacing: -.015em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.btns { margin-top: auto; display: flex; gap: 1.6cqw; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 5.4cqw; padding: 0 2.6cqw; border-radius: 2.7cqw;
+  font-size: 1.8cqw; font-weight: 600; letter-spacing: -.01em; line-height: 1;
+  text-decoration: none; white-space: nowrap;
+}
+.btnSave { background: #fff; color: #1d1d1f; border: 1px solid rgba(0,0,0,.1); }
+.btnQuiz { background: var(--accent); color: #fff; }
+
+.side { flex: none; width: 23cqw; display: flex; flex-direction: column; gap: 1.6cqw; }
+.qr { width: 100%; aspect-ratio: 1; }
+.qrNote { font-size: max(9px, 1.35cqw); line-height: 1.35; color: #6e6e73; }
+
+/* ---------- телефон: вертикальная карта ---------- */
+@media (max-width: 760px) {
+  .face { flex-direction: column; gap: 6cqw; padding: 7cqw; }
+  .logo { font-size: 6.4cqw; }
+
+  .photo { height: auto; width: 100%; aspect-ratio: 5 / 4; }
+  .info { padding: 0; }
+  .bin { font-size: 3cqw; }
+  .who { margin: 6cqw 0; }
+  .name { font-size: 11.5cqw; }
+  .role { margin-top: 2.6cqw; font-size: 4.4cqw; }
+  .about { gap: 1.6cqw; }
+  .tagline { font-size: 4.2cqw; }
+  .area { font-size: 3.8cqw; }
+
+  .back { padding: 8cqw 7cqw 7cqw; gap: 7cqw; }
+  .title { font-size: 8.4cqw; }
+  .list { margin-top: 4.6cqw; }
+  .row { padding: 3.4cqw 0; gap: 3cqw; }
+  .rowLbl { font-size: 3.8cqw; }
+  .rowVal { font-size: 4.6cqw; }
+  .btns { margin-top: 5cqw; flex-direction: column; gap: 2.4cqw; }
+  .btn { height: 11cqw; border-radius: 5.5cqw; font-size: 4.2cqw; }
+
+  .side { width: auto; flex-direction: row; align-items: center; gap: 5cqw; }
+  .qr { width: 30cqw; flex: none; }
+  .qrNote { font-size: 3.4cqw; }
+}

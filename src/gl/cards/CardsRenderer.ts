@@ -34,6 +34,8 @@ export interface CardLook {
   pad: { x: number; top: number; bottom: number };
   /** Материал: 0 (по умолчанию) — глянец, 1 — матовый с зерном (удостоверения). */
   matte?: number;
+  /** Лицо светлое, как оборот (визитки команды). По умолчанию — тёмное. */
+  light?: boolean;
 }
 
 export const FAQ_LOOK: CardLook = {
@@ -64,7 +66,7 @@ export interface CardsOptions {
 /** Растр сторон карт под их размеры (текст, масти, плашки) — см. gl/raster.ts. */
 export type RasterFn = (sizes: { w: number; h: number }[], dpr: number) => Promise<FaceRaster[]>;
 
-const FACE_U = ["u_res", "u_center", "u_size", "u_radius", "u_rot", "u_persp", "u_dealY", "u_back", "u_spec", "u_alpha", "u_matte", "u_tex"] as const;
+const FACE_U = ["u_res", "u_center", "u_size", "u_radius", "u_rot", "u_persp", "u_dealY", "u_back", "u_spec", "u_alpha", "u_matte", "u_light", "u_tex"] as const;
 const SHADOW_U = ["u_res", "u_rect", "u_sigma", "u_radius", "u_alpha"] as const;
 const SPRITE_U = ["u_res", "u_rect", "u_tex", "u_alpha"] as const;
 
@@ -356,6 +358,7 @@ export class CardsRenderer {
       gl.uniform3f(fu.u_spec, specX, specY, specO);
       gl.uniform1f(fu.u_alpha, op);
       gl.uniform1f(fu.u_matte, this.look.matte ?? 0);
+      gl.uniform1f(fu.u_light, this.look.light ? 1 : 0);
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, c.tex[back ? 1 : 0]);
       gl.uniform1i(fu.u_tex, 0);
