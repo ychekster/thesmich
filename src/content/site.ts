@@ -12,7 +12,7 @@ export const site = {
     email: "hello@example.com", // TODO: настоящая почта
     telegram: "https://t.me/your_username", // TODO
     instagram: "https://instagram.com/your_username", // TODO
-    city: "Казахстан", // TODO: город/адрес, если нужен
+    city: "Алматы · работаем по Казахстану", // из макета владельца; «и России» убрано (docs/PLAN.md)
   },
   privacyHref: "#privacy", // TODO: страница политики конфиденциальности
 } as const;

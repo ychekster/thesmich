@@ -13,7 +13,6 @@
 .more {
   flex: none; font: 700 calc(18 * var(--u)) / 1 var(--font);
   color: var(--grey); text-decoration: none;
-  transition: color .2s ease;
 }
 /* вся карточка нажимается: ссылка растянута на неё */
 .more::after { content: ""; position: absolute; inset: 0; }

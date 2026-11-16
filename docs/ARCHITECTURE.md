@@ -44,8 +44,8 @@ src/
 │   ├── reveal.tsx       r(i) — элемент сборки; <Lines> — заголовок из строк под маской
 │   ├── nav.ts           nav.go("contacts") — переход из любого места
 │   └── Pager.module.css раскладка секций, фоны (.bg_*), индикатор
-├── sections/            секции главной: Hero, About, Sites, Channels, Promo, Wheel,
-│   │                    Partners, Contacts — у каждой .tsx + .module.css
+├── sections/            секции главной: Hero, About, Sites, Channels, Steps (две секции
+│   │                    этапов), Promo, Wheel, Contacts, Partners — у каждой .tsx + .module.css
 │   └── ui.module.css    общая типографика по макету: заголовки, подзаголовок, кнопка, уголок
 ├── components/Header/   шапка: логотип и «Оставить заявку»
 ├── team/                визитка: TeamCard (CSS-3D, наклон, блик, переворот),
@@ -70,10 +70,20 @@ docs/                    PLAN.md, ARCHITECTURE.md, ANIMATIONS.md, CONTENT.md, ID
 | 2 | `about` | О студии | `red` | accent |
 | 3 | `sites` | Какие сайты делаем | `smoke` `#f5f5f5` | light |
 | 4 | `channels` | Каналы продвижения | `red` | accent |
-| 5 | `promo` | Промо-ролик | `ink` | dark |
-| 6 | `bonus` | Колесо бонусов | `mist` `#eff3f6` | light |
-| 7 | `partners` | Карьера (вакансии) | `ink` | dark |
-| 8 | `contacts` | Контакты + форма | `white` | light |
+| 5 | `build` | Разработка сайта (`Steps kind="build"`) | `smoke` | light |
+| 6 | `growth` | Продвижение (`Steps kind="growth"`) | `smoke` | light |
+| 7 | `promo` | Промо-ролик | `ink` | dark |
+| 8 | `bonus` | Колесо бонусов | `mist` `#eff3f6` | light |
+| 9 | `contacts` | Контакты + форма | `white` | light |
+| 10 | `partners` | Вакансии | `ink` | dark |
+
+**Этапы (`sections/Steps`)** — не поток, а координаты макета: сцена на весь экран
+(`position: absolute` от `.content`), по горизонтали — от центра экрана
+`calc(50% + (X − 960) · u)`, по вертикали — `Y · u` от верха. Красная линия-маршрут —
+div'ы (не SVG), чтобы концы тянулись до края экрана: в «Разработке» уходит за нижний
+край в точке X = 1760, в «Продвижении» приходит сверху в той же точке — при
+перелистывании линия непрерывна (контент обеих секций едет вместе с новой секцией).
+На телефоне сцена в потоке, не ниже 700px (низкий экран — прокрутка внутри секции).
 
 **Дизайн — макет Claude Design** (1920×1080 и 390×844). На компьютере все размеры —
 `calc(N * var(--u))`, где N — пиксели макета, а `--u` (global.css) — масштаб
@@ -83,7 +93,7 @@ docs/                    PLAN.md, ARCHITECTURE.md, ANIMATIONS.md, CONTENT.md, ID
 (`max-width: 760px`) — свои размеры в px из мобильного макета. Красный
 уголок — `ui.corner`; показать только на компьютере/телефоне — `ui.desktop`/`ui.mobile`.
 
-Индикатор — «1 / 8» и риски: на компьютере слева столбиком, на телефоне снизу в ряд.
+Индикатор — «1 / 10» и риски: на компьютере слева столбиком, на телефоне снизу в ряд.
 Текущая риска длиннее (scaleX) и красная (на красной секции — тёмная).
 
 - **Якоря**: `/#contacts` открывает сразу секцию; ссылка `#id` на странице листает
@@ -120,6 +130,8 @@ docs/                    PLAN.md, ARCHITECTURE.md, ANIMATIONS.md, CONTENT.md, ID
 | Индикатор слева | `Pager.tsx` + `.meter` в `Pager.module.css` |
 | Шапка | `src/components/Header/` |
 | Высота шапки, поля, контейнер | `--header`, `--x`, `--container` в `global.css` |
+| Этапы работы: тексты | `build`, `growth` в `src/content/home.ts` |
+| Этапы работы: вёрстка, линия-маршрут | `src/sections/Steps/` |
 | Колесо: вид, длительность | `src/sections/Wheel/` (`SPIN_MS` + transition в css) |
 | Промо-ролик | `promo.youtubeId` (+ `youtubeIdVertical` для телефона) в `content/home.ts` |
 | Форма заявки | `src/sections/Contacts/`, отправка — `src/lib/lead.ts` |

@@ -21,14 +21,10 @@
   width: calc(120 * var(--u)); height: calc(120 * var(--u)); border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   background: #fff; box-shadow: 0 6px 20px rgba(0, 0, 0, .18);
-  transition: transform .3s var(--ease);
 }
 .play svg { width: 43%; height: 43%; fill: #212121; }
 .play:disabled { cursor: default; }
 .play:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
-@media (hover: hover) and (pointer: fine) {
-  .play:not(:disabled):hover { transform: scale(1.06); }
-}
 
 /* телефон: вертикальная рамка, 300 × 500 в макете */
 @media (max-width: 760px) {

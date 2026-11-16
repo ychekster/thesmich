@@ -5,7 +5,7 @@ import ui from "../ui.module.css";
 import s from "./Partners.module.css";
 
 /**
- * Карьера: список вакансий, «Подробнее» — в личку (Telegram).
+ * Вакансии: список вакансий, «Подробнее» — в личку (Telegram).
  * Условия и цифры на сайте не называем (docs/PLAN.md).
  */
 export function Partners() {

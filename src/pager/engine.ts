@@ -42,6 +42,13 @@ export interface EngineOpts {
   onIndex: (i: number) => void;
 }
 
+/**
+ * Сборка/разборка контента (п. 3–4 правила выше). ВЫКЛЮЧЕНА — решение владельца
+ * (2026-11-16): элементы в секциях статичны, никаких анимаций. Двигаются только
+ * сами секции (перелистывание). Разметку r(i)/<Lines> не убираем — без сборки она
+ * ни на что не влияет.
+ */
+const REVEAL = false;
 /** Длительность перехода, мс. Всё (секции и контент) укладывается в неё. */
 export const DURATION = 1000;
 /** Кривая движения секций: мягкий разгон, долгое торможение. */
@@ -104,6 +111,7 @@ export function createEngine(o: EngineOpts) {
     new Animation(new KeyframeEffect(el, kf, opts), document.timeline);
   /** Анимации сборки секции k: вперёд (вход) или в обратной перемотке (уход). */
   const reveal = (k: number, dir: number, duration: number, backwards: boolean) => {
+    if (!REVEAL) return [];
     const kf = framesOf(k, dir);
     const opts: KeyframeEffectOptions = { duration, fill: "both", direction: backwards ? "reverse" : "normal" };
     return items[k].map((el, j) => mk(el, kf[j], opts));

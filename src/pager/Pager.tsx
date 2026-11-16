@@ -73,7 +73,7 @@ export const Pager = memo(function Pager({ pages }: { pages: Page[] }) {
         </section>
       ))}
 
-      {/* индикатор: «1 / 8» и риски (переход по клику); слева, на телефоне — снизу */}
+      {/* индикатор: «1 / 10» и риски (переход по клику); слева, на телефоне — снизу */}
       <nav className={s.meter} aria-label="Разделы страницы">
         <p className={s.count}><b ref={countRef}>{start + 1}</b> / {pages.length}</p>
         {pages.map((p, i) => (

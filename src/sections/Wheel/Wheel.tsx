@@ -3,7 +3,7 @@ import { BONUSES, wheelText } from "../../content/wheel";
 import { reducedMotion } from "../../lib/media";
 import { store } from "../../lib/store";
 import { nav } from "../../pager/nav";
-import { Lines, r } from "../../pager/reveal";
+import { r } from "../../pager/reveal";
 import ui from "../ui.module.css";
 import s from "./Wheel.module.css";
 
@@ -62,30 +62,20 @@ export function Wheel() {
 
   return (
     <div className={s.wrap}>
-      <div className={s.text}>
-        <Lines lines={wheelText.title} className={`${ui.h2} ${s.title}`} />
-        <p className={`${ui.body} ${s.lead}`} {...r(2)}>
-          <span className={ui.desktop}>{wheelText.lead}</span>
-          <span className={ui.mobile}>{wheelText.leadShort}</span>
-        </p>
-        <p className={`${ui.note} ${s.note}`} {...r(3)}>{wheelText.note}</p>
-        <div className={s.result} aria-live="polite" {...r(5)}>
-          <p className={s.prize} data-on={won !== null ? "" : undefined}>
-            <span className={s.prizeLabel}>{wheelText.result}</span>
-            <span className={s.prizeText}>{won !== null ? BONUSES[won].full : " "}</span>
+      <div className={s.head}>
+        <h2 className={`${ui.h2} ${s.title}`} {...r(0)}>
+          {wheelText.title[0]} <br className={ui.mobile} />{wheelText.title[1]}
+        </h2>
+        <div className={s.text}>
+          <p className={`${ui.body} ${s.lead}`} {...r(1)}>
+            <span className={ui.desktop}>{wheelText.lead}</span>
+            <span className={ui.mobile}>{wheelText.leadShort}</span>
           </p>
-          <div className={s.actions}>
-            <button className={ui.btn} type="button" onClick={spin} disabled={spinning}>
-              {won !== null ? wheelText.again : wheelText.spin}
-            </button>
-            {won !== null && (
-              <button className={ui.btn} type="button" onClick={() => nav.go("contacts")}>{wheelText.apply}</button>
-            )}
-          </div>
+          <p className={`${ui.note} ${s.note}`} {...r(2)}>{wheelText.note}</p>
         </div>
       </div>
 
-      <div className={s.stage} {...r(4)}>
+      <div className={s.stage} {...r(3)}>
         <svg className={s.pointer} viewBox="0 0 44 40" aria-hidden="true"><path d="M0 0 H44 L22 40 Z" /></svg>
         <div className={s.disc}>
           <svg
@@ -112,6 +102,24 @@ export function Wheel() {
             <circle cx={C} cy={C} r="54" className={s.hub} />
             <circle cx={C} cy={C} r="16" className={s.segRed} />
           </svg>
+        </div>
+      </div>
+
+      {/* под колесом: до прокрутки — только кнопка (как в макете), после — бонус и две кнопки */}
+      <div className={s.result} aria-live="polite" {...r(4)}>
+        {won !== null && (
+          <p className={s.prize}>
+            <span className={s.prizeLabel}>{wheelText.result}</span>
+            <span className={s.prizeText}>{BONUSES[won].full}</span>
+          </p>
+        )}
+        <div className={s.actions}>
+          <button className={ui.btn} type="button" onClick={spin} disabled={spinning}>
+            {won !== null ? wheelText.again : wheelText.spin}
+          </button>
+          {won !== null && (
+            <button className={ui.btn} type="button" onClick={() => nav.go("contacts")}>{wheelText.apply}</button>
+          )}
         </div>
       </div>
     </div>

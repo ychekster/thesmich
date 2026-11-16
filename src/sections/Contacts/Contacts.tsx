@@ -16,11 +16,11 @@ export function Contacts() {
   const topic = useStore(st => st.topic);
   const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle");
 
-  const rows: { label: string; value: string; href?: string }[] = [
+  const rows: { label: string; value: string; href?: string; desk?: boolean }[] = [
     { label: L.city, value: c.city },
     { label: L.phone, value: c.phone, href: c.phoneHref },
-    { label: L.email, value: c.email, href: `mailto:${c.email}` },
-    { label: L.instagram, value: handle(c.instagram), href: c.instagram },
+    { label: L.email, value: c.email, href: `mailto:${c.email}`, desk: true },
+    { label: L.instagram, value: handle(c.instagram), href: c.instagram, desk: true },
   ];
 
   const submit = async (e: FormEvent<HTMLFormElement>) => {
@@ -47,7 +47,7 @@ export function Contacts() {
       <div className={s.cols}>
         <ul className={s.rows}>
           {rows.map((row, k) => (
-            <li key={row.label} className={s.row} {...r(1 + k)}>
+            <li key={row.label} className={s.row} data-desk={row.desk ? "" : undefined} {...r(1 + k)}>
               <span className={s.label}>{row.label}<span className={s.colon}>:</span></span>{" "}
               {row.href ? (
                 <a className={s.value} href={row.href} {...(/^https?:/.test(row.href) ? { target: "_blank", rel: "noreferrer" } : {})}>{row.value}</a>
