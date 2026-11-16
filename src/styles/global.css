@@ -74,9 +74,35 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body, #root { height: 100%; }
+html { overscroll-behavior: none; }
 body {
-  background: var(--bg); color: var(--text); font-family: var(--font);
+  color: var(--text); font-family: var(--font);
   -webkit-font-smoothing: antialiased; overflow: hidden; overscroll-behavior: none;
+}
+
+/*
+ * Системные полосы Safari на iPhone (сверху — под статусом и островом, снизу — под
+ * строкой адреса) всегда красные, на любой странице (решение владельца, 2026-11-16).
+ * Safari 26 не смотрит на meta theme-color: красит по фону html/body, а если у края
+ * есть fixed-элемент — по его фону. Поэтому:
+ *  1) html и body — красные; свой фон есть у каждой секции и у экрана визитки;
+ *  2) у краёв нет fixed-элементов со своим цветом: шапка, секции (.pager) и экран
+ *     визитки — position: absolute (страница не прокручивается, выглядит так же).
+ *     Fixed только меню телефона — оно и так красное. Новые fixed-слои у края не добавлять;
+ *  3) .safari-bar — запасной вариант: красные fixed-полоски у краёв, спрятанные ПОД
+ *     контент (z-index: -1), их не видно; если Safari ищет fixed-элемент у края —
+ *     найдёт их. Лежат в index.html каждой страницы, вне React.
+ */
+html, body { background-color: #ed0644; }
+.safari-bar { display: none; }
+@supports (-webkit-touch-callout: none) {
+  .safari-bar {
+    display: block; position: fixed; left: 0; right: 0; z-index: -1;
+    height: max(24px, env(safe-area-inset-top));
+    background-color: #ed0644; pointer-events: none;
+  }
+  .safari-bar-top { top: 0; }
+  .safari-bar-bottom { bottom: 0; height: max(24px, env(safe-area-inset-bottom)); }
 }
 #root[data-person] { font-family: var(--font-team); letter-spacing: -.015em; }button, input, textarea { font: inherit; color: inherit; background: none; border: 0; letter-spacing: inherit; }
 button { cursor: pointer; }

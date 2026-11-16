@@ -3,7 +3,9 @@
  * перехода — уходящая). Движение задаёт движок (engine.ts) через Web Animations,
  * здесь — только раскладка и покой.
  */
-.pager { position: fixed; inset: 0; overflow: hidden; }
+/* absolute, а не fixed: fixed-слой у края экрана Safari 26 берёт за цвет системных
+   полос (global.css, «Системные полосы Safari»). Страница не прокручивается — то же самое. */
+.pager { position: absolute; inset: 0; overflow: hidden; }
 
 .page {
   position: absolute; inset: 0; overflow: hidden;
