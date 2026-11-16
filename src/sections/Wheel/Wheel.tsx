@@ -62,16 +62,44 @@ export function Wheel() {
 
   return (
     <div className={s.wrap}>
-      <div className={s.head}>
+      {/* слева: заголовок, текст, три шага, кнопки; на телефоне колонка «раскрывается»
+          (display: contents) и колесо встаёт между текстом и кнопками */}
+      <div className={s.left}>
         <h2 className={`${ui.h2} ${s.title}`} {...r(0)}>
-          {wheelText.title[0]} <br className={ui.mobile} />{wheelText.title[1]}
+          {wheelText.title[0]}<br />{wheelText.title[1]}
         </h2>
-        <div className={s.text}>
-          <p className={`${ui.body} ${s.lead}`} {...r(1)}>
-            <span className={ui.desktop}>{wheelText.lead}</span>
-            <span className={ui.mobile}>{wheelText.leadShort}</span>
-          </p>
-          <p className={`${ui.note} ${s.note}`} {...r(2)}>{wheelText.note}</p>
+        <p className={s.lead} {...r(1)}>
+          <span className={ui.desktop}>{wheelText.lead}</span>
+          <span className={ui.mobile}>{wheelText.leadShort}</span>
+        </p>
+        <ol className={s.steps} {...r(2)}>
+          {wheelText.steps.map((st, k) => (
+            <li key={st.title} className={s.step}>
+              <span className={s.n}>{String(k + 1).padStart(2, "0")}</span>
+              <div className={s.stepText}>
+                <h3 className={s.stepH}>{st.title}</h3>
+                <p className={s.stepT}>{st.text}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+
+        {/* до прокрутки — только кнопка (как в макете), после — бонус и две кнопки */}
+        <div className={s.result} aria-live="polite" {...r(4)}>
+          {won !== null && (
+            <p className={s.prize}>
+              <span className={s.prizeLabel}>{wheelText.result}</span>
+              <span className={s.prizeText}>{BONUSES[won].full}</span>
+            </p>
+          )}
+          <div className={s.actions}>
+            <button className={ui.btn} type="button" onClick={spin} disabled={spinning}>
+              {won !== null ? wheelText.again : wheelText.spin}
+            </button>
+            {won !== null && (
+              <button className={ui.btn} type="button" onClick={() => nav.go("contacts")}>{wheelText.apply}</button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -105,23 +133,6 @@ export function Wheel() {
         </div>
       </div>
 
-      {/* под колесом: до прокрутки — только кнопка (как в макете), после — бонус и две кнопки */}
-      <div className={s.result} aria-live="polite" {...r(4)}>
-        {won !== null && (
-          <p className={s.prize}>
-            <span className={s.prizeLabel}>{wheelText.result}</span>
-            <span className={s.prizeText}>{BONUSES[won].full}</span>
-          </p>
-        )}
-        <div className={s.actions}>
-          <button className={ui.btn} type="button" onClick={spin} disabled={spinning}>
-            {won !== null ? wheelText.again : wheelText.spin}
-          </button>
-          {won !== null && (
-            <button className={ui.btn} type="button" onClick={() => nav.go("contacts")}>{wheelText.apply}</button>
-          )}
-        </div>
-      </div>
     </div>
   );
 }

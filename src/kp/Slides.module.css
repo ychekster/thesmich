@@ -1,0 +1,273 @@
+/*
+ * Слайды КП (макет Claude Design «КП», 1920×1080 и 390×844).
+ * Компьютер — calc(N * var(--u)), N — пиксели макета; телефон — px (низ файла).
+ * Цвета текста секции — токены темы (--text, --grey); в белых/серых карточках
+ * текст всегда тёмный (карточки бывают и на красном слайде).
+ */
+
+/* ---------- общее ---------- */
+.col { display: flex; flex-direction: column; gap: calc(40 * var(--u)); }
+.head { display: flex; align-items: flex-end; justify-content: space-between; gap: calc(60 * var(--u)); }
+.head > :first-child { flex: none; }
+.headText { width: calc(560 * var(--u)); text-align: end; font: 400 calc(22 * var(--u)) / 1.55 var(--font); }
+:global(.theme-dark) .headText { color: var(--grey); }
+
+.card { position: relative; overflow: hidden; display: flex; flex-direction: column; }
+.white { background: #fff; color: #212121; box-shadow: 0 12px 32px rgba(0, 0, 0, .06); --muted: #5c5c5c; }
+.grey { background: #f5f5f5; color: #212121; --muted: #5c5c5c; }
+.dark { background: #3d3d3d; color: #fff; --muted: #cad5e1; }
+
+.num { font: 800 calc(64 * var(--u)) / 1 var(--font); color: var(--accent); }
+.cardH { font: 700 calc(24 * var(--u)) / 1.25 var(--font); text-transform: uppercase; }
+.cardT { font: 400 calc(20 * var(--u)) / 1.6 var(--font); color: var(--muted); }
+.boxH { font: 800 calc(26 * var(--u)) / 1.3 var(--font); text-transform: uppercase; }
+.boxNote { font: 400 calc(16 * var(--u)) / 1.5 var(--font); color: var(--muted); }
+
+/* строки «название — цена» */
+.rows { list-style: none; display: flex; flex-direction: column; }
+.row {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
+  padding: calc(18 * var(--u)) 0; border-bottom: 1px solid #ebebeb;
+  font: 700 calc(20 * var(--u)) / 1.35 var(--font);
+}
+.rowV { flex: none; text-align: right; color: var(--accent); }
+
+/* список с квадратами */
+.bullets { list-style: none; display: flex; flex-direction: column; gap: calc(16 * var(--u)); }
+.bullet { display: flex; gap: calc(14 * var(--u)); align-items: flex-start; font: 400 calc(19 * var(--u)) / 1.5 var(--font); }
+.bulletMark { flex: none; width: calc(12 * var(--u)); height: calc(12 * var(--u)); margin-top: calc(5 * var(--u)); background: var(--accent); }
+
+.two { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: calc(25 * var(--u)); }
+
+/* ---------- 1. Титул ---------- */
+.cover { display: flex; flex-direction: column; gap: calc(36 * var(--u)); }
+.eyebrow { font: 800 calc(26 * var(--u)) / 1.5 var(--font); text-transform: uppercase; }
+.coverText { max-width: calc(760 * var(--u)); font: 400 calc(22 * var(--u)) / 1.6 var(--font); color: var(--grey); }
+/* большой красный треугольник в углу экрана (.content — position: absolute) */
+.bigCorner {
+  position: absolute; right: 0; bottom: 0;
+  width: calc(300 * var(--u)); height: calc(300 * var(--u));
+  background: var(--accent); clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  pointer-events: none;
+}
+
+/* ---------- 2. Что мы делаем ---------- */
+.services { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: calc(25 * var(--u)); }
+.service { padding: calc(46 * var(--u)) calc(50 * var(--u)) calc(52 * var(--u)); gap: calc(16 * var(--u)); }
+.separately { margin-top: calc(8 * var(--u)); font: 700 calc(16 * var(--u)) / 1.4 var(--font); text-transform: uppercase; }
+.servicesNote { font: 700 calc(24 * var(--u)) / 1.5 var(--font); }
+
+/* ---------- 3. Что входит ---------- */
+.included .headText { color: var(--text); }
+.incList { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: calc(25 * var(--u)); }
+.inc { padding: calc(36 * var(--u)) calc(34 * var(--u)) calc(40 * var(--u)); gap: calc(14 * var(--u)); }
+.mark { flex: none; width: calc(16 * var(--u)); height: calc(16 * var(--u)); background: var(--accent); }
+.incBody { display: flex; flex-direction: column; gap: calc(14 * var(--u)); }
+.incH { font: 700 calc(20 * var(--u)) / 1.25 var(--font); text-transform: uppercase; }
+.incT { font: 400 calc(17 * var(--u)) / 1.6 var(--font); color: var(--muted); }
+
+/* ---------- 4. Стоимость сайта ---------- */
+.pricesSlide .headText { color: var(--text); }
+.prices { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: calc(25 * var(--u)); }
+.price { padding: calc(38 * var(--u)) calc(40 * var(--u)) calc(42 * var(--u)); gap: calc(14 * var(--u)); }
+.priceH { font: 700 calc(24 * var(--u)) / 1.25 var(--font); text-transform: uppercase; }
+.priceV { font: 800 calc(36 * var(--u)) / 1.1 var(--font); color: var(--accent); }
+.priceT { font: 400 calc(17 * var(--u)) / 1.55 var(--font); color: var(--muted); }
+.priceTerm { margin-top: auto; font: 700 calc(16 * var(--u)) / 1.3 var(--font); }
+.dealV { font: 800 calc(64 * var(--u)) / 1 var(--font); color: var(--accent); }
+.deal { background: #212121; }
+
+/* ---------- 5. Из чего складывается цена ---------- */
+.bdLead { max-width: calc(1000 * var(--u)); margin-top: calc(-16 * var(--u)); font: 400 calc(22 * var(--u)) / 1.6 var(--font); }
+.bdGrid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: calc(25 * var(--u)); align-items: start; }
+.box { padding: calc(44 * var(--u)) calc(50 * var(--u)) calc(30 * var(--u)); gap: calc(10 * var(--u)); }
+
+/* ---------- 7. Стоимость продвижения ---------- */
+.promoGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: calc(25 * var(--u)); align-items: start; }
+.percent { padding: calc(40 * var(--u)) calc(50 * var(--u)); gap: calc(16 * var(--u)); }
+.percentTop { display: flex; align-items: center; gap: calc(28 * var(--u)); }
+.percentV { flex: none; font: 700 calc(120 * var(--u)) / 1 var(--font); color: var(--accent); }
+.percentT { font: 700 calc(22 * var(--u)) / 1.45 var(--font); }
+.terms { list-style: none; display: flex; flex-direction: column; }
+.term { display: flex; gap: calc(20 * var(--u)); padding: calc(13 * var(--u)) 0; border-bottom: 1px solid #ebebeb; font: 400 calc(18 * var(--u)) / 1.45 var(--font); }
+.termL { flex: none; width: calc(120 * var(--u)); font-weight: 800; color: var(--accent); }
+.example { font: 400 calc(16 * var(--u)) / 1.5 var(--font); color: var(--muted); }
+.promoRight { display: flex; flex-direction: column; gap: calc(25 * var(--u)); align-self: stretch; }
+.fixed { padding: calc(40 * var(--u)) calc(50 * var(--u)) calc(30 * var(--u)); gap: calc(6 * var(--u)); }
+.report { flex: 1; justify-content: center; padding: calc(40 * var(--u)) calc(50 * var(--u)) calc(44 * var(--u)); gap: calc(12 * var(--u)); }
+.reportT { font: 400 calc(18 * var(--u)) / 1.55 var(--font); }
+
+/* ---------- 8. Этапы и сроки ---------- */
+.stepsSlide { gap: calc(30 * var(--u)); }
+.steps { list-style: none; display: flex; flex-direction: column; gap: calc(18 * var(--u)); }
+.step {
+  flex-direction: row; align-items: center; gap: calc(36 * var(--u));
+  min-height: calc(108 * var(--u)); padding: 0 calc(62 * var(--u)) 0 calc(50 * var(--u));
+}
+.stepN { flex: none; width: calc(48 * var(--u)); font: 800 calc(32 * var(--u)) / 1 var(--font); color: var(--accent); }
+.stepBody { flex: 1; display: flex; flex-direction: column; gap: calc(6 * var(--u)); }
+.stepH { font: 700 calc(24 * var(--u)) / 1.25 var(--font); text-transform: uppercase; }
+.stepNi { color: var(--accent); font-weight: 800; }
+.stepT { font: 400 calc(18 * var(--u)) / 1.45 var(--font); color: var(--muted); }
+.stepTime { flex: none; font: 700 calc(24 * var(--u)) / 1.2 var(--font); }
+.stepsNote { max-width: calc(1000 * var(--u)); font: 400 calc(16 * var(--u)) / 1.5 var(--font); color: var(--grey); }
+
+/* ---------- 9. Правки ---------- */
+.listCard { padding: calc(44 * var(--u)) calc(50 * var(--u)) calc(50 * var(--u)); gap: calc(24 * var(--u)); }
+
+/* ---------- 10. Оплата ---------- */
+.parts { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: calc(25 * var(--u)); }
+.part { padding: calc(44 * var(--u)) calc(50 * var(--u)) calc(48 * var(--u)); gap: calc(16 * var(--u)); }
+.partV { font: 800 calc(64 * var(--u)) / 1 var(--font); color: var(--accent); }
+.partT { font: 700 calc(22 * var(--u)) / 1.4 var(--font); text-transform: uppercase; }
+.payNotes { max-width: calc(1180 * var(--u)); }
+.payNotes .bullets { gap: calc(14 * var(--u)); }
+.payNotes .bullet { gap: calc(16 * var(--u)); font-size: calc(24 * var(--u)); }
+.payNotes .bulletMark { width: calc(14 * var(--u)); height: calc(14 * var(--u)); background: #fff; }
+
+/* ---------- 11. Гарантии ---------- */
+.guar { padding: calc(44 * var(--u)) calc(50 * var(--u)) calc(50 * var(--u)); gap: calc(14 * var(--u)); }
+.guarH { font: 700 calc(24 * var(--u)) / 1.25 var(--font); text-transform: uppercase; }
+.guarT { font: 400 calc(20 * var(--u)) / 1.55 var(--font); color: var(--muted); }
+
+/* ---------- 12. Как начать ---------- */
+.startSteps { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: calc(25 * var(--u)); }
+.startStep { padding: calc(44 * var(--u)) calc(50 * var(--u)) calc(50 * var(--u)); gap: calc(14 * var(--u)); }
+.startT { font: 400 calc(18 * var(--u)) / 1.55 var(--font); color: var(--muted); }
+.reach { display: flex; align-items: center; gap: calc(32 * var(--u)); }
+.reachList { list-style: none; display: flex; gap: calc(32 * var(--u)); }
+.reachItem { display: flex; flex-direction: column; gap: calc(6 * var(--u)); }
+.reachL { font: 400 calc(15 * var(--u)) / 1.3 var(--font); color: var(--grey); }
+.reachV { font: 700 calc(20 * var(--u)) / 1.4 var(--font); text-decoration: none; }
+.copy {
+  position: absolute; left: var(--side); bottom: calc(28 * var(--u));
+  font: 400 calc(16 * var(--u)) / 1.4 var(--font); color: var(--grey);
+}
+@media (hover: hover) and (pointer: fine) {
+  .reachV:hover { color: var(--accent); }
+}
+
+/* ================= телефон ================= */
+@media (max-width: 760px) {
+  /* только компьютер — для блоков со своим display (ui.desktop его не перебьёт) */
+  .dOnly { display: none; }
+  .col { gap: 12px; }
+  .head { flex-direction: column; align-items: stretch; gap: 12px; }
+  .headText { width: auto; text-align: left; font-size: 14px; line-height: 1.5; color: var(--grey); }
+  .included .headText, .pricesSlide .headText { color: var(--grey); }
+  /* уголок 18 px у некоторых карточек */
+  .c18 { --corner: 18px; }
+
+  .num { font-size: 32px; }
+  .cardH { font-size: 15px; line-height: 1.3; }
+  .cardT { font-size: 14px; line-height: 1.5; }
+  .boxH { font-size: 13px; }
+  .row { padding: 9px 0; font-size: 13px; }
+  .rowL { flex: 1; }
+  .bullets { gap: 6px; }
+  .bullet { gap: 10px; font-size: 13px; }
+  .bulletMark { width: 9px; height: 9px; margin-top: 5px; }
+  .two { grid-template-columns: 1fr; gap: 12px; }
+
+  /* 1 */
+  .cover { gap: 20px; }
+  .eyebrow { font-size: 14px; }
+  .coverH { font-size: 34px; line-height: 1.05; }
+  .coverText { font-size: 16px; }
+  .bigCorner { width: 140px; height: 140px; }
+
+  /* 2 */
+  .col:has(.services) { gap: 16px; }
+  .services { grid-template-columns: 1fr; gap: 12px; }
+  .service { padding: 18px 18px 22px; gap: 8px; }
+  .separately { margin-top: 0; font-size: 12px; }
+  .servicesNote { font-size: 18px; line-height: 1.45; }
+
+  /* 3: на телефоне не карточки, а список с квадратами */
+  .included { gap: 14px; }
+  .incList { grid-template-columns: 1fr; gap: 14px; margin-top: 6px; }
+  .inc { flex-direction: row; gap: 12px; padding: 0; background: none; box-shadow: none; overflow: visible; }
+  .mark { width: 12px; height: 12px; margin-top: 5px; }
+  .incBody { gap: 0; }
+  .incH { font-size: 14px; line-height: 1.3; }
+  .incT { font-size: 13px; line-height: 1.45; }
+
+  /* 4: строки «название, срок — цена» */
+  .prices { grid-template-columns: 1fr; gap: 8px; margin-top: 4px; }
+  .price {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "h v" "term v";
+    align-items: center; column-gap: 12px; row-gap: 2px; padding: 12px 16px;
+  }
+  .priceH { grid-area: h; font-size: 14px; line-height: 1.3; }
+  .priceV { grid-area: v; font-size: 16px; line-height: 1.2; text-align: right; }
+  .priceT { display: none; }
+  .priceTerm { grid-area: term; margin: 0; font: 400 12px / 1.3 var(--font); color: var(--muted); }
+  .deal { grid-template-areas: "h v"; }
+  .deal .priceH { font-size: 13px; line-height: 1.35; }
+  .dealV { grid-area: v; font-size: 22px; }
+
+  /* 5 */
+  .col:has(.bdGrid) > h2 { font-size: 30px; }
+  .bdLead { margin: 0; font-size: 14px; line-height: 1.5; color: var(--grey); }
+  .bdGrid { grid-template-columns: 1fr; gap: 12px; }
+  .box { padding: 14px 16px 10px; gap: 4px; }
+
+  /* 7 */
+  .promoGrid { grid-template-columns: 1fr; gap: 12px; }
+  .percent { padding: 14px 16px 10px; gap: 8px; }
+  .percentTop { gap: 14px; }
+  .percentV { font-size: 52px; font-weight: 800; }
+  .percentT { font-size: 13px; line-height: 1.4; }
+  .term { gap: 10px; padding: 7px 0; font-size: 13px; line-height: 1.4; }
+  .termL { width: 82px; }
+  .promoRight { gap: 12px; }
+  .fixed { padding: 14px 16px 8px; gap: 2px; }
+  .fixed .row { padding: 8px 0; }
+  .reportMobile { font: 400 13px / 1.45 var(--font); color: var(--grey); }
+
+  /* 8: номер в строке заголовка, срок справа, описание ниже */
+  .stepsSlide { gap: 12px; }
+  .steps { gap: 8px; }
+  .step {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "h time" "t t";
+    column-gap: 10px; row-gap: 4px; min-height: 0; padding: 9px 14px 10px;
+  }
+  .stepBody { display: contents; }
+  .stepH { grid-area: h; font-size: 14px; line-height: 1.3; }
+  .stepT { grid-area: t; font-size: 12px; line-height: 1.45; }
+  .stepTime { grid-area: time; font-size: 13px; line-height: 1.3; }
+  .stepsNote { font-size: 12px; line-height: 1.45; }
+
+  /* 9 */
+  .listCard { padding: 14px 16px 16px; gap: 8px; }
+
+  /* 10: доли строками, пояснения — в белой карточке с красными квадратами */
+  .parts { grid-template-columns: 1fr; gap: 8px; }
+  .part { flex-direction: row; align-items: center; gap: 16px; padding: 12px 16px; }
+  .partV { flex: none; width: 76px; font-size: 32px; }
+  .partT { font-size: 14px; line-height: 1.35; }
+  .payNotes { max-width: none; padding: 14px 16px 16px; background: #fff; color: #212121; box-shadow: 0 12px 32px rgba(0, 0, 0, .06); }
+  .payNotes .bullets { gap: 8px; }
+  .payNotes .bullet { gap: 10px; font-size: 13px; }
+  .payNotes .bulletMark { width: 9px; height: 9px; background: var(--accent); }
+
+  /* 11 */
+  .guarSlide .two { gap: 10px; }
+  .guar { padding: 10px 14px 12px; gap: 4px; }
+  .guarH { font-size: 14px; line-height: 1.3; }
+  .guarT { font-size: 13px; line-height: 1.35; }
+
+  /* 12 */
+  .startSlide { gap: 14px; }
+  .startH { font-size: 40px; }
+  .startSteps { grid-template-columns: 1fr; gap: 10px; }
+  .startStep { padding: 14px 16px 16px; gap: 6px; }
+  .startStep .num { font-size: 28px; }
+  .startT { font-size: 13px; line-height: 1.45; }
+  .reach { flex-direction: column; align-items: stretch; gap: 14px; }
+  .reachBtn { height: 48px; }
+  .reachList { flex-direction: column; gap: 0; text-align: center; }
+  .reachItem { display: block; font: 400 13px / 1.45 var(--font); color: var(--grey); }
+  .reachL, .reachV { font: inherit; color: inherit; }
+  .copy { display: none; }
+}

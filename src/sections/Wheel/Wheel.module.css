@@ -1,18 +1,25 @@
-/* макет «8. Колесо фортуны»: сверху заголовок и текст справа, колесо 560 по центру, кнопка под ним */
-.wrap { display: flex; flex-direction: column; gap: calc(30 * var(--u)); }
-.head { display: flex; align-items: flex-end; justify-content: space-between; gap: calc(60 * var(--u)); }
-.title { flex: none; }
-.text { width: calc(560 * var(--u)); display: flex; flex-direction: column; gap: calc(8 * var(--u)); }
+/* макет «8. Колесо фортуны» (2026-11-16): слева заголовок, текст, три шага и кнопка,
+   справа колесо 680 */
+.wrap { display: grid; grid-template-columns: minmax(0, 1fr) calc(680 * var(--u)); gap: calc(70 * var(--u)); align-items: center; }
+.left { display: flex; flex-direction: column; gap: calc(36 * var(--u)); }
+.lead { font: 400 calc(22 * var(--u)) / 1.6 var(--font); }
 
-/* под колесом: [бонус] [кнопки] в ряд по центру */
-.result { align-self: center; display: flex; align-items: center; gap: calc(24 * var(--u)); }
+.steps { list-style: none; display: flex; flex-direction: column; gap: calc(22 * var(--u)); }
+.step { display: flex; gap: calc(24 * var(--u)); align-items: flex-start; }
+.n { flex: none; width: calc(48 * var(--u)); font: 800 calc(32 * var(--u)) / 1 var(--font); color: var(--accent); }
+.stepText { display: flex; flex-direction: column; gap: calc(4 * var(--u)); }
+.stepH { font: 700 calc(22 * var(--u)) / 1.25 var(--font); text-transform: uppercase; }
+.stepT { font: 400 calc(18 * var(--u)) / 1.5 var(--font); color: var(--grey); }
+
+/* после прокрутки: бонус над кнопками */
+.result { display: flex; flex-direction: column; align-items: flex-start; gap: calc(20 * var(--u)); }
 .prize { display: flex; flex-direction: column; gap: 4px; }
 .prizeLabel { font: 700 calc(16 * var(--u)) / 1.2 var(--font); text-transform: uppercase; color: var(--accent); }
 .prizeText { font: 700 calc(24 * var(--u)) / 1.25 var(--font); }
-.actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; }
 
-/* колесо 560 × 560 и указатель сверху: вся сцена 560 × 590 */
-.stage { position: relative; flex: none; align-self: center; width: calc(560 * var(--u)); height: calc(590 * var(--u)); }
+/* колесо 680 × 680 и указатель сверху: вся сцена 680 × 710 */
+.stage { position: relative; width: calc(680 * var(--u)); height: calc(710 * var(--u)); }
 .pointer {
   position: absolute; left: 50%; top: 0; z-index: 1;
   width: calc(44 * var(--u)); height: calc(40 * var(--u)); margin-left: calc(-22 * var(--u));
@@ -20,7 +27,7 @@
 }
 .disc {
   position: absolute; left: 0; top: calc(30 * var(--u));
-  width: calc(560 * var(--u)); height: calc(560 * var(--u));
+  width: calc(680 * var(--u)); height: calc(680 * var(--u));
   border-radius: 50%; box-shadow: 0 12px 32px rgba(0, 0, 0, .06);
 }
 .wheel {
@@ -37,15 +44,16 @@
 .hub { fill: #fff; }
 
 @media (max-width: 760px) {
-  .wrap { gap: 0; }
-  .head { flex-direction: column; align-items: stretch; gap: 12px; }
-  .text { width: auto; }
-  .lead { color: var(--grey); }
-  .note { display: none; }
-  .stage { margin-top: 28px; width: 300px; height: 330px; }
+  /* столбиком: заголовок, текст, колесо, кнопки (шаги — только на компьютере) */
+  .wrap { display: flex; flex-direction: column; gap: 0; }
+  .left { display: contents; }
+  .lead { margin-top: 12px; font-size: 15px; line-height: 1.55; color: var(--grey); }
+  .steps { display: none; }
+  .stage { order: 1; align-self: center; margin-top: 28px; width: 300px; height: 330px; }
   .pointer { width: 44px; height: 40px; margin-left: -22px; }
   .disc { top: 30px; width: 300px; height: 300px; }
-  .result { margin-top: 24px; flex-direction: column; gap: 12px; text-align: center; }
+  .result { order: 2; margin-top: 24px; align-items: center; gap: 12px; text-align: center; }
+  .actions { justify-content: center; }
   .prizeLabel { font-size: 12px; }
   .prizeText { font-size: 17px; }
 }

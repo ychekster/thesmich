@@ -1,23 +1,32 @@
-import { channels } from "../../content/home";
+import { channels, type ChannelsData } from "../../content/home";
 import { Lines, r } from "../../pager/reveal";
 import ui from "../ui.module.css";
 import s from "./Channels.module.css";
 
-/** Каналы продвижения: заголовок, фраза справа и белые «таблетки» площадок. */
-export function Channels() {
+/**
+ * Каналы продвижения: заголовок, фраза справа и белые «таблетки» площадок (2 × 4).
+ * Тот же слайд — в КП (data из content/kp.ts).
+ */
+export function Channels({ data = channels }: { data?: ChannelsData }) {
   return (
     <div className={s.channels}>
       <div className={s.head}>
-        <Lines lines={channels.title} className={ui.h2} />
-        <p className={`${ui.lead} ${s.lead}`} {...r(2)}>
-          {channels.lead[0]}<br className={ui.desktop} /> {channels.lead[1]}
+        <Lines lines={data.title} className={ui.h2} />
+        <p className={s.lead} {...r(2)}>
+          <span className={ui.desktop}>{data.lead[0]} {data.lead[1]}</span>
+          <span className={ui.mobile}>{data.leadMobile}</span>
         </p>
       </div>
       <ul className={s.list}>
-        {channels.items.map((it, k) => (
+        {data.items.map((it, k) => (
           <li key={it.title} className={s.pill} {...r(3 + k)}>
             <span className={s.h}>{it.title}</span>
-            <span className={s.t}>{it.text}</span>
+            {it.textMobile ? (
+              <>
+                <span className={`${s.t} ${ui.desktop}`}>{it.text}</span>
+                <span className={`${s.t} ${ui.mobile}`}>{it.textMobile}</span>
+              </>
+            ) : <span className={s.t}>{it.text}</span>}
           </li>
         ))}
       </ul>

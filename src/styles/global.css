@@ -78,14 +78,13 @@ body {
   background: var(--bg); color: var(--text); font-family: var(--font);
   -webkit-font-smoothing: antialiased; overflow: hidden; overscroll-behavior: none;
 }
-#root[data-person] { font-family: var(--font-team); letter-spacing: -.015em; }
-button, input, textarea { font: inherit; color: inherit; background: none; border: 0; letter-spacing: inherit; }
+#root[data-person] { font-family: var(--font-team); letter-spacing: -.015em; }button, input, textarea { font: inherit; color: inherit; background: none; border: 0; letter-spacing: inherit; }
 button { cursor: pointer; }
 a { color: inherit; }
 
 @media (max-width: 760px) {
   :root {
-    --x: 20px; --header: 76px; --bottom: 52px;
+    --x: 20px; --header: 76px; --bottom: 20px;
     --container: calc(100vw - 2 * var(--x));
     --corner: 24px;
   }

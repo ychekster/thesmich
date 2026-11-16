@@ -41,11 +41,14 @@ export const Pager = memo(function Pager({ pages }: { pages: Page[] }) {
       root, sections, start,
       onTone: t => { document.documentElement.dataset.tone = t; },
       onIndex: i => {
+        nav.current = pages[i].id;
         tickRefs.current.forEach((b, k) => b.toggleAttribute("aria-current", k === i));
         if (countRef.current) countRef.current.textContent = String(i + 1);
       },
     });
     nav.go = id => engine.go(pages.findIndex(p => p.id === id));
+    nav.ids = pages.map(p => p.id);
+    nav.current = pages[start].id;
     const unbind = bindInput(root, engine);
     // ссылки вида #contacts на самой странице — тоже переход к секции
     const onHash = () => { const k = pages.findIndex(p => `#${p.id}` === location.hash); if (k >= 0) engine.go(k); };

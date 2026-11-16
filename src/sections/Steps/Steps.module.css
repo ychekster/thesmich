@@ -3,8 +3,9 @@
  * Компьютер: координаты макета 1920×1080. По горизонтали — от центра экрана:
  * left: calc(50% + (X − 960) · u); по вертикали — от верха: top: Y · u.
  * Концы линии тянутся до края экрана (top: 0 / bottom: 0) при любой высоте.
- * Телефон: координаты макета 390×844 минус начало сцены (20 px слева,
- * шапка 76 + поле 16 = 92 px сверху).
+ * Телефон: координаты макета 390×844 минус начало сцены (20 px слева; сверху —
+ * полоса Safari 60 + шапка 76 = 136 px в макете). Горизонталь «Разработки» — у низа
+ * экрана (за 30 px до края, как в макете), остальное — от верха.
  */
 
 /* сцена на весь экран: .inner не позиционирован, так что опора — .content (Pager) */
@@ -57,33 +58,33 @@
 
 /* ---------- телефон ---------- */
 @media (max-width: 760px) {
-  /* сцена в потоке и не короче макета (844 − 92 − 52 = 700); на низком экране — прокрутка секции */
+  /* сцена в потоке и не короче макета (до горизонтали 580); на низком экране — прокрутка секции */
   .stage {
     position: relative; inset: auto;
-    min-height: max(700px, calc(100svh - var(--header) - 16px - var(--bottom)));
-    min-height: max(700px, calc(100dvh - var(--header) - 16px - var(--bottom)));
+    min-height: max(580px, calc(100svh - var(--header) - var(--bottom)));
+    min-height: max(580px, calc(100dvh - var(--header) - var(--bottom)));
   }
   .ln { --t: 4px; }
 
-  /* разработка: точка (30, 260) → вниз до низа−92 → вправо до 380 → вниз за край */
-  .b_dot { left: 2px; top: 160px; width: 16px; height: 16px; }
-  .b_v { left: 8px; top: 166px; bottom: 38px; width: var(--t); }
-  .b_h { left: 8px; right: -12px; top: auto; bottom: 38px; width: auto; height: var(--t); }
-  .b_mh { right: -12px; bottom: calc(-1 * var(--bottom)); height: calc(var(--bottom) + 42px); width: var(--t); }
+  /* разработка: точка (30, 270) → вниз до низа−30 → вправо до 380 → вниз за край */
+  .b_dot { left: 2px; top: 126px; width: 16px; height: 16px; }
+  .b_v { left: 8px; top: 132px; bottom: 10px; width: var(--t); }
+  .b_h { left: 8px; right: -12px; top: auto; bottom: 10px; width: auto; height: var(--t); }
+  .b_mh { right: -12px; bottom: calc(-1 * var(--bottom)); height: calc(var(--bottom) + 14px); width: var(--t); }
 
-  /* продвижение: сверху в 380 → вниз до 250 → влево до 30 → вниз, стрелка вниз */
-  .g_v1 { left: auto; right: -12px; top: calc(-1 * (var(--header) + 16px)); height: calc(var(--header) + 16px + 160px); width: var(--t); }
-  .g_h1 { left: 8px; right: -12px; top: 156px; width: auto; height: var(--t); }
-  .g_v2 { left: 8px; top: 156px; height: 480px; width: var(--t); }
-  .arrow { left: -2px; top: 636px; width: 24px; height: 22px; clip-path: polygon(0 0, 100% 0, 50% 100%); }
+  /* продвижение: сверху в 380 → вниз до 268 → влево до 30 → вниз до 698, стрелка вниз */
+  .g_v1 { left: auto; right: -12px; top: calc(-1 * var(--header)); height: calc(var(--header) + 134px); width: var(--t); }
+  .g_h1 { left: 8px; right: -12px; top: 130px; width: auto; height: var(--t); }
+  .g_v2 { left: 8px; top: 130px; height: 432px; width: var(--t); }
+  .arrow { left: -2px; top: 562px; width: 24px; height: 22px; clip-path: polygon(0 0, 100% 0, 50% 100%); }
 
-  .head { left: 0; top: 4px; width: 340px; gap: 10px; }
+  .head { left: 0; top: 14px; width: 340px; gap: 10px; }
   .growth .head { width: 320px; }
 
-  /* этапы столбиком: шаг 94 (разработка) / 92 (продвижение) */
+  /* этапы столбиком через 86 */
   .step { left: 36px; right: 0; width: auto; }
-  .build .step { top: calc(177px + 94px * var(--i)); }
-  .growth .step { top: calc(187px + 92px * var(--i)); }
+  .build .step { top: calc(151px + 86px * var(--i)); }
+  .growth .step { top: calc(157px + 86px * var(--i)); }
   .sq { left: -34px; top: 3px; width: 16px; height: 16px; }
   .text { margin-top: 0; gap: 4px; }
   .h { font-size: 15px; line-height: 1.3; }

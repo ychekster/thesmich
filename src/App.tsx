@@ -10,6 +10,7 @@ import { Promo } from "./sections/Promo/Promo";
 import { Wheel } from "./sections/Wheel/Wheel";
 import { Partners } from "./sections/Partners/Partners";
 import { Contacts } from "./sections/Contacts/Contacts";
+import { site } from "./content/site";
 
 /**
  * Главная — полноэкранные секции (план — docs/PLAN.md). Порядок, якоря (#id),
@@ -31,7 +32,7 @@ export default function App() {
 
   return (
     <>
-      <Header />
+      <Header cta={{ label: site.cta, to: "contacts" }} menu={site.menu} />
       <Pager pages={pages} />
     </>
   );

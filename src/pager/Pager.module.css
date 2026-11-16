@@ -39,7 +39,7 @@
   overflow: hidden;
 }
 /* контейнер макета (1250 из 1920) по центру; снизу поле под индикатор на телефоне */
-.inner { width: var(--container); margin: auto; padding: calc(24 * var(--u)) 0 var(--bottom); }
+.inner { width: var(--container); margin: auto; padding: 0 0 var(--bottom); }
 
 /* до первого появления контент спрятан — сборку начинает движок */
 .pager:not([data-ready]) [data-r] { opacity: 0; }
@@ -50,6 +50,9 @@
   /* запас под выносные элементы букв, чтобы маска их не резала */
   padding: .08em 0 .14em; margin: -.08em 0 -.14em;
 }
+/* поля соседних масок схлопываются (−.14 и −.08 → −.14): возвращаем сумму −.22,
+   иначе строки заголовка расходятся на .08em */
+.mask + .mask { margin-top: -.22em; }
 .line { display: block; }
 
 /* ---------- индикатор: «1 / 10» и риски; слева, на телефоне — снизу ---------- */
@@ -66,17 +69,17 @@
 :global(html[data-tone="accent"]) .meter { --m-on: #212121; }
 .count { font: 400 calc(26 * var(--u)) / 1 var(--font); }
 .count b { font-weight: 800; }
-/* риска: 21×3, текущая — вдвое длиннее и красная (на красной секции — тёмная).
+/* риска: 21×4, текущая — вдвое длиннее и красная (на красной секции — тёмная).
    Длина — scaleX, цвет — прозрачность второго слоя: только transform/opacity. */
 .tick {
   position: relative; display: block;
-  width: calc(42 * var(--u)); height: 3px;
+  width: calc(42 * var(--u)); height: 4px;
   /* зона нажатия больше самой риски */
   margin: -8px 0; padding: 8px 0;
   transform-origin: left; transform: scaleX(.5);
   transition: transform .45s var(--ease);
 }
-.tick::before, .tick::after { content: ""; position: absolute; left: 0; right: 0; top: 8px; height: 3px; }
+.tick::before, .tick::after { content: ""; position: absolute; left: 0; right: 0; top: 8px; height: 4px; }
 .tick::before { background: currentColor; }
 .tick::after { background: var(--m-on); opacity: 0; transition: opacity .45s ease, background-color .45s ease; }
 .tick[aria-current] { transform: none; }
@@ -88,12 +91,7 @@
   /* невлезающий контент прокручивается внутри секции */
   .content { overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
   .content::-webkit-scrollbar { display: none; }
-  .inner { padding: 16px 0 var(--bottom); }
-  .meter {
-    left: var(--x); top: auto; bottom: 18px;
-    flex-direction: row; align-items: center; gap: 2px;
-  }
-  .count { font-size: 14px; margin-right: 6px; }
-  /* в ряд: укорачиваем от центра, чтобы промежутки оставались ровными */
-  .tick { width: 28px; transform-origin: center; }
+  .inner { padding: 0 0 var(--bottom); }
+  /* на телефоне индикатора нет (макет 2026-11-16): навигация — меню в шапке */
+  .meter { display: none; }
 }

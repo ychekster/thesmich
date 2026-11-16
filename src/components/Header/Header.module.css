@@ -1,4 +1,5 @@
-/* Шапка по макету: логотип «the smich.» и кнопка-«таблетка» в контейнере 1250. */
+/* Шапка по макету: логотип «the smich.» и кнопка-«таблетка» в контейнере 1250;
+   на телефоне вместо кнопки — бургер и меню на весь экран. */
 .header {
   position: fixed; top: 0; left: 0; right: 0; z-index: 10;
   height: var(--header);
@@ -13,7 +14,7 @@
 :global(html[data-tone="light"]) .header { --h-text: #212121; --h-line: #b1b3b6; }
 :global(html[data-tone="accent"]) .header { --h-dot: #fff; }
 
-.logo, .cta { pointer-events: auto; }
+.logo, .cta, .burger { pointer-events: auto; }
 .logo {
   font: 800 calc(40 * var(--u)) / 1 var(--font); letter-spacing: -.02em;
   text-transform: lowercase; text-decoration: none;
@@ -25,16 +26,59 @@
   height: calc(55 * var(--u)); padding: 0 calc(28 * var(--u));
   border: 1px solid var(--h-line); border-radius: 999px;
   font: 700 calc(18 * var(--u)) / 1 var(--font); text-transform: uppercase;
-  transition: border-color .45s ease, background-color .25s ease, color .25s ease;
+  transition: border-color .45s ease;
 }
 @media (hover: hover) and (pointer: fine) {
   .cta:hover { background: var(--h-text); color: var(--h-hover, #fff); }
   :global(html[data-tone="dark"]) .cta:hover { --h-hover: #212121; }
   :global(html[data-tone="accent"]) .cta:hover { --h-hover: var(--accent); }
 }
-.cta:focus-visible, .logo:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.cta:focus-visible, .logo:focus-visible, .burger:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 
+/* бургер 44×44: три полосы 34×4 через 6 (макет) */
+.burger { display: none; }
+.burger i { display: block; width: 34px; height: 4px; background: currentColor; transition: background-color .45s ease; }
+
+/* ---------- меню телефона: красный экран, пункты по центру ---------- */
+.menu {
+  position: fixed; inset: 0; z-index: 20;
+  background: var(--accent); color: #fff;
+}
+.close {
+  position: absolute; right: var(--x); top: 16px;
+  width: 44px; height: 44px;
+}
+.close i {
+  position: absolute; left: 4px; top: 20px; width: 36px; height: 3px; background: #fff;
+  transform: rotate(45deg);
+}
+.close i + i { transform: rotate(-45deg); }
+.list {
+  position: absolute; left: 0; right: 0; top: var(--header); bottom: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 34px;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.item {
+  font: 700 30px / 1 var(--font); text-transform: uppercase; text-decoration: none;
+  padding-bottom: 10px; border-bottom: 3px solid transparent;
+}
+.item[aria-current] { border-bottom-color: #fff; }
+.menuCta {
+  margin-top: 24px; display: inline-flex; align-items: center;
+  height: 60px; padding: 0 36px;
+  border: 1px solid #fff; border-radius: 999px;
+  font: 700 18px / 1 var(--font); text-transform: uppercase;
+}
+.close:focus-visible, .item:focus-visible, .menuCta:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+
+@media (min-width: 761px) {
+  .menu { display: none; }
+}
 @media (max-width: 760px) {
   .logo { font-size: 24px; }
-  .cta { height: 44px; padding: 0 18px; font-size: 13px; }
+  .cta { display: none; }
+  .burger {
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-end; gap: 6px;
+    width: 44px; height: 44px; color: var(--h-text);
+  }
 }
