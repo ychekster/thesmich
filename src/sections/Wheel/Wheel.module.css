@@ -1,22 +1,23 @@
-/* макет «8. Колесо фортуны» (2026-11-16): слева заголовок, текст, три шага и кнопка,
-   справа колесо 680 */
+/* макет «8. Колесо бонусов» (2026-11-17): слева заголовок (верх — по верху колеса),
+   внизу слот «Ваш бонус» и кнопки; справа колесо 680 */
 .wrap { display: grid; grid-template-columns: minmax(0, 1fr) calc(680 * var(--u)); gap: calc(70 * var(--u)); align-items: center; }
-.left { display: flex; flex-direction: column; gap: calc(36 * var(--u)); }
-.lead { font: 400 calc(22 * var(--u)) / 1.6 var(--font); }
-
-.steps { list-style: none; display: flex; flex-direction: column; gap: calc(22 * var(--u)); }
-.step { display: flex; gap: calc(24 * var(--u)); align-items: flex-start; }
-.n { flex: none; width: calc(48 * var(--u)); font: 800 calc(32 * var(--u)) / 1 var(--font); color: var(--accent); }
-.stepText { display: flex; flex-direction: column; gap: calc(4 * var(--u)); }
-.stepH { font: 700 calc(22 * var(--u)) / 1.25 var(--font); text-transform: uppercase; }
-.stepT { font: 400 calc(18 * var(--u)) / 1.5 var(--font); color: var(--grey); }
-
-/* после прокрутки: бонус над кнопками */
-.result { display: flex; flex-direction: column; align-items: flex-start; gap: calc(20 * var(--u)); }
-.prize { display: flex; flex-direction: column; gap: 4px; }
-.prizeLabel { font: 700 calc(16 * var(--u)) / 1.2 var(--font); text-transform: uppercase; color: var(--accent); }
-.prizeText { font: 700 calc(24 * var(--u)) / 1.25 var(--font); }
-.actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.left {
+  height: calc(710 * var(--u)); padding-top: calc(30 * var(--u));
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.left > .title { margin-bottom: auto; }
+.slot {
+  position: relative; overflow: hidden;
+  height: calc(210 * var(--u)); padding: calc(36 * var(--u)) calc(40 * var(--u));
+  display: flex; flex-direction: column; justify-content: center; gap: calc(12 * var(--u));
+  background: #fff; color: #212121;
+  --corner: calc(36 * var(--u));
+}
+.slotLabel { font: 700 calc(16 * var(--u)) / 1.2 var(--font); text-transform: uppercase; color: #5c5c5c; }
+.hint { font: 700 calc(26 * var(--u)) / 1.3 var(--font); color: #cad5e1; }
+.prize { font: 800 calc(56 * var(--u)) / 1 var(--font); color: var(--accent); }
+.prizeText { font: 400 calc(18 * var(--u)) / 1.5 var(--font); }
+.actions { display: flex; gap: calc(16 * var(--u)); margin-top: calc(32 * var(--u)); }
 
 /* колесо 680 × 680 и указатель сверху: вся сцена 680 × 710 */
 .stage { position: relative; width: calc(680 * var(--u)); height: calc(710 * var(--u)); }
@@ -32,8 +33,8 @@
 }
 .wheel {
   display: block; width: 100%; height: 100%;
-  /* длительность — SPIN_MS в Wheel.tsx; быстрый старт, долгое торможение */
-  transition: transform 5.6s cubic-bezier(.12, .6, .08, 1);
+  /* длительность — SPIN_MS в Wheel.tsx; кривая — из макета */
+  transition: transform 4s cubic-bezier(.17, .67, .18, 1);
 }
 .segRed { fill: var(--accent); }
 .segWhite { fill: #fff; }
@@ -44,16 +45,20 @@
 .hub { fill: #fff; }
 
 @media (max-width: 760px) {
-  /* столбиком: заголовок, текст, колесо, кнопки (шаги — только на компьютере) */
-  .wrap { display: flex; flex-direction: column; gap: 0; }
+  /* столбиком: заголовок, слот, колесо, кнопки */
+  .wrap { display: flex; flex-direction: column; align-items: stretch; gap: 0; }
   .left { display: contents; }
-  .lead { margin-top: 12px; font-size: 15px; line-height: 1.55; color: var(--grey); }
-  .steps { display: none; }
-  .stage { order: 1; align-self: center; margin-top: 28px; width: 300px; height: 330px; }
+  .title { font-size: 32px; }
+  .slot { margin-top: 16px; height: 84px; padding: 14px 16px; gap: 6px; --corner: 18px; }
+  .slotLabel { font-size: 11px; }
+  .hint { font-size: 15px; }
+  .prize { font-size: 28px; }
+  .prizeText { display: none; }
+  .stage { order: 1; align-self: center; margin-top: 14px; width: 300px; height: 330px; }
   .pointer { width: 44px; height: 40px; margin-left: -22px; }
   .disc { top: 30px; width: 300px; height: 300px; }
-  .result { order: 2; margin-top: 24px; align-items: center; gap: 12px; text-align: center; }
-  .actions { justify-content: center; }
-  .prizeLabel { font-size: 12px; }
-  .prizeText { font-size: 17px; }
+  /* до прокрутки — одна кнопка на всю ширину, после — две поровну */
+  .actions { order: 2; margin-top: 16px; display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .actions[data-won] { grid-template-columns: 1fr 1fr; }
+  .actions[data-won] > button { padding: 0 10px; font-size: 13px; }
 }

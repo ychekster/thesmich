@@ -7,20 +7,23 @@ import { Lines, r } from "../../pager/reveal";
 import ui from "../ui.module.css";
 import s from "./Contacts.module.css";
 
-const handle = (url: string) => "@" + url.replace(/\/+$/, "").split("/").pop();
+const ext = (href: string) => (/^https?:/.test(href) ? { target: "_blank", rel: "noreferrer" } : {});
 
-/** Контакты и форма заявки. Бонус колеса и тема заявки — из lib/store.ts. */
+/**
+ * Контакты и форма заявки (макет 2026-11-17): на компьютере форма слева, контакты
+ * справа; на телефоне — форма, под ней контакты строками. Бонус колеса и тема
+ * заявки — из lib/store.ts. Отправка — только с галочкой согласия.
+ */
 export function Contacts() {
   const c = site.contacts, L = text.labels, F = text.form;
   const bonus = useStore(st => st.bonus);
   const topic = useStore(st => st.topic);
   const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle");
 
-  const rows: { label: string; value: string; href?: string; desk?: boolean }[] = [
-    { label: L.city, value: c.city },
+  const rows = [
     { label: L.phone, value: c.phone, href: c.phoneHref },
-    { label: L.email, value: c.email, href: `mailto:${c.email}`, desk: true },
-    { label: L.instagram, value: handle(c.instagram), href: c.instagram, desk: true },
+    { label: L.email, value: c.email, href: c.emailHref },
+    { label: L.telegram, value: c.telegramNick, href: c.telegram },
   ];
 
   const submit = async (e: FormEvent<HTMLFormElement>) => {
@@ -45,20 +48,7 @@ export function Contacts() {
     <div className={s.wrap}>
       <Lines lines={[text.title]} className={`${ui.h1} ${s.title}`} />
       <div className={s.cols}>
-        <ul className={s.rows}>
-          {rows.map((row, k) => (
-            <li key={row.label} className={s.row} data-desk={row.desk ? "" : undefined} {...r(1 + k)}>
-              <span className={s.label}>{row.label}<span className={s.colon}>:</span></span>{" "}
-              {row.href ? (
-                <a className={s.value} href={row.href} {...(/^https?:/.test(row.href) ? { target: "_blank", rel: "noreferrer" } : {})}>{row.value}</a>
-              ) : (
-                <span className={s.value}>{row.value}</span>
-              )}
-            </li>
-          ))}
-        </ul>
-
-        <div className={s.card} {...r(5)}>
+        <div className={s.card} {...r(1)}>
           {state === "done" ? (
             <div className={s.done}>
               <h3 className={s.cardTitle}>{F.doneTitle}</h3>
@@ -68,14 +58,16 @@ export function Contacts() {
           ) : (
             <form className={s.form} onSubmit={submit}>
               <h3 className={s.cardTitle}>{F.title}</h3>
-              <label className={s.field}>
-                <span className={s.fieldLabel}>{F.name}</span>
-                <input name="name" required autoComplete="name" />
-              </label>
-              <label className={s.field}>
-                <span className={s.fieldLabel}>{F.contact}</span>
-                <input name="contact" required autoComplete="tel" inputMode="tel" />
-              </label>
+              <div className={s.pair}>
+                <label className={s.field}>
+                  <span className={s.fieldLabel}>{F.name}</span>
+                  <input name="name" required autoComplete="name" />
+                </label>
+                <label className={s.field}>
+                  <span className={s.fieldLabel}>{F.contact}</span>
+                  <input name="contact" required autoComplete="tel" inputMode="tel" />
+                </label>
+              </div>
               <label className={s.field}>
                 <span className={s.fieldLabel}>{F.message}</span>
                 <textarea name="message" placeholder={F.messageHint} />
@@ -84,19 +76,35 @@ export function Contacts() {
                 <p className={s.bonus}><span>{F.bonus}:</span> {bonus}</p>
               )}
               <div className={s.submitRow}>
+                <label className={s.consent}>
+                  <input type="checkbox" name="consent" required />
+                  <span>{F.consent} <a href={site.privacyHref}>{F.consentLink}</a></span>
+                </label>
                 <button className={ui.btn} type="submit" disabled={state === "sending"}>
                   {state === "sending" ? F.sending : F.submit}
                 </button>
-                <p className={s.privacy} data-error={state === "error" ? "" : undefined}>
-                  {state === "error" ? F.error : F.privacy}
-                </p>
               </div>
+              {state === "error" && <p className={s.error}>{F.error}</p>}
             </form>
           )}
           <span className={ui.corner} aria-hidden="true" />
         </div>
+
+        {/* компьютер: подпись капсом над значением; телефон — строками «Подпись: значение» */}
+        <ul className={s.rows} {...r(2)}>
+          {rows.map(row => (
+            <li key={row.label} className={s.row}>
+              <span className={s.label}>{row.label}<span className={s.colon}>:</span></span>{" "}
+              <a className={s.value} href={row.href} {...ext(row.href)}>{row.value}</a>
+            </li>
+          ))}
+          <li className={`${s.row} ${s.city}`}>
+            <span className={s.label}>{L.city}</span>
+            <span className={s.value}>{c.city}</span>
+            <span className={s.region}>{c.region}</span>
+          </li>
+        </ul>
       </div>
-      <p className={s.copy}>{text.copyright}</p>
     </div>
   );
 }

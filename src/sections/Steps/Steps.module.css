@@ -9,52 +9,60 @@
  */
 
 /* сцена на весь экран: .inner не позиционирован, так что опора — .content (Pager) */
-.stage { position: absolute; inset: 0; pointer-events: none; }
+.stage {
+  position: absolute; inset: 0; pointer-events: none;
+  /* координаты экрана 1920×1080 без увеличения контента (--zoom в global.css) */
+  --u: var(--u0);
+}
 .stage * { pointer-events: auto; }
 
 /* ---------- линия-маршрут ---------- */
 .rail i { position: absolute; background: var(--accent); }
 .ln { --t: calc(4 * var(--u)); }
 
-/* разработка: точка-начало (250, 600) → вправо до 1760 → вниз за край */
+/* разработка: точка-начало (250, 600) → вправо до 1790 → вниз за край */
 .b_dot { left: calc(50% - 718 * var(--u)); top: calc(592 * var(--u)); width: calc(16 * var(--u)); height: calc(16 * var(--u)); }
-.b_h { left: calc(50% - 710 * var(--u)); top: calc(598 * var(--u)); width: calc(1512 * var(--u)); height: var(--t); }
-.b_v { left: calc(50% + 798 * var(--u)); top: calc(598 * var(--u)); bottom: 0; width: var(--t); }
+.b_h { left: calc(50% - 710 * var(--u)); top: calc(598 * var(--u)); width: calc(1542 * var(--u)); height: var(--t); }
+.b_v { left: calc(50% + 828 * var(--u)); top: calc(598 * var(--u)); bottom: 0; width: var(--t); }
 
-/* продвижение: сверху в 1760 → вниз до 400 → влево до 250 → вниз до 640 → вправо, стрелка */
-.g_v1 { left: calc(50% + 798 * var(--u)); top: 0; height: calc(402 * var(--u)); width: var(--t); }
-.g_h1 { left: calc(50% - 712 * var(--u)); top: calc(398 * var(--u)); width: calc(1514 * var(--u)); height: var(--t); }
+/* продвижение: сверху в 1790 → вниз до 400 → влево до 250 → вниз до 640 → вправо до 1640, стрелка */
+.g_v1 { left: calc(50% + 828 * var(--u)); top: 0; height: calc(402 * var(--u)); width: var(--t); }
+.g_h1 { left: calc(50% - 712 * var(--u)); top: calc(398 * var(--u)); width: calc(1544 * var(--u)); height: var(--t); }
 .g_v2 { left: calc(50% - 712 * var(--u)); top: calc(398 * var(--u)); height: calc(244 * var(--u)); width: var(--t); }
-.g_h2 { left: calc(50% - 712 * var(--u)); top: calc(638 * var(--u)); width: calc(1337 * var(--u)); height: var(--t); }
+.g_h2 { left: calc(50% - 712 * var(--u)); top: calc(638 * var(--u)); width: calc(1392 * var(--u)); height: var(--t); }
 .arrow {
-  left: calc(50% + 625 * var(--u)); top: calc(619 * var(--u));
+  left: calc(50% + 680 * var(--u)); top: calc(619 * var(--u));
   width: calc(42 * var(--u)); height: calc(42 * var(--u));
   clip-path: polygon(0 0, 100% 50%, 0 100%);
 }
 
 /* ---------- заголовок ---------- */
 .head {
-  position: absolute; left: calc(50% - 625 * var(--u)); top: calc(180 * var(--u));
-  width: calc(1000 * var(--u));
+  position: absolute; left: calc(50% - 680 * var(--u)); top: calc(180 * var(--u));
+  width: calc(1088 * var(--u));
   display: flex; flex-direction: column; gap: calc(14 * var(--u));
 }
 
-/* ---------- этапы: в ряд через 255, первый — на краю контейнера (335) ---------- */
+/* заголовок 70 и подзаголовок 24 — числа макета без увеличения (сцена в координатах экрана) */
+.title { font-size: calc(70 * var(--u)); }
+.lead { font-size: calc(24 * var(--u)); }
+
+/* ---------- этапы: в ряд через 277.5, первый — на краю контейнера (280) ---------- */
 .list { list-style: none; }
 .step {
   position: absolute; display: flex; flex-direction: column;
-  left: calc(50% + (-625 + 255 * var(--i)) * var(--u));
-  width: calc(230 * var(--u));
+  left: calc(50% + (-680 + 277.5 * var(--i)) * var(--u));
+  width: calc(250 * var(--u));
 }
 .build .step { top: calc(470 * var(--u)); }
 .growth .step { top: calc(510 * var(--u)); }
-.n { font: 800 calc(64 * var(--u)) / 1 var(--font); color: var(--accent); }
+.n { font: 800 calc(70 * var(--u)) / 1 var(--font); color: var(--accent); }
 /* квадрат этапа на линии: 24 × 24, на 118 ниже номера */
 .sq { position: absolute; left: 0; top: calc(118 * var(--u)); width: calc(24 * var(--u)); height: calc(24 * var(--u)); background: var(--accent); }
-.text { margin-top: calc(106 * var(--u)); display: flex; flex-direction: column; gap: calc(10 * var(--u)); }
-.h { font: 700 calc(24 * var(--u)) / 1.25 var(--font); text-transform: uppercase; }
+.text { margin-top: calc(100 * var(--u)); display: flex; flex-direction: column; gap: calc(10 * var(--u)); }
+.h { font: 700 calc(26 * var(--u)) / 1.25 var(--font); text-transform: uppercase; }
 .nInline { color: var(--accent); font-weight: 800; }
-.t { font: 400 calc(18 * var(--u)) / 1.55 var(--font); color: var(--grey); }
+.t { font: 400 calc(20 * var(--u)) / 1.55 var(--font); color: var(--grey); }
 
 /* ---------- телефон ---------- */
 @media (max-width: 760px) {
@@ -79,6 +87,8 @@
   .arrow { left: -2px; top: 562px; width: 24px; height: 22px; clip-path: polygon(0 0, 100% 0, 50% 100%); }
 
   .head { left: 0; top: 14px; width: 340px; gap: 10px; }
+  /* у «Разработки» на телефоне подзаголовка нет (макет 2026-11-17) */
+  .build .lead { display: none; }
   .growth .head { width: 320px; }
 
   /* этапы столбиком через 86 */

@@ -9,7 +9,8 @@
 /* большой красный треугольник в правом нижнем углу экрана (.content — position: absolute) */
 .corner {
   position: absolute; right: 0; bottom: 0;
-  width: calc(300 * var(--u)); height: calc(300 * var(--u));
+  /* уголок экрана — без увеличения контента (--zoom) */
+  width: calc(300 * var(--u0)); height: calc(300 * var(--u0));
   background: var(--accent);
   clip-path: polygon(100% 0, 100% 100%, 0 100%);
   pointer-events: none;
@@ -18,7 +19,6 @@
 @media (max-width: 760px) {
   .hero { gap: 20px; }
   .title { font-size: 120px; }
-  .text { gap: 20px; }
-  .text .lead { font-size: 16px; line-height: 1.6; max-width: 330px; }
+  .taglineMobile { font-size: 18px; line-height: 1.5; }
   .corner { width: 140px; height: 140px; }
 }

@@ -9,8 +9,8 @@ import s from "./Wheel.module.css";
 
 const N = BONUSES.length;
 const SEG = 360 / N;
-/** Длительность прокрутки, мс (должна совпадать с transition в Wheel.module.css). */
-const SPIN_MS = 5600;
+/** Длительность прокрутки, мс (макет: 4 с; кривая — transition в Wheel.module.css). */
+const SPIN_MS = 4000;
 /** Колесо в макете: viewBox 700, центр 350, радиус секторов 330, надписи на радиусе 205. */
 const C = 350, R = 330, LABEL_R = 205;
 /** Цвета секторов по кругу (макет): красный, белый, тёмный, белый. */
@@ -23,7 +23,7 @@ const pt = (deg: number, rad = R) => {
 };
 
 /**
- * Колесо бонусов: SVG-колесо поворачивается одним CSS-переходом transform (ведёт
+ * Колесо бонусов (макет 2026-11-17): SVG-колесо поворачивается одним CSS-переходом transform (ведёт
  * композитор). Выигрыш выбирается заранее (равные шансы), под указатель встаёт
  * случайная точка его сектора. Крутить можно сколько угодно; последний бонус
  * уходит в форму заявки (lib/store.ts).
@@ -41,7 +41,8 @@ export function Wheel() {
     // сектор w под указателем сверху, когда поворот ≡ −w·SEG (mod 360)
     const want = (((-w * SEG + jitter) % 360) + 360) % 360;
     const now = ((angle.current % 360) + 360) % 360;
-    angle.current += 360 * 6 + ((want - now + 360) % 360);
+    // макет: +1800° (пять оборотов) и докрутка до выпавшего сектора
+    angle.current += 1800 + ((want - now + 360) % 360);
     const el = wheelRef.current!;
     const done = () => {
       setSpinning(false);
@@ -62,44 +63,33 @@ export function Wheel() {
 
   return (
     <div className={s.wrap}>
-      {/* слева: заголовок, текст, три шага, кнопки; на телефоне колонка «раскрывается»
-          (display: contents) и колесо встаёт между текстом и кнопками */}
+      {/* слева: заголовок сверху, слот «Ваш бонус» и кнопки снизу; на телефоне колонка
+          «раскрывается» (display: contents) и колесо встаёт между слотом и кнопками */}
       <div className={s.left}>
         <h2 className={`${ui.h2} ${s.title}`} {...r(0)}>
           {wheelText.title[0]}<br />{wheelText.title[1]}
         </h2>
-        <p className={s.lead} {...r(1)}>
-          <span className={ui.desktop}>{wheelText.lead}</span>
-          <span className={ui.mobile}>{wheelText.leadShort}</span>
-        </p>
-        <ol className={s.steps} {...r(2)}>
-          {wheelText.steps.map((st, k) => (
-            <li key={st.title} className={s.step}>
-              <span className={s.n}>{String(k + 1).padStart(2, "0")}</span>
-              <div className={s.stepText}>
-                <h3 className={s.stepH}>{st.title}</h3>
-                <p className={s.stepT}>{st.text}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
-
-        {/* до прокрутки — только кнопка (как в макете), после — бонус и две кнопки */}
-        <div className={s.result} aria-live="polite" {...r(4)}>
-          {won !== null && (
-            <p className={s.prize}>
-              <span className={s.prizeLabel}>{wheelText.result}</span>
-              <span className={s.prizeText}>{BONUSES[won].full}</span>
-            </p>
+        <div className={s.slot} aria-live="polite" {...r(1)}>
+          <p className={s.slotLabel}>{wheelText.result}</p>
+          {won === null ? (
+            <p className={s.hint}>{wheelText.hint}</p>
+          ) : (
+            <>
+              <p className={s.prize}>{BONUSES[won].short.toUpperCase()}</p>
+              <p className={s.prizeText}>{BONUSES[won].text}</p>
+            </>
           )}
-          <div className={s.actions}>
-            <button className={ui.btn} type="button" onClick={spin} disabled={spinning}>
-              {won !== null ? wheelText.again : wheelText.spin}
-            </button>
-            {won !== null && (
-              <button className={ui.btn} type="button" onClick={() => nav.go("contacts")}>{wheelText.apply}</button>
-            )}
-          </div>
+          <span className={ui.corner} aria-hidden="true" />
+        </div>
+        <div className={s.actions} data-won={won !== null ? "" : undefined} {...r(4)}>
+          {won === null ? (
+            <button className={`${ui.btn} ${ui.btnRed}`} type="button" onClick={spin} disabled={spinning}>{wheelText.spin}</button>
+          ) : (
+            <>
+              <button className={`${ui.btn} ${ui.btnRed}`} type="button" onClick={() => nav.go("contacts")}>{wheelText.apply}</button>
+              <button className={ui.btn} type="button" onClick={spin} disabled={spinning}>{wheelText.again}</button>
+            </>
+          )}
         </div>
       </div>
 

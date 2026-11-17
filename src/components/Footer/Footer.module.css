@@ -1,0 +1,74 @@
+/*
+ * Футер (макет «11. Футер», 2026-11-17). Тёмный экран; на компьютере — числа
+ * макета 1920×1080 без увеличения контента (--u = --u0), контейнер 1360.
+ * Футер растянут на высоту экрана: копирайт — у низа.
+ */
+.footer {
+  --u: var(--u0);
+  min-height: calc(100svh - var(--header) - var(--bottom));
+  display: flex; flex-direction: column; justify-content: space-between; gap: calc(40 * var(--u));
+  color: #fff;
+}
+.top { display: flex; flex-direction: column; gap: calc(40 * var(--u)); padding-top: calc(24 * var(--u)); }
+.contact { display: flex; flex-direction: column; gap: calc(30 * var(--u)); }
+.title { font: 700 calc(64 * var(--u)) / 1.1 var(--font); text-transform: uppercase; }
+.contacts { display: flex; gap: calc(80 * var(--u)); }
+.item { display: flex; flex-direction: column; gap: calc(8 * var(--u)); }
+.label { font: 400 calc(16 * var(--u)) / 1.3 var(--font); color: #cad5e1; }
+.value { font: 700 calc(30 * var(--u)) / 1.3 var(--font); text-decoration: none; }
+
+.grid {
+  display: grid; grid-template-columns: 1.2fr 1fr 1fr 1fr; grid-template-areas: "s p j c";
+  gap: calc(48 * var(--u)); padding-top: calc(44 * var(--u)); border-top: 1px solid #3d3d3d;
+}
+.pair { display: contents; }
+.aS { grid-area: s; } .aP { grid-area: p; } .aJ { grid-area: j; } .aC { grid-area: c; }
+.col { display: flex; flex-direction: column; gap: calc(24 * var(--u)); }
+.colTitle { font: 700 calc(16 * var(--u)) / 1.3 var(--font); color: #cad5e1; text-transform: uppercase; letter-spacing: .04em; }
+.links { display: flex; flex-direction: column; align-items: flex-start; gap: calc(12 * var(--u)); }
+.link { font: 500 calc(20 * var(--u)) / 1.3 var(--font); text-decoration: none; }
+.mLabel { display: none; }
+
+.bottom {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  padding-top: calc(28 * var(--u)); border-top: 1px solid #3d3d3d;
+}
+.copy, .privacy { font: 400 calc(16 * var(--u)) / 1.4 var(--font); color: #cad5e1; text-decoration: none; }
+/* копирайт и ссылка не заезжают на красный уголок экрана */
+.bottom { position: relative; z-index: 1; }
+
+/* большой красный треугольник в правом нижнем углу экрана (.content — position: absolute) */
+.corner {
+  position: absolute; right: 0; bottom: 0;
+  width: calc(300 * var(--u)); height: calc(300 * var(--u));
+  background: var(--accent); clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  pointer-events: none;
+}
+
+a.value:focus-visible, a.link:focus-visible, .privacy:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (hover: hover) and (pointer: fine) {
+  a[href].link:hover, a.value:hover, .privacy:hover { color: var(--accent); }
+}
+
+@media (max-width: 760px) {
+  .footer { justify-content: center; gap: 24px; min-height: calc(100svh - var(--header) - var(--bottom)); }
+  .top { gap: 24px; padding-top: 0; }
+  .contact { gap: 6px; }
+  .title, .desktopOnly { display: none; }
+  .contacts { flex-direction: column; gap: 6px; }
+  .item .label { display: none; }
+  .item:first-child .value { font-size: 24px; line-height: 1.2; }
+  .item + .item .value { font: 500 15px / 1.3 var(--font); color: #cad5e1; }
+  .grid { grid-template-columns: 1fr 1fr; grid-template-areas: none; gap: 20px; padding-top: 22px; }
+  .pair { display: flex; flex-direction: column; gap: 26px; }
+  .aS, .aP, .aJ, .aC { grid-area: auto; }
+  .col { gap: 10px; }
+  .colTitle { font-size: 11px; }
+  .links { gap: 10px; }
+  .link { font-size: 14px; line-height: 1.25; }
+  .dLabel { display: none; }
+  .mLabel { display: inline; }
+  .bottom { padding-top: 14px; }
+  .copy, .privacy { font-size: 12px; }
+  .corner { display: none; }
+}

@@ -16,6 +16,8 @@ export interface Page {
   bg: Backdrop;
   theme: Theme;
   node: ReactNode;
+  /** false — секция вне индикатора «N / M» (футер): не считается, индикатор на ней скрыт. */
+  meter?: boolean;
 }
 
 /**
@@ -30,6 +32,8 @@ export const Pager = memo(function Pager({ pages }: { pages: Page[] }) {
   const contentRefs = useRef<HTMLDivElement[]>([]);
   const tickRefs = useRef<HTMLButtonElement[]>([]);
   const countRef = useRef<HTMLElement>(null);
+  const meterRef = useRef<HTMLElement>(null);
+  const counted = pages.filter(p => p.meter !== false);
   const [start] = useState(() => Math.max(0, pages.findIndex(p => `#${p.id}` === location.hash)));
 
   useLayoutEffect(() => {
@@ -44,6 +48,7 @@ export const Pager = memo(function Pager({ pages }: { pages: Page[] }) {
         nav.current = pages[i].id;
         tickRefs.current.forEach((b, k) => b.toggleAttribute("aria-current", k === i));
         if (countRef.current) countRef.current.textContent = String(i + 1);
+        meterRef.current?.toggleAttribute("data-off", pages[i].meter === false);
       },
     });
     nav.go = id => engine.go(pages.findIndex(p => p.id === id));
@@ -77,9 +82,9 @@ export const Pager = memo(function Pager({ pages }: { pages: Page[] }) {
       ))}
 
       {/* индикатор: «1 / 10» и риски (переход по клику); слева, на телефоне — снизу */}
-      <nav className={s.meter} aria-label="Разделы страницы">
-        <p className={s.count}><b ref={countRef}>{start + 1}</b> / {pages.length}</p>
-        {pages.map((p, i) => (
+      <nav ref={meterRef} className={s.meter} aria-label="Разделы страницы">
+        <p className={s.count}><b ref={countRef}>{start + 1}</b> / {counted.length}</p>
+        {counted.map((p, i) => (
           <button
             key={p.id} type="button" className={s.tick} aria-label={p.label} title={p.label}
             ref={el => { if (el) tickRefs.current[i] = el; }} onClick={() => nav.go(p.id)}

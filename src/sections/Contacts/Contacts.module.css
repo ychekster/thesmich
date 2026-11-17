@@ -1,25 +1,30 @@
+/* макет «9. Контакты» (2026-11-17): форма слева, контакты справа (360) */
 .wrap { display: flex; flex-direction: column; gap: calc(40 * var(--u)); }
-.cols { display: flex; justify-content: space-between; align-items: flex-start; gap: calc(40 * var(--u)); }
+.cols { display: flex; align-items: flex-start; gap: calc(60 * var(--u)); }
 
 /* контакты: подпись капсом над значением */
-.rows { list-style: none; display: flex; flex-direction: column; gap: calc(34 * var(--u)); padding-top: calc(10 * var(--u)); }
+.rows {
+  list-style: none; flex: none; width: calc(360 * var(--u));
+  display: flex; flex-direction: column; gap: calc(30 * var(--u)); padding-top: calc(6 * var(--u));
+}
 .row { display: flex; flex-direction: column; gap: calc(6 * var(--u)); }
-.label { font: 700 calc(16 * var(--u)) / 1.2 var(--font); text-transform: uppercase; color: var(--grey); }
+.label { font: 700 calc(15 * var(--u)) / 1.2 var(--font); text-transform: uppercase; color: var(--grey); }
 .colon { display: none; }
-.value { font: 700 calc(26 * var(--u)) / 1.3 var(--font); text-decoration: none; }
+.value { font: 700 calc(24 * var(--u)) / 1.3 var(--font); text-decoration: none; }
+.region { font: 400 calc(17 * var(--u)) / 1.4 var(--font); color: var(--grey); }
 @media (hover: hover) and (pointer: fine) { a.value:hover { color: var(--accent); } }
 
-/* форма: серая карточка 640 */
+/* форма: серая карточка на всю оставшуюся ширину */
 .card {
-  position: relative; overflow: hidden; flex: none;
-  width: calc(640 * var(--u));
-  padding: calc(50 * var(--u)) calc(62 * var(--u)) calc(56 * var(--u));
+  position: relative; overflow: hidden; flex: 1; min-width: 0;
+  padding: calc(48 * var(--u)) calc(56 * var(--u)) calc(52 * var(--u));
   background: #f5f5f5;
 }
 .form, .done { display: flex; flex-direction: column; gap: calc(22 * var(--u)); }
 .cardTitle { font: 800 calc(26 * var(--u)) / 1.3 var(--font); text-transform: uppercase; }
-.field { display: flex; flex-direction: column; gap: calc(8 * var(--u)); }
-.fieldLabel { font: 700 calc(16 * var(--u)) / 1.2 var(--font); text-transform: uppercase; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: calc(20 * var(--u)); }
+.field { display: flex; flex-direction: column; gap: calc(8 * var(--u)); min-width: 0; }
+.fieldLabel { font: 700 calc(15 * var(--u)) / 1.2 var(--font); text-transform: uppercase; }
 .field input, .field textarea {
   display: block; width: 100%;
   height: calc(60 * var(--u)); padding: calc(16 * var(--u)) calc(20 * var(--u));
@@ -32,42 +37,46 @@
 .field input:focus, .field textarea:focus { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
 .bonus { font: 700 calc(18 * var(--u)) / 1.4 var(--font); }
 .bonus span { color: var(--accent); text-transform: uppercase; }
-.submitRow { display: flex; align-items: center; gap: calc(24 * var(--u)); }
-.privacy { font: 400 calc(14 * var(--u)) / 1.4 var(--font); color: var(--grey); }
-.privacy[data-error] { color: var(--accent); }
+
+/* галочка согласия и кнопка в один ряд */
+.submitRow { display: flex; align-items: center; justify-content: space-between; gap: calc(32 * var(--u)); }
+.consent { display: flex; align-items: flex-start; gap: calc(12 * var(--u)); cursor: pointer; }
+.consent input {
+  flex: none; width: calc(22 * var(--u)); height: calc(22 * var(--u)); margin: 0;
+  accent-color: var(--accent); cursor: pointer;
+}
+.consent span { font: 400 calc(15 * var(--u)) / 1.4 var(--font); color: var(--grey); }
+.consent a { color: #212121; text-decoration: underline; }
+.error { font: 400 calc(15 * var(--u)) / 1.4 var(--font); color: var(--accent); }
 .doneText { font: 400 calc(20 * var(--u)) / 1.6 var(--font); color: var(--grey); }
 .done > button { align-self: flex-start; }
 
-/* копирайт: слева внизу экрана, по краю контейнера (.content — position: absolute) */
-.copy {
-  position: absolute; left: var(--side); bottom: calc(28 * var(--u));
-  font: 400 calc(16 * var(--u)) / 1.4 var(--font); color: var(--grey);
-}
-
 @media (max-width: 760px) {
-  .wrap { gap: 14px; }
+  .wrap { gap: 16px; padding-top: 12px; }
   .title { font-size: 40px; }
-  .cols { flex-direction: column; align-items: stretch; gap: 14px; }
-  /* контакты строками: «Город: …» */
-  .rows { gap: 0; padding: 0; }
+  .cols { flex-direction: column; align-items: stretch; gap: 16px; }
+  /* контакты строками: телефон, Telegram, почта; города нет */
+  .rows { width: auto; gap: 4px; padding: 0; }
   .row { display: block; font-size: 14px; line-height: 1.45; }
-  /* в мобильном макете — только город и телефон */
-  .row[data-desk] { display: none; }
+  .row:nth-child(2) { order: 1; }
+  .city { display: none; }
   .label { font-size: inherit; line-height: inherit; text-transform: none; color: var(--text); }
   .colon { display: inline; }
   .value { font-weight: 400; font-size: inherit; line-height: inherit; }
-  .card { width: auto; padding: 18px 18px 22px; }
+  .card { padding: 18px 16px 20px; }
   .form, .done { gap: 12px; }
   /* на телефоне у формы нет заголовка — его заменяет «Контакты» */
   .form > .cardTitle { display: none; }
   .cardTitle { font-size: 18px; }
+  .pair { grid-template-columns: 1fr; gap: 12px; }
   .field { gap: 6px; }
-  .fieldLabel { font-size: 13px; }
-  .field input, .field textarea { height: 48px; padding: 10px 14px; font-size: 16px; }
-  .field textarea { height: 80px; }
+  .fieldLabel { font-size: 12px; }
+  .field input, .field textarea { height: 46px; padding: 10px 12px; font-size: 16px; }
+  .field textarea { height: 72px; }
   .bonus { font-size: 14px; }
   .submitRow { flex-direction: column; align-items: stretch; gap: 12px; }
-  .privacy { font-size: 11px; }
+  .consent input { width: 20px; height: 20px; }
+  .consent span { font-size: 12px; }
+  .error { font-size: 12px; }
   .doneText { font-size: 15px; }
-  .copy { display: none; }
 }

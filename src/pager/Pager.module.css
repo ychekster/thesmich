@@ -40,8 +40,12 @@
   padding-top: var(--header);
   overflow: hidden;
 }
-/* контейнер макета (1250 из 1920) по центру; снизу поле под индикатор на телефоне */
-.inner { width: var(--container); margin: auto; padding: 0 0 var(--bottom); }
+/* контейнер макета (1360 из 1920) по центру; снизу поле под индикатор на телефоне */
+.inner {
+  width: var(--container); margin: auto; padding: 0 0 var(--bottom);
+  /* контент секций увеличен в --zoom раз (global.css); на телефоне — px, --u не нужен */
+  --u: calc(var(--u0) * var(--zoom));
+}
 
 /* до первого появления контент спрятан — сборку начинает движок */
 .pager:not([data-ready]) [data-r] { opacity: 0; }
@@ -65,8 +69,10 @@
   /* цвета по секции под индикатором (html[data-tone], ставит движок) */
   --m-text: #fff; --m-on: var(--accent);
   color: var(--m-text);
-  transition: color .45s ease;
+  transition: color .45s ease, opacity .45s ease;
 }
+/* на секции вне счёта (футер) индикатора нет */
+.meter[data-off] { opacity: 0; pointer-events: none; }
 :global(html[data-tone="light"]) .meter { --m-text: #212121; }
 :global(html[data-tone="accent"]) .meter { --m-on: #212121; }
 .count { font: 400 calc(26 * var(--u)) / 1 var(--font); }

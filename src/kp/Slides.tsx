@@ -32,9 +32,10 @@ function Title({ lines, mobile, className = ui.h2 }: { lines: string[]; mobile?:
   );
 }
 
-/** Текст, у которого на телефоне своя версия. */
+/** Текст, у которого на телефоне своя версия (m = "" — на телефоне текста нет). */
 function Both({ d, m }: { d: string; m?: string }) {
-  if (!m) return <Text>{d}</Text>;
+  if (m === undefined) return <Text>{d}</Text>;
+  if (m === "") return <span className={ui.desktop}><Text>{d}</Text></span>;
   return (
     <>
       <span className={ui.desktop}><Text>{d}</Text></span>

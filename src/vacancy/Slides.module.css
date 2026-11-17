@@ -1,0 +1,193 @@
+/*
+ * Слайды вакансий (макет 2026-11-17). Компьютер: числа макета 1920×1080 без
+ * увеличения контента (--u = --u0), контейнер 1360 (.inner). Телефон — px.
+ * Цвета текста — токены темы слайда (--text, --grey); карточки всегда белые.
+ */
+.slide {
+  --u: var(--u0);
+  display: flex; flex-direction: column; gap: calc(44 * var(--u));
+}
+
+/* ---------- заголовок и фраза справа ---------- */
+.head { display: flex; align-items: flex-end; justify-content: space-between; gap: calc(60 * var(--u)); }
+.h { flex: none; font: 700 calc(70 * var(--u)) / 1.1 var(--font); text-transform: uppercase; }
+.lead { width: calc(var(--lw) * var(--u)); max-width: 100%; font: 400 calc(24 * var(--u)) / 1.55 var(--font); text-align: end; }
+
+/* ---------- 1. титул ---------- */
+.eyebrow { font: 800 calc(28 * var(--u)) / 1.5 var(--font); text-transform: uppercase; }
+.big { font: 700 calc(var(--t) * var(--u)) / 1 var(--font); text-transform: uppercase; }
+.titleText { max-width: calc(860 * var(--u)); font: 400 calc(24 * var(--u)) / 1.6 var(--font); color: var(--grey); }
+/* красный треугольник в углу экрана (.content — position: absolute) */
+.screenCorner {
+  position: absolute; right: 0; bottom: 0;
+  width: calc(320 * var(--u)); height: calc(320 * var(--u));
+  background: var(--accent); clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  pointer-events: none;
+}
+
+/* ---------- карточки ---------- */
+.card {
+  position: relative; overflow: hidden;
+  background: #fff; color: #212121;
+  --corner: calc(42 * var(--u));
+}
+.cards {
+  list-style: none; display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: calc(27 * var(--u));
+}
+.cards .card { display: flex; flex-direction: column; gap: calc(14 * var(--u)); padding: calc(40 * var(--u)) calc(44 * var(--u)) calc(50 * var(--u)); }
+.numbered .card { gap: calc(16 * var(--u)); padding: calc(42 * var(--u)) calc(40 * var(--u)) calc(52 * var(--u)); }
+/* три карточки в ряд (менеджер) — крупнее: поля 46/50/56, текст 21 */
+.numbered[data-cols="3"] .card { gap: calc(18 * var(--u)); padding: calc(46 * var(--u)) calc(50 * var(--u)) calc(56 * var(--u)); }
+.numbered[data-cols="3"] .cardT { font-size: calc(21 * var(--u)); line-height: 1.6; }
+.numbered[data-cols="3"] .cardH, .cards[data-cols="4"]:not(.numbered) .cardH { font-size: calc(26 * var(--u)); }
+.cardHead { display: flex; flex-direction: column; gap: calc(16 * var(--u)); }
+.n { font: 800 calc(70 * var(--u)) / 1 var(--font); color: var(--accent); }
+.cardH { font: 700 calc(24 * var(--u)) / 1.25 var(--font); text-transform: uppercase; }
+.cardT { font: 400 calc(20 * var(--u)) / 1.55 var(--font); color: #5c5c5c; }
+
+/* тёмная плашка «Требования» */
+.bar {
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; gap: calc(40 * var(--u));
+  padding: calc(40 * var(--u)) calc(50 * var(--u));
+  background: #212121; --corner: calc(42 * var(--u));
+}
+.barH { flex: none; font: 800 calc(26 * var(--u)) / 1.3 var(--font); color: #fff; text-transform: uppercase; }
+.barT { margin-left: auto; font: 400 calc(22 * var(--u)) / 1.5 var(--font); color: #cad5e1; text-align: end; }
+
+/* ---------- 3. деньги и ставки: две карточки ---------- */
+.regions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: calc(27 * var(--u)); }
+.region { display: flex; flex-direction: column; gap: calc(12 * var(--u)); padding: calc(40 * var(--u)) calc(50 * var(--u)); }
+.regionH { font: 800 calc(25 * var(--u)) / 1.3 var(--font); text-transform: uppercase; }
+.regionNote { font: 400 calc(19 * var(--u)) / 1.45 var(--font); color: #5c5c5c; }
+.rows { list-style: none; display: flex; flex-direction: column; }
+.row {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
+  padding: calc(15 * var(--u)) 0; border-bottom: 1px solid #ebebeb;
+  font: 400 calc(21 * var(--u)) / 1.35 var(--font);
+}
+.row:last-child { border-bottom: 0; }
+.row b { flex: none; text-align: right; font-weight: 700; color: var(--accent); }
+.total { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding-top: calc(6 * var(--u)); }
+.total span { font: 800 calc(21 * var(--u)) / 1.3 var(--font); text-transform: uppercase; }
+.total b { font: 800 calc(48 * var(--u)) / 1 var(--font); color: var(--accent); }
+.moneyNote { font: 400 calc(19 * var(--u)) / 1.5 var(--font); }
+
+.rate { display: flex; flex-direction: column; gap: calc(14 * var(--u)); padding: calc(40 * var(--u)) calc(50 * var(--u)) calc(44 * var(--u)); }
+.rate .cardH { font-size: calc(24 * var(--u)); line-height: 1.3; }
+.rateV { display: flex; align-items: baseline; flex-wrap: wrap; gap: calc(19 * var(--u)); }
+.rateV b { font: 800 calc(64 * var(--u)) / 1 var(--font); color: var(--accent); }
+.rateV span { font: 700 calc(26 * var(--u)) / 1 var(--font); }
+.rateP { font: 400 calc(20 * var(--u)) / 1.4 var(--font); color: #5c5c5c; }
+/* примеры на красном слайде: белые строки */
+.examples { display: flex; flex-direction: column; max-width: calc(1000 * var(--u)); }
+.examplesH { margin-bottom: calc(6 * var(--u)); font: 800 calc(20 * var(--u)) / 1.3 var(--font); text-transform: uppercase; }
+.examples .row { padding: calc(12 * var(--u)) 0; border-bottom-color: rgba(255, 255, 255, .3); }
+.examples .row b { color: inherit; }
+.or { font-weight: 400; }
+
+/* ---------- 4. правила: список с красными квадратами ---------- */
+.rules { list-style: none; display: flex; flex-direction: column; max-width: calc(1200 * var(--u)); }
+.rule {
+  display: flex; gap: calc(22 * var(--u)); align-items: flex-start;
+  padding: calc(19 * var(--u)) 0; border-bottom: 1px solid #ebebeb;
+  font: 400 calc(22 * var(--u)) / 1.5 var(--font);
+}
+.rule:last-child { border-bottom: 0; }
+.rule b { font-weight: 700; }
+.sq { flex: none; width: calc(13 * var(--u)); height: calc(13 * var(--u)); margin-top: calc(8 * var(--u)); background: var(--accent); }
+
+/* ---------- 6. отклик ---------- */
+.apply { flex-direction: row; align-items: center; justify-content: space-between; gap: calc(80 * var(--u)); }
+.applyText { display: flex; flex-direction: column; gap: calc(36 * var(--u)); max-width: calc(560 * var(--u)); }
+.applyLead { font: 400 calc(24 * var(--u)) / 1.6 var(--font); color: var(--grey); }
+.applyContacts { list-style: none; display: flex; flex-direction: column; gap: calc(22 * var(--u)); }
+.applyContacts li { display: flex; flex-direction: column; gap: calc(6 * var(--u)); }
+.cLabel { font: 400 calc(16 * var(--u)) / 1.3 var(--font); color: var(--grey); }
+.cValue { font: 700 calc(26 * var(--u)) / 1.3 var(--font); text-decoration: none; }
+@media (hover: hover) and (pointer: fine) { .cValue:hover { color: var(--accent); } }
+.formCard {
+  position: relative; overflow: hidden; flex: none;
+  width: calc(640 * var(--u)); padding: calc(50 * var(--u)) calc(62 * var(--u)) calc(56 * var(--u));
+  background: #f5f5f5; color: #212121; --corner: calc(42 * var(--u));
+}
+.form { display: flex; flex-direction: column; gap: calc(22 * var(--u)); }
+.formH { font: 800 calc(26 * var(--u)) / 1.3 var(--font); text-transform: uppercase; }
+.field { display: flex; flex-direction: column; gap: calc(8 * var(--u)); }
+.fieldLabel { font: 700 calc(16 * var(--u)) / 1.2 var(--font); text-transform: uppercase; }
+.field input {
+  display: block; width: 100%; height: calc(60 * var(--u)); padding: calc(16 * var(--u)) calc(20 * var(--u));
+  border: 1px solid #5c5c5c; border-radius: 0; background: #fff;
+  font: 400 calc(20 * var(--u)) / 1.4 var(--font); color: #212121; outline: none;
+}
+.field input::placeholder { color: #9a9a9a; }
+.field input:focus { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.submitRow { display: flex; align-items: center; gap: calc(24 * var(--u)); }
+/* кнопка на светлой карточке, хотя слайд тёмный */
+.formCard button { --text: #212121; --btn-line: #212121; --on-text: #fff; }
+.privacy { font: 400 calc(14 * var(--u)) / 1.4 var(--font); color: #5c5c5c; }
+.privacy[data-error] { color: var(--accent); }
+.done { font: 700 calc(24 * var(--u)) / 1.4 var(--font); }
+.applyNote { font: 400 13px / 1.5 var(--font); color: var(--grey); }
+
+/* ---------- телефон ---------- */
+@media (max-width: 760px) {
+  .slide { gap: 16px; }
+  .head { flex-direction: column; align-items: stretch; gap: 16px; }
+  .h { font-size: 32px; }
+  .lead { width: auto; max-width: none; text-align: start; font-size: 14px; line-height: 1.5; color: var(--grey); }
+  :global(.theme-accent) .lead { font-size: 13px; color: #fff; }
+
+  .eyebrow { font-size: 14px; }
+  .big { font-size: var(--tm); line-height: 1.05; }
+  .titleText { font-size: 16px; }
+  .screenCorner { width: 120px; height: 120px; }
+
+  .cards { grid-template-columns: repeat(var(--mcols), minmax(0, 1fr)); gap: 10px; }
+  .cards .card { gap: 4px; padding: 12px 14px 14px; --corner: 16px; }
+  .numbered .card, .numbered[data-cols="3"] .card { gap: 6px; padding: 14px 16px 16px; --corner: 18px; }
+  .numbered .cardHead { flex-direction: row; align-items: baseline; gap: 12px; }
+  .n { flex: none; font-size: 26px; }
+  .cards .cardH { font-size: 14px; line-height: 1.3; }
+  .numbered .cardH, .numbered[data-cols="3"] .cardH { font-size: 15px; }
+  .cards[data-cols="4"]:not(.numbered) .cardH { font-size: 14px; }
+  .cards .cardT { font-size: 12px; line-height: 1.45; }
+  .numbered .cardT, .numbered[data-cols="3"] .cardT { font-size: 13px; line-height: 1.5; }
+  .bar { flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px 14px 14px; --corner: 16px; }
+  .barH { font-size: 14px; }
+  .barT { margin-left: 0; text-align: start; font-size: 12px; line-height: 1.45; }
+
+  .regions { grid-template-columns: 1fr; gap: 10px; }
+  .region { gap: 4px; padding: 12px 14px; --corner: 18px; }
+  .regionH { font-size: 16px; }
+  .regionNote { font-size: 10px; }
+  .row { padding: 6px 0; font-size: 12px; }
+  .total { padding-top: 6px; }
+  .total span { font-size: 12px; }
+  .total b { font-size: 26px; }
+
+  .rate { gap: 8px; padding: 14px 16px 16px; --corner: 18px; }
+  .rate .cardH { font-size: 14px; }
+  .rateV { gap: 9px; }
+  .rateV b { font-size: 30px; }
+  .rateV span { font-size: 12px; }
+  .rateP { font-size: 10px; }
+  .examples .row { padding: 7px 0; }
+
+  .rule { gap: 10px; padding: 8px 0; font-size: 13px; }
+  .sq { width: 9px; height: 9px; margin-top: 5px; }
+
+  .apply { flex-direction: column; align-items: stretch; gap: 16px; }
+  .applyText { max-width: none; gap: 0; }
+  .applyContacts { display: none; }
+  .applyNote { order: 2; }
+  .apply[data-note-above] .applyNote { order: 0; }
+  .formCard { order: 1; width: auto; padding: 16px 16px 18px; --corner: 18px; }
+  .form { gap: 10px; }
+  .field { gap: 6px; }
+  .fieldLabel { font-size: 12px; }
+  .field input { height: 46px; padding: 10px 12px; font-size: 16px; }
+  .submitRow { flex-direction: column; align-items: stretch; gap: 8px; margin-top: 4px; }
+  .privacy { font-size: 11px; }
+  .done { font-size: 16px; }
+}

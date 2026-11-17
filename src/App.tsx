@@ -10,6 +10,7 @@ import { Promo } from "./sections/Promo/Promo";
 import { Wheel } from "./sections/Wheel/Wheel";
 import { Partners } from "./sections/Partners/Partners";
 import { Contacts } from "./sections/Contacts/Contacts";
+import { Footer } from "./components/Footer/Footer";
 import { site } from "./content/site";
 
 /**
@@ -28,6 +29,7 @@ export default function App() {
     { id: "bonus", label: "Колесо бонусов", bg: "mist", theme: "light", node: <Wheel /> },
     { id: "contacts", label: "Контакты", bg: "white", theme: "light", node: <Contacts /> },
     { id: "partners", label: "Вакансии", bg: "ink", theme: "dark", node: <Partners /> },
+    { id: "footer", label: "Связаться", bg: "ink", theme: "dark", node: <Footer />, meter: false },
   ], []);
 
   return (

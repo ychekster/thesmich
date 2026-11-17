@@ -3,6 +3,7 @@ import { Header } from "../components/Header/Header";
 import { kpText, type Region } from "../content/kp";
 import { Pager, type Page } from "../pager/Pager";
 import { Channels } from "../sections/Channels/Channels";
+import { Footer } from "../components/Footer/Footer";
 import {
   KpBreakdown, KpGuarantees, KpIncluded, KpPayment, KpPrices, KpPromotion,
   KpRevisions, KpServices, KpStart, KpSteps, KpTitle,
@@ -10,7 +11,7 @@ import {
 
 /**
  * Коммерческое предложение — те же полноэкранные секции, что на главной (Pager),
- * 12 слайдов. Порядок, якоря (#id), фоны и темы — здесь; тексты — content/kp.ts.
+ * 12 слайдов и футер. Порядок, якоря (#id), фоны и темы — здесь; тексты — content/kp.ts.
  */
 export function KpApp({ region }: { region: Region }) {
   const t = useMemo(() => kpText(region), [region]);
@@ -27,6 +28,7 @@ export function KpApp({ region }: { region: Region }) {
     { id: "payment", label: "Оплата", bg: "red", theme: "accent", node: <KpPayment t={t.payment} /> },
     { id: "guarantees", label: "Гарантии", bg: "ink", theme: "dark", node: <KpGuarantees t={t.guarantees} /> },
     { id: "start", label: "Как начать", bg: "white", theme: "light", node: <KpStart t={t.start} /> },
+    { id: "footer", label: "Связаться", bg: "ink", theme: "dark", node: <Footer />, meter: false },
   ], [t]);
 
   return (

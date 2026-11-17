@@ -1,0 +1,60 @@
+/* Политика конфиденциальности (макет privacy-desktop 1920 / privacy-mobile 390). */
+.page {
+  /* absolute, а не fixed и не body: системные полосы Safari (global.css) */
+  position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: none;
+  background: #fff; color: #212121;
+  --u: var(--u0);
+}
+.top { position: relative; height: var(--header); }
+.main {
+  width: var(--container); margin: 0 auto;
+  padding: calc(80 * var(--u)) 0 calc(140 * var(--u));
+  display: flex; flex-direction: column; gap: calc(72 * var(--u));
+}
+.titleBlock { display: flex; flex-direction: column; gap: calc(24 * var(--u)); }
+.title { font: 700 calc(80 * var(--u)) / 1.05 var(--font); text-transform: uppercase; }
+.lead { font: 400 calc(20 * var(--u)) / 1.5 var(--font); color: #5c5c5c; }
+.cols { display: grid; grid-template-columns: calc(340 * var(--u)) minmax(0, 1fr); gap: calc(120 * var(--u)); align-items: start; }
+
+/* содержание: серая карточка слева, едет вместе с текстом */
+.toc {
+  position: sticky; top: calc(40 * var(--u)); overflow: hidden;
+  display: flex; flex-direction: column; gap: calc(16 * var(--u));
+  padding: calc(32 * var(--u)) calc(32 * var(--u)) calc(40 * var(--u));
+  background: #f5f5f5; --corner: calc(32 * var(--u));
+}
+.tocTitle { margin-bottom: calc(4 * var(--u)); font: 700 calc(14 * var(--u)) / 1.2 var(--font); color: #5c5c5c; text-transform: uppercase; letter-spacing: .04em; }
+.tocItem { display: flex; gap: calc(12 * var(--u)); font: 500 calc(16 * var(--u)) / 1.4 var(--font); text-decoration: none; }
+.tocItem span:first-child { color: var(--accent); font-weight: 700; }
+@media (hover: hover) and (pointer: fine) { .tocItem:hover span:last-child { color: var(--accent); } }
+
+.sections { max-width: calc(860 * var(--u)); display: flex; flex-direction: column; gap: calc(64 * var(--u)); }
+.section { display: flex; flex-direction: column; gap: calc(22 * var(--u)); scroll-margin-top: calc(40 * var(--u)); }
+.h { font: 800 calc(26 * var(--u)) / 1.3 var(--font); text-transform: uppercase; scroll-margin-top: calc(40 * var(--u)); }
+.h span { color: var(--accent); }
+.p a { color: var(--accent); }
+@media (hover: hover) and (pointer: fine) { .p a:hover { color: #212121; } }
+.p, .list span { font: 400 calc(20 * var(--u)) / 1.6 var(--font); }
+.list { list-style: none; display: flex; flex-direction: column; gap: calc(12 * var(--u)); }
+.list li { display: flex; gap: calc(16 * var(--u)); align-items: flex-start; }
+.list i { flex: none; width: calc(10 * var(--u)); height: calc(10 * var(--u)); margin-top: calc(10 * var(--u)); background: var(--accent); }
+
+/* футер — тёмный экран на всю высоту со своей шапкой */
+.footer { position: relative; min-height: 100svh; background: #212121; color: #fff; display: flex; flex-direction: column; overflow: hidden; }
+.footerInner { width: var(--container); margin: 0 auto; padding: var(--header) 0 var(--bottom); flex: 1; display: flex; flex-direction: column; }
+
+@media (max-width: 760px) {
+  .main { padding: 24px 0 64px; gap: 36px; }
+  .titleBlock { gap: 12px; }
+  .title { font-size: 24px; line-height: 1.1; }
+  .lead { font-size: 14px; }
+  .cols { display: block; }
+  .toc { display: none; }
+  .sections { max-width: none; gap: 36px; }
+  .section { gap: 14px; }
+  .h { font-size: 18px; }
+  .p, .list span { font-size: 15px; }
+  .list { gap: 8px; }
+  .list li { gap: 10px; }
+  .list i { width: 8px; height: 8px; margin-top: 7px; }
+}

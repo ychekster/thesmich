@@ -18,7 +18,9 @@ export function Sites() {
         {sites.items.map((it, k) => (
           <li key={it.title} className={s.card} {...r(2 + k)}>
             <span className={s.n}>{String(k + 1).padStart(2, "0")}</span>
-            <h3 className={s.h}>{it.title}</h3>
+            <h3 className={s.h}>
+              {it.titleMobile ? <><span className={ui.desktop}>{it.title}</span><span className={ui.mobile}>{it.titleMobile}</span></> : it.title}
+            </h3>
             <p className={s.t}>{it.text}</p>
             <span className={ui.corner} aria-hidden="true" />
           </li>
